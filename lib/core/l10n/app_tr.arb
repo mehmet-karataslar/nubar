@@ -1,0 +1,125 @@
+{
+  "@@locale": "tr",
+  "appName": "Nûbar",
+  "login": "Giriş Yap",
+  "register": "Kayıt Ol",
+  "email": "E-posta",
+  "password": "Şifre",
+  "username": "Kullanıcı Adı",
+  "fullName": "Tam Ad",
+  "forgotPassword": "Şifreni mi unuttun?",
+  "dontHaveAccount": "Hesabın yok mu?",
+  "alreadyHaveAccount": "Zaten hesabın var mı?",
+  "createAccount": "Hesap Oluştur",
+  "logout": "Çıkış Yap",
+  "feed": "Akış",
+  "search": "Ara",
+  "create": "Oluştur",
+  "notifications": "Bildirimler",
+  "profile": "Profil",
+  "messages": "Mesajlar",
+  "settings": "Ayarlar",
+  "editProfile": "Profili Düzenle",
+  "followers": "Takipçiler",
+  "following": "Takip Edilenler",
+  "posts": "Gönderiler",
+  "communities": "Topluluklar",
+  "createPost": "Gönderi Oluştur",
+  "createCommunity": "Topluluk Oluştur",
+  "writePost": "Aklından ne geçiyor?",
+  "comment": "Yorum",
+  "comments": "Yorumlar",
+  "like": "Beğen",
+  "share": "Paylaş",
+  "repost": "Yeniden Paylaş",
+  "bookmark": "Kaydet",
+  "follow": "Takip Et",
+  "unfollow": "Takibi Bırak",
+  "report": "Şikayet Et",
+  "delete": "Sil",
+  "cancel": "İptal",
+  "save": "Kaydet",
+  "send": "Gönder",
+  "done": "Tamam",
+  "loading": "Yükleniyor...",
+  "error": "Hata",
+  "retry": "Tekrar Dene",
+  "noResults": "Sonuç bulunamadı",
+  "noPosts": "Henüz gönderi yok",
+  "noNotifications": "Henüz bildirim yok",
+  "noMessages": "Henüz mesaj yok",
+  "selectLanguage": "Dil Seç",
+  "selectTheme": "Tema Seç",
+  "bio": "Biyografi",
+  "website": "Web Sitesi",
+  "location": "Konum",
+  "joinedDate": "{date} tarihinde katıldı",
+  "@joinedDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "followerCount": "{count} takipçi",
+  "@followerCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "followingCount": "{count} takip",
+  "@followingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "postCount": "{count} gönderi",
+  "@postCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "welcomeTitle": "Nûbar'a Hoş Geldiniz",
+  "welcomeSubtitle": "Kürt kültürü dijital platformu",
+  "onboardingTitle1": "Paylaş",
+  "onboardingDesc1": "Yazı, fotoğraf, video ve PDF paylaş",
+  "onboardingTitle2": "Topluluk",
+  "onboardingDesc2": "Topluluklar oluştur ve katıl",
+  "onboardingTitle3": "Bağlan",
+  "onboardingDesc3": "Diğer Kürtlerle bağlantı kur",
+  "getStarted": "Başla",
+  "theme": "Tema",
+  "language": "Dil",
+  "darkMode": "Karanlık Mod",
+  "lightMode": "Aydınlık Mod",
+  "themeNubar": "Nûbar",
+  "themeDark": "Karanlık",
+  "themeLight": "Aydınlık",
+  "themeEarth": "Toprak",
+  "themeOcean": "Okyanus",
+  "themeAmoled": "AMOLED",
+  "addImage": "Fotoğraf Ekle",
+  "addVideo": "Video Ekle",
+  "addPdf": "PDF Ekle",
+  "post": "Gönder",
+  "writeComment": "Yorum yaz...",
+  "memberCount": "{count} üye",
+  "@memberCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "joinCommunity": "Katıl",
+  "leaveCommunity": "Ayrıl",
+  "communitySettings": "Topluluk Ayarları",
+  "trending": "Gündem",
+  "forYou": "Senin İçin"
+}

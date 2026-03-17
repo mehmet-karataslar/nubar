@@ -1,0 +1,125 @@
+{
+  "@@locale": "ku",
+  "appName": "Nûbar",
+  "login": "Têkevin",
+  "register": "Tomar bikin",
+  "email": "E-peyam",
+  "password": "Şîfre",
+  "username": "Navê bikarhêner",
+  "fullName": "Navê tevahî",
+  "forgotPassword": "Şîfre ji bîr kir?",
+  "dontHaveAccount": "Hesabê te tune ye?",
+  "alreadyHaveAccount": "Hesabê te heye?",
+  "createAccount": "Hesab biafirîne",
+  "logout": "Derkeve",
+  "feed": "Hewal",
+  "search": "Lêgerîn",
+  "create": "Biafirîne",
+  "notifications": "Agahdarî",
+  "profile": "Profîl",
+  "messages": "Peyam",
+  "settings": "Mîheng",
+  "editProfile": "Profîlê biguherîne",
+  "followers": "Şopîner",
+  "following": "Dişopîne",
+  "posts": "Şandin",
+  "communities": "Civat",
+  "createPost": "Şandinek biafirîne",
+  "createCommunity": "Civatek biafirîne",
+  "writePost": "Çi di hizra te de ye?",
+  "comment": "Şîrove",
+  "comments": "Şîrove",
+  "like": "Hez kirin",
+  "share": "Parve kirin",
+  "repost": "Ji nû ve parve kirin",
+  "bookmark": "Tomar kirin",
+  "follow": "Bişopîne",
+  "unfollow": "Dev jê berde",
+  "report": "Rapor bike",
+  "delete": "Jê bibe",
+  "cancel": "Betal bike",
+  "save": "Tomar bike",
+  "send": "Bişîne",
+  "done": "Temam",
+  "loading": "Tê barkirin...",
+  "error": "Çewtî",
+  "retry": "Dîsa biceribîne",
+  "noResults": "Encam nehat dîtin",
+  "noPosts": "Hîn şandin tune ne",
+  "noNotifications": "Hîn agahdarî tune ne",
+  "noMessages": "Hîn peyam tune ne",
+  "selectLanguage": "Zimanekî hilbijêre",
+  "selectTheme": "Temayekê hilbijêre",
+  "bio": "Biyografî",
+  "website": "Malper",
+  "location": "Cih",
+  "joinedDate": "Beşdar bû di {date}",
+  "@joinedDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "followerCount": "{count} şopîner",
+  "@followerCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "followingCount": "{count} dişopîne",
+  "@followingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "postCount": "{count} şandin",
+  "@postCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "welcomeTitle": "Bi xêr hatî Nûbar",
+  "welcomeSubtitle": "Platforma dîjîtal a çanda Kurdî",
+  "onboardingTitle1": "Parve bike",
+  "onboardingDesc1": "Nivîs, wêne, vîdyo û PDF parve bike",
+  "onboardingTitle2": "Civat",
+  "onboardingDesc2": "Civatan biafirîne û beşdar bibe",
+  "onboardingTitle3": "Bikarhêner",
+  "onboardingDesc3": "Bi Kurdên din re têkilî deyne",
+  "getStarted": "Dest pê bike",
+  "theme": "Tema",
+  "language": "Ziman",
+  "darkMode": "Moda tarî",
+  "lightMode": "Moda ronahî",
+  "themeNubar": "Nûbar",
+  "themeDark": "Tarî",
+  "themeLight": "Ronahî",
+  "themeEarth": "Erd",
+  "themeOcean": "Okyan",
+  "themeAmoled": "AMOLED",
+  "addImage": "Wêne lê zêde bike",
+  "addVideo": "Vîdyo lê zêde bike",
+  "addPdf": "PDF lê zêde bike",
+  "post": "Bişîne",
+  "writeComment": "Şîroveyek binivîse...",
+  "memberCount": "{count} endam",
+  "@memberCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "joinCommunity": "Beşdar bibe",
+  "leaveCommunity": "Dev jê berde",
+  "communitySettings": "Mîhenga civatê",
+  "trending": "Rojev",
+  "forYou": "Ji bo te"
+}

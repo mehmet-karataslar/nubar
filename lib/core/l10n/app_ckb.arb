@@ -1,0 +1,125 @@
+{
+  "@@locale": "ckb",
+  "appName": "نووبار",
+  "login": "چوونەژوورەوە",
+  "register": "تۆمارکردن",
+  "email": "ئیمەیڵ",
+  "password": "وشەی نهێنی",
+  "username": "ناوی بەکارهێنەر",
+  "fullName": "ناوی تەواو",
+  "forgotPassword": "وشەی نهێنیت لەبیرچووە؟",
+  "dontHaveAccount": "هەژمارت نییە؟",
+  "alreadyHaveAccount": "هەژمارت هەیە؟",
+  "createAccount": "هەژمار دروستبکە",
+  "logout": "چوونەدەرەوە",
+  "feed": "هەواڵ",
+  "search": "گەڕان",
+  "create": "دروستکردن",
+  "notifications": "ئاگادارکردنەوە",
+  "profile": "پرۆفایل",
+  "messages": "نامە",
+  "settings": "ڕێکخستن",
+  "editProfile": "دەستکاری پرۆفایل",
+  "followers": "شوێنکەوتوو",
+  "following": "شوێنکەوتن",
+  "posts": "بابەت",
+  "communities": "کۆمەڵگا",
+  "createPost": "بابەتێک دروستبکە",
+  "createCommunity": "کۆمەڵگایەک دروستبکە",
+  "writePost": "چی لە بیرتدایە؟",
+  "comment": "لێدوان",
+  "comments": "لێدوانەکان",
+  "like": "حەزکردن",
+  "share": "هاوبەشکردن",
+  "repost": "دووبارە بڵاوکردنەوە",
+  "bookmark": "تۆمارکردن",
+  "follow": "شوێنکەوتن",
+  "unfollow": "وازهێنان",
+  "report": "ڕاپۆرت",
+  "delete": "سڕینەوە",
+  "cancel": "هەڵوەشاندنەوە",
+  "save": "پاشەکەوتکردن",
+  "send": "ناردن",
+  "done": "تەواو",
+  "loading": "بارکردن...",
+  "error": "هەڵە",
+  "retry": "دووبارە هەوڵبدەرەوە",
+  "noResults": "ئەنجام نەدۆزرایەوە",
+  "noPosts": "هێشتا بابەتێک نییە",
+  "noNotifications": "هێشتا ئاگادارکردنەوەیەک نییە",
+  "noMessages": "هێشتا نامەیەک نییە",
+  "selectLanguage": "زمانێک هەڵبژێرە",
+  "selectTheme": "ڕووکارێک هەڵبژێرە",
+  "bio": "ژیاننامە",
+  "website": "ماڵپەڕ",
+  "location": "شوێن",
+  "joinedDate": "بەشداربوو لە {date}",
+  "@joinedDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "followerCount": "{count} شوێنکەوتوو",
+  "@followerCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "followingCount": "{count} شوێنکەوتن",
+  "@followingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "postCount": "{count} بابەت",
+  "@postCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "welcomeTitle": "بەخێربێیت بۆ نووبار",
+  "welcomeSubtitle": "پلاتفۆرمی دیجیتاڵی کەلتووری کوردی",
+  "onboardingTitle1": "هاوبەشبکە",
+  "onboardingDesc1": "دەق، وێنە، ڤیدیۆ و PDF هاوبەشبکە",
+  "onboardingTitle2": "کۆمەڵگا",
+  "onboardingDesc2": "کۆمەڵگا دروستبکە و بەشداربە",
+  "onboardingTitle3": "بەکارهێنەر",
+  "onboardingDesc3": "پەیوەندی لەگەڵ کوردانی دیکە دروستبکە",
+  "getStarted": "دەستپێبکە",
+  "theme": "ڕووکار",
+  "language": "زمان",
+  "darkMode": "دۆخی تاریک",
+  "lightMode": "دۆخی ڕووناک",
+  "themeNubar": "نووبار",
+  "themeDark": "تاریک",
+  "themeLight": "ڕووناک",
+  "themeEarth": "زەوی",
+  "themeOcean": "ئۆقیانووس",
+  "themeAmoled": "AMOLED",
+  "addImage": "وێنە زیادبکە",
+  "addVideo": "ڤیدیۆ زیادبکە",
+  "addPdf": "PDF زیادبکە",
+  "post": "بینێرە",
+  "writeComment": "لێدوانێک بنووسە...",
+  "memberCount": "{count} ئەندام",
+  "@memberCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "joinCommunity": "بەشداربە",
+  "leaveCommunity": "وازبهێنە",
+  "communitySettings": "ڕێکخستنی کۆمەڵگا",
+  "trending": "بەرزترین",
+  "forYou": "بۆ تۆ"
+}

@@ -1,0 +1,125 @@
+{
+  "@@locale": "en",
+  "appName": "Nûbar",
+  "login": "Log In",
+  "register": "Sign Up",
+  "email": "Email",
+  "password": "Password",
+  "username": "Username",
+  "fullName": "Full Name",
+  "forgotPassword": "Forgot password?",
+  "dontHaveAccount": "Don't have an account?",
+  "alreadyHaveAccount": "Already have an account?",
+  "createAccount": "Create Account",
+  "logout": "Log Out",
+  "feed": "Feed",
+  "search": "Search",
+  "create": "Create",
+  "notifications": "Notifications",
+  "profile": "Profile",
+  "messages": "Messages",
+  "settings": "Settings",
+  "editProfile": "Edit Profile",
+  "followers": "Followers",
+  "following": "Following",
+  "posts": "Posts",
+  "communities": "Communities",
+  "createPost": "Create Post",
+  "createCommunity": "Create Community",
+  "writePost": "What's on your mind?",
+  "comment": "Comment",
+  "comments": "Comments",
+  "like": "Like",
+  "share": "Share",
+  "repost": "Repost",
+  "bookmark": "Bookmark",
+  "follow": "Follow",
+  "unfollow": "Unfollow",
+  "report": "Report",
+  "delete": "Delete",
+  "cancel": "Cancel",
+  "save": "Save",
+  "send": "Send",
+  "done": "Done",
+  "loading": "Loading...",
+  "error": "Error",
+  "retry": "Retry",
+  "noResults": "No results found",
+  "noPosts": "No posts yet",
+  "noNotifications": "No notifications yet",
+  "noMessages": "No messages yet",
+  "selectLanguage": "Select Language",
+  "selectTheme": "Select Theme",
+  "bio": "Bio",
+  "website": "Website",
+  "location": "Location",
+  "joinedDate": "Joined {date}",
+  "@joinedDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "followerCount": "{count} followers",
+  "@followerCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "followingCount": "{count} following",
+  "@followingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "postCount": "{count} posts",
+  "@postCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "welcomeTitle": "Welcome to Nûbar",
+  "welcomeSubtitle": "Kurdish culture digital platform",
+  "onboardingTitle1": "Share",
+  "onboardingDesc1": "Share text, photos, videos and PDFs",
+  "onboardingTitle2": "Community",
+  "onboardingDesc2": "Create and join communities",
+  "onboardingTitle3": "Connect",
+  "onboardingDesc3": "Connect with other Kurds",
+  "getStarted": "Get Started",
+  "theme": "Theme",
+  "language": "Language",
+  "darkMode": "Dark Mode",
+  "lightMode": "Light Mode",
+  "themeNubar": "Nûbar",
+  "themeDark": "Dark",
+  "themeLight": "Light",
+  "themeEarth": "Earth",
+  "themeOcean": "Ocean",
+  "themeAmoled": "AMOLED",
+  "addImage": "Add Image",
+  "addVideo": "Add Video",
+  "addPdf": "Add PDF",
+  "post": "Post",
+  "writeComment": "Write a comment...",
+  "memberCount": "{count} members",
+  "@memberCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "joinCommunity": "Join",
+  "leaveCommunity": "Leave",
+  "communitySettings": "Community Settings",
+  "trending": "Trending",
+  "forYou": "For You"
+}

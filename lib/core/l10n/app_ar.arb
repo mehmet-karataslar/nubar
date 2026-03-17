@@ -1,0 +1,125 @@
+{
+  "@@locale": "ar",
+  "appName": "نوبار",
+  "login": "تسجيل الدخول",
+  "register": "التسجيل",
+  "email": "البريد الإلكتروني",
+  "password": "كلمة المرور",
+  "username": "اسم المستخدم",
+  "fullName": "الاسم الكامل",
+  "forgotPassword": "نسيت كلمة المرور؟",
+  "dontHaveAccount": "ليس لديك حساب؟",
+  "alreadyHaveAccount": "لديك حساب بالفعل؟",
+  "createAccount": "إنشاء حساب",
+  "logout": "تسجيل الخروج",
+  "feed": "الأخبار",
+  "search": "بحث",
+  "create": "إنشاء",
+  "notifications": "الإشعارات",
+  "profile": "الملف الشخصي",
+  "messages": "الرسائل",
+  "settings": "الإعدادات",
+  "editProfile": "تعديل الملف الشخصي",
+  "followers": "المتابعون",
+  "following": "المتابَعون",
+  "posts": "المنشورات",
+  "communities": "المجتمعات",
+  "createPost": "إنشاء منشور",
+  "createCommunity": "إنشاء مجتمع",
+  "writePost": "ماذا يدور في ذهنك؟",
+  "comment": "تعليق",
+  "comments": "التعليقات",
+  "like": "إعجاب",
+  "share": "مشاركة",
+  "repost": "إعادة النشر",
+  "bookmark": "حفظ",
+  "follow": "متابعة",
+  "unfollow": "إلغاء المتابعة",
+  "report": "إبلاغ",
+  "delete": "حذف",
+  "cancel": "إلغاء",
+  "save": "حفظ",
+  "send": "إرسال",
+  "done": "تم",
+  "loading": "جاري التحميل...",
+  "error": "خطأ",
+  "retry": "إعادة المحاولة",
+  "noResults": "لا توجد نتائج",
+  "noPosts": "لا توجد منشورات بعد",
+  "noNotifications": "لا توجد إشعارات بعد",
+  "noMessages": "لا توجد رسائل بعد",
+  "selectLanguage": "اختر اللغة",
+  "selectTheme": "اختر السمة",
+  "bio": "السيرة الذاتية",
+  "website": "الموقع الإلكتروني",
+  "location": "الموقع",
+  "joinedDate": "انضم في {date}",
+  "@joinedDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "followerCount": "{count} متابع",
+  "@followerCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "followingCount": "{count} متابَع",
+  "@followingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "postCount": "{count} منشور",
+  "@postCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "welcomeTitle": "مرحباً بك في نوبار",
+  "welcomeSubtitle": "منصة رقمية للثقافة الكردية",
+  "onboardingTitle1": "شارك",
+  "onboardingDesc1": "شارك النصوص والصور والفيديو وملفات PDF",
+  "onboardingTitle2": "المجتمع",
+  "onboardingDesc2": "أنشئ مجتمعات وانضم إليها",
+  "onboardingTitle3": "تواصل",
+  "onboardingDesc3": "تواصل مع أكراد آخرين",
+  "getStarted": "ابدأ",
+  "theme": "السمة",
+  "language": "اللغة",
+  "darkMode": "الوضع الداكن",
+  "lightMode": "الوضع الفاتح",
+  "themeNubar": "نوبار",
+  "themeDark": "داكن",
+  "themeLight": "فاتح",
+  "themeEarth": "أرضي",
+  "themeOcean": "محيطي",
+  "themeAmoled": "AMOLED",
+  "addImage": "إضافة صورة",
+  "addVideo": "إضافة فيديو",
+  "addPdf": "إضافة PDF",
+  "post": "نشر",
+  "writeComment": "اكتب تعليقاً...",
+  "memberCount": "{count} عضو",
+  "@memberCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "joinCommunity": "انضم",
+  "leaveCommunity": "غادر",
+  "communitySettings": "إعدادات المجتمع",
+  "trending": "الرائج",
+  "forYou": "لك"
+}

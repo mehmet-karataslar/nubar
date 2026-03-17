@@ -1,0 +1,154 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:nubar/core/utils/date_utils.dart';
+import 'package:nubar/features/notifications/providers/notifications_provider.dart';
+import 'package:nubar/shared/widgets/loading_indicator.dart';
+import 'package:nubar/shared/widgets/nubar_avatar.dart';
+
+class NotificationsScreen extends ConsumerWidget {
+  const NotificationsScreen({super.key});
+
+  IconData _getNotificationIcon(String type) {
+    switch (type) {
+      case 'like':
+        return Icons.favorite;
+      case 'comment':
+        return Icons.chat_bubble;
+      case 'follow':
+        return Icons.person_add;
+      case 'repost':
+        return Icons.repeat;
+      case 'mention':
+        return Icons.alternate_email;
+      case 'message':
+        return Icons.mail;
+      default:
+        return Icons.notifications;
+    }
+  }
+
+  Color _getNotificationColor(String type, BuildContext context) {
+    switch (type) {
+      case 'like':
+        return Colors.red;
+      case 'comment':
+        return Colors.blue;
+      case 'follow':
+        return Theme.of(context).colorScheme.primary;
+      case 'repost':
+        return Colors.green;
+      case 'mention':
+        return Colors.orange;
+      default:
+        return Theme.of(context).colorScheme.primary;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final notificationsAsync = ref.watch(notificationsProvider);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(l10n.notifications),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.done_all),
+            onPressed: () {
+              ref
+                  .read(notificationActionsProvider.notifier)
+                  .markAllAsRead();
+            },
+          ),
+        ],
+      ),
+      body: notificationsAsync.when(
+        loading: () => const LoadingIndicator(),
+        error: (error, _) => Center(child: Text(l10n.error)),
+        data: (notifications) {
+          if (notifications.isEmpty) {
+            return Center(
+              child: Text(
+                l10n.noNotifications,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withValues(alpha: 0.5),
+                    ),
+              ),
+            );
+          }
+
+          return RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(notificationsProvider);
+            },
+            child: ListView.separated(
+              itemCount: notifications.length,
+              separatorBuilder: (_, __) => const Divider(height: 1),
+              itemBuilder: (context, index) {
+                final notification = notifications[index];
+                return ListTile(
+                  tileColor: notification.isRead
+                      ? null
+                      : Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.05),
+                  leading: Stack(
+                    children: [
+                      NubarAvatar(
+                        imageUrl: notification.actorAvatarUrl,
+                        radius: 22,
+                        fallbackText: notification.actorFullName,
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: _getNotificationColor(
+                                notification.type, context),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            _getNotificationIcon(notification.type),
+                            size: 12,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  title: Text(
+                    notification.actorFullName ?? '',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(notification.type),
+                  trailing: Text(
+                    NubarDateUtils.timeAgo(notification.createdAt),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  onTap: () {
+                    if (!notification.isRead) {
+                      ref
+                          .read(notificationActionsProvider.notifier)
+                          .markAsRead(notification.id);
+                    }
+                  },
+                );
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
