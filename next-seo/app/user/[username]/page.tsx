@@ -4,11 +4,11 @@ type UserPageProps = {
   };
 };
 
-export default function UserPage({ params: _params }: UserPageProps) {
+export default function UserPage({ params }: UserPageProps) {
   return (
     <main>
       <h1>User SEO Page</h1>
-      <p>Username: {_params.username}</p>
+      <p>Username: {params.username}</p>
     </main>
   );
 }

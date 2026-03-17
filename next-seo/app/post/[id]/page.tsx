@@ -4,11 +4,11 @@ type PostPageProps = {
   };
 };
 
-export default function PostPage({ params: _params }: PostPageProps) {
+export default function PostPage({ params }: PostPageProps) {
   return (
     <main>
       <h1>Post SEO Page</h1>
-      <p>Post ID: {_params.id}</p>
+      <p>Post ID: {params.id}</p>
     </main>
   );
 }
