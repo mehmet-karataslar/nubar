@@ -4,7 +4,6 @@ type CommunityPageProps = {
   };
 };
 
-export default function CommunityPage({ params }: CommunityPageProps) {
-  void params.slug;
+export default function CommunityPage({ params: _params }: CommunityPageProps) {
   return null;
 }

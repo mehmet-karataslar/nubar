@@ -4,7 +4,6 @@ type UserPageProps = {
   };
 };
 
-export default function UserPage({ params }: UserPageProps) {
-  void params.username;
+export default function UserPage({ params: _params }: UserPageProps) {
   return null;
 }

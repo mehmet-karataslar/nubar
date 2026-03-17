@@ -4,7 +4,6 @@ type PostPageProps = {
   };
 };
 
-export default function PostPage({ params }: PostPageProps) {
-  void params.id;
+export default function PostPage({ params: _params }: PostPageProps) {
   return null;
 }
