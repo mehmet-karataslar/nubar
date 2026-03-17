@@ -1,3 +1,3 @@
 export function getSeoSupabaseClient() {
-  return null;
+  throw new Error('getSeoSupabaseClient is not implemented yet.');
 }
