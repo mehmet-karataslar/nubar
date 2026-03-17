@@ -25,6 +25,12 @@ Users can share text, images, videos, and PDFs; create communities; discuss topi
 
 ## Project Structure
 
+> ⚠️ **Current repository status note**
+>
+> - Flutter application currently lives directly at the repository root (`/lib`, `/pubspec.yaml`), not under `/flutter_app/`.
+> - Implemented Supabase Edge Functions are currently: `generate-upload-url`, `delete-file`, `send-notification`.
+> - `generate-thumbnail`, `moderate-content`, and `next-seo/` are planned structures (Phase 2/5) and are not yet present in this repository.
+
 ```
 nubar/
 ├── flutter_app/          ← Main Flutter application
