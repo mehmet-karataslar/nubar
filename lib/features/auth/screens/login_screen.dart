@@ -27,6 +27,44 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
+  void _showForgotPasswordDialog(BuildContext context, dynamic l10n) {
+    final resetEmailController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.forgotPassword),
+        content: TextField(
+          controller: resetEmailController,
+          keyboardType: TextInputType.emailAddress,
+          decoration: InputDecoration(
+            hintText: l10n.email,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              final email = resetEmailController.text.trim();
+              if (email.isNotEmpty) {
+                ref
+                    .read(authNotifierProvider.notifier)
+                    .resetPassword(email);
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l10n.done)),
+                );
+              }
+            },
+            child: Text(l10n.send),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _handleLogin() {
     if (_formKey.currentState!.validate()) {
       ref.read(authNotifierProvider.notifier).signIn(
@@ -119,7 +157,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     alignment: AlignmentDirectional.centerEnd,
                     child: TextButton(
                       onPressed: () {
-                        // TODO: Navigate to forgot password
+                        _showForgotPasswordDialog(context, l10n);
                       },
                       child: Text(l10n.forgotPassword),
                     ),

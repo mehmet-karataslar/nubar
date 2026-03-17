@@ -1,9 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:nubar/core/constants/app_constants.dart';
+import 'package:nubar/core/constants/backblaze_constants.dart';
 import 'package:nubar/features/auth/models/auth_model.dart';
 import 'package:nubar/features/profile/providers/profile_provider.dart';
+import 'package:nubar/shared/services/backblaze_service.dart';
 import 'package:nubar/shared/widgets/nubar_avatar.dart';
 import 'package:nubar/shared/widgets/nubar_button.dart';
 import 'package:nubar/shared/widgets/nubar_text_field.dart';
@@ -22,6 +27,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   late final TextEditingController _bioController;
   late final TextEditingController _websiteController;
   late final TextEditingController _locationController;
+  final _imagePicker = ImagePicker();
+  File? _selectedAvatar;
+  bool _uploadingAvatar = false;
 
   @override
   void initState() {
@@ -42,13 +50,41 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     super.dispose();
   }
 
-  void _handleSave() {
+  Future<void> _pickAvatar() async {
+    final image = await _imagePicker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 512,
+      maxHeight: 512,
+      imageQuality: 85,
+    );
+    if (image != null) {
+      setState(() => _selectedAvatar = File(image.path));
+    }
+  }
+
+  Future<void> _handleSave() async {
+    String? avatarUrl;
+    if (_selectedAvatar != null) {
+      setState(() => _uploadingAvatar = true);
+      try {
+        final path = BackblazeConstants.avatarPath(widget.user.id);
+        avatarUrl = await BackblazeService.uploadFile(
+          file: _selectedAvatar!,
+          path: path,
+          contentType: 'image/jpeg',
+        );
+      } finally {
+        if (mounted) setState(() => _uploadingAvatar = false);
+      }
+    }
+
     ref.read(profileActionsProvider.notifier).updateProfile(
           userId: widget.user.id,
           fullName: _fullNameController.text.trim(),
           bio: _bioController.text.trim(),
           website: _websiteController.text.trim(),
           location: _locationController.text.trim(),
+          avatarUrl: avatarUrl,
         );
   }
 
@@ -83,13 +119,42 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         child: Column(
           children: [
             // Avatar
-            NubarAvatar(
-              imageUrl: widget.user.avatarUrl,
-              radius: 50,
-              fallbackText: widget.user.fullName,
-              onTap: () {
-                // TODO: Image picker for avatar
-              },
+            GestureDetector(
+              onTap: _pickAvatar,
+              child: Stack(
+                children: [
+                  _selectedAvatar != null
+                      ? CircleAvatar(
+                          radius: 50,
+                          backgroundImage: FileImage(_selectedAvatar!),
+                        )
+                      : NubarAvatar(
+                          imageUrl: widget.user.avatarUrl,
+                          radius: 50,
+                          fallbackText: widget.user.fullName,
+                        ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.camera_alt,
+                        size: 18,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                    ),
+                  ),
+                  if (_uploadingAvatar)
+                    const Positioned.fill(
+                      child: CircularProgressIndicator(),
+                    ),
+                ],
+              ),
             ),
             const SizedBox(height: 24),
 

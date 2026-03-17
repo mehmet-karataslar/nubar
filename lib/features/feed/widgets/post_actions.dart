@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:nubar/features/feed/providers/feed_provider.dart';
+import 'package:nubar/features/post/detail/post_detail_screen.dart';
 
 class PostActions extends ConsumerWidget {
   final PostModel post;
@@ -11,6 +13,7 @@ class PostActions extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isLiked = ref.watch(isLikedProvider(post.id));
     final isBookmarked = ref.watch(isBookmarkedProvider(post.id));
+    final isReposted = ref.watch(isRepostedProvider(post.id));
     final actions = ref.read(feedActionsProvider.notifier);
 
     return Row(
@@ -21,7 +24,12 @@ class PostActions extends ConsumerWidget {
           icon: Icons.chat_bubble_outline,
           count: post.commentCount,
           onTap: () {
-            // Navigate to post detail for comments
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => PostDetailScreen(postId: post.id),
+              ),
+            );
           },
         ),
 
@@ -29,8 +37,15 @@ class PostActions extends ConsumerWidget {
         _ActionButton(
           icon: Icons.repeat,
           count: post.repostCount,
+          color: isReposted.valueOrNull == true
+              ? Theme.of(context).colorScheme.primary
+              : null,
           onTap: () {
-            // TODO: Repost functionality
+            if (isReposted.valueOrNull == true) {
+              actions.undoRepost(post.id);
+            } else {
+              actions.repost(post.id);
+            }
           },
         ),
 
@@ -68,7 +83,10 @@ class PostActions extends ConsumerWidget {
         _ActionButton(
           icon: Icons.share_outlined,
           onTap: () {
-            // TODO: Share functionality
+            final text = post.content ?? '';
+            SharePlus.instance.share(
+              ShareParams(text: text.isNotEmpty ? text : 'Check this post on Nûbar!'),
+            );
           },
         ),
       ],

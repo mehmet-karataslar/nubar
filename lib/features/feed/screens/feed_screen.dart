@@ -6,6 +6,7 @@ import 'package:nubar/core/constants/app_constants.dart';
 import 'package:nubar/features/feed/providers/feed_provider.dart';
 import 'package:nubar/features/feed/widgets/post_card.dart';
 import 'package:nubar/features/feed/widgets/story_bar.dart';
+import 'package:nubar/features/notifications/screens/notifications_screen.dart';
 import 'package:nubar/features/post/create/create_post_screen.dart';
 
 class FeedScreen extends ConsumerStatefulWidget {
@@ -56,7 +57,12 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {
-              // TODO: Navigate to notifications
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const NotificationsScreen(),
+                ),
+              );
             },
           ),
         ],

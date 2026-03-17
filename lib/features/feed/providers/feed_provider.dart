@@ -308,6 +308,45 @@ class FeedActionsNotifier extends StateNotifier<AsyncValue<void>> {
     });
   }
 
+  Future<void> repost(String postId) async {
+    state = await AsyncValue.guard(() async {
+      final userId = await _getCurrentUserId();
+      if (userId == null) throw Exception('Not authenticated');
+
+      // Check if already reposted
+      final existing = await SupabaseService.from(SupabaseConstants.repostsTable)
+          .select()
+          .eq('user_id', userId)
+          .eq('post_id', postId)
+          .maybeSingle();
+
+      if (existing != null) throw Exception('Already reposted');
+
+      await SupabaseService.from(SupabaseConstants.repostsTable).insert({
+        'user_id': userId,
+        'post_id': postId,
+      });
+
+      _ref.invalidate(isRepostedProvider(postId));
+      _ref.invalidate(postDetailProvider(postId));
+    });
+  }
+
+  Future<void> undoRepost(String postId) async {
+    state = await AsyncValue.guard(() async {
+      final userId = await _getCurrentUserId();
+      if (userId == null) throw Exception('Not authenticated');
+
+      await SupabaseService.from(SupabaseConstants.repostsTable)
+          .delete()
+          .eq('user_id', userId)
+          .eq('post_id', postId);
+
+      _ref.invalidate(isRepostedProvider(postId));
+      _ref.invalidate(postDetailProvider(postId));
+    });
+  }
+
   Future<void> deletePost(String postId) async {
     state = await AsyncValue.guard(() async {
       await SupabaseService.from(SupabaseConstants.postsTable)
@@ -315,3 +354,25 @@ class FeedActionsNotifier extends StateNotifier<AsyncValue<void>> {
     });
   }
 }
+
+// Check if current user reposted a post
+final isRepostedProvider =
+    FutureProvider.family<bool, String>((ref, postId) async {
+  final currentUser = SupabaseService.currentUser;
+  if (currentUser == null) return false;
+
+  final profile = await SupabaseService.from(SupabaseConstants.usersTable)
+      .select('id')
+      .eq('auth_id', currentUser.id)
+      .maybeSingle();
+
+  if (profile == null) return false;
+
+  final response = await SupabaseService.from(SupabaseConstants.repostsTable)
+      .select()
+      .eq('user_id', profile['id'])
+      .eq('post_id', postId)
+      .maybeSingle();
+
+  return response != null;
+});

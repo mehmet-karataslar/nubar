@@ -4,13 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:nubar/core/constants/app_constants.dart';
 import 'package:nubar/features/auth/providers/auth_provider.dart';
 import 'package:nubar/features/post/create/create_post_provider.dart';
 import 'package:nubar/shared/widgets/nubar_avatar.dart';
 
 class CreatePostScreen extends ConsumerStatefulWidget {
-  const CreatePostScreen({super.key});
+  final String? communityId;
+
+  const CreatePostScreen({super.key, this.communityId});
 
   @override
   ConsumerState<CreatePostScreen> createState() => _CreatePostScreenState();
@@ -20,6 +23,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   final _contentController = TextEditingController();
   final List<File> _selectedImages = [];
   final _imagePicker = ImagePicker();
+  File? _selectedVideo;
+  File? _selectedPdf;
+  String? _pdfFileName;
 
   @override
   void dispose() {
@@ -44,13 +50,43 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
     setState(() => _selectedImages.removeAt(index));
   }
 
+  Future<void> _pickVideo() async {
+    final video = await _imagePicker.pickVideo(source: ImageSource.gallery);
+    if (video != null) {
+      setState(() {
+        _selectedVideo = File(video.path);
+        _selectedImages.clear();
+        _selectedPdf = null;
+      });
+    }
+  }
+
+  Future<void> _pickPdf() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+    if (result != null && result.files.isNotEmpty) {
+      setState(() {
+        _selectedPdf = File(result.files.first.path!);
+        _pdfFileName = result.files.first.name;
+        _selectedImages.clear();
+        _selectedVideo = null;
+      });
+    }
+  }
+
   void _handlePost() {
     final content = _contentController.text.trim();
-    if (content.isEmpty && _selectedImages.isEmpty) return;
+    if (content.isEmpty &&
+        _selectedImages.isEmpty &&
+        _selectedVideo == null &&
+        _selectedPdf == null) return;
 
     ref.read(createPostProvider.notifier).createPost(
           content: content,
           images: _selectedImages.isNotEmpty ? _selectedImages : null,
+          communityId: widget.communityId,
         );
   }
 
@@ -127,6 +163,72 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                       ),
                     ],
                   ),
+
+                  // Selected video
+                  if (_selectedVideo != null) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.videocam,
+                              color: Theme.of(context).colorScheme.primary),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _selectedVideo!.path.split('/').last,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close, size: 18),
+                            onPressed: () =>
+                                setState(() => _selectedVideo = null),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+
+                  // Selected PDF
+                  if (_selectedPdf != null) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.picture_as_pdf,
+                              color: Theme.of(context).colorScheme.error),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _pdfFileName ?? 'PDF',
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close, size: 18),
+                            onPressed: () => setState(() {
+                              _selectedPdf = null;
+                              _pdfFileName = null;
+                            }),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
 
                   // Selected images
                   if (_selectedImages.isNotEmpty) ...[
@@ -208,9 +310,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                     Icons.videocam_outlined,
                     color: Theme.of(context).colorScheme.primary,
                   ),
-                  onPressed: () {
-                    // TODO: Video picker
-                  },
+                  onPressed: _selectedPdf == null ? _pickVideo : null,
                   tooltip: l10n.addVideo,
                 ),
                 IconButton(
@@ -218,9 +318,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                     Icons.picture_as_pdf_outlined,
                     color: Theme.of(context).colorScheme.primary,
                   ),
-                  onPressed: () {
-                    // TODO: PDF picker
-                  },
+                  onPressed: _selectedVideo == null ? _pickPdf : null,
                   tooltip: l10n.addPdf,
                 ),
                 const Spacer(),
