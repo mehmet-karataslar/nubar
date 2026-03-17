@@ -368,7 +368,7 @@ nubar/
 │           └── index.ts                   ← notifications tablosuna insert
 │                                            + FCM push notification placeholder
 │
-└── next-seo/                              ← (Henüz implementasyon yok — Phase 5)
+└── next-seo/                              ← SEO katmanı için başlangıç scaffold (Phase 5)
     ├── app/
     │   ├── page.tsx
     │   ├── post/[id]/page.tsx
