@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:nubar/core/l10n/app_localizations.dart';
+import 'package:nubar/core/l10n/fallback_material_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nubar/core/theme/app_theme.dart';
 import 'package:nubar/core/theme/theme_provider.dart';
-import 'package:nubar/features/auth/providers/auth_provider.dart';
-import 'package:nubar/features/auth/screens/login_screen.dart';
-import 'package:nubar/features/auth/screens/onboarding_screen.dart';
 import 'package:nubar/shared/services/supabase_service.dart';
-import 'package:nubar/shared/widgets/loading_indicator.dart';
 import 'package:nubar/features/navigation/main_navigation_screen.dart';
 
 final localeProvider = StateProvider<Locale>((ref) => const Locale('ku'));
@@ -51,8 +48,11 @@ class NubarApp extends ConsumerWidget {
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
+        FallbackMaterialLocalizationsDelegate(),
         GlobalWidgetsLocalizations.delegate,
+        FallbackWidgetsLocalizationsDelegate(),
         GlobalCupertinoLocalizations.delegate,
+        FallbackCupertinoLocalizationsDelegate(),
       ],
       home: const AuthGate(),
     );
@@ -64,23 +64,7 @@ class AuthGate extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authStateProvider);
-    final onboardingComplete = ref.watch(onboardingCompleteProvider);
-
-    return authState.when(
-      data: (state) {
-        if (state.session != null) {
-          return const MainNavigationScreen();
-        }
-        if (!onboardingComplete) {
-          return const OnboardingScreen();
-        }
-        return const LoginScreen();
-      },
-      loading: () => const Scaffold(
-        body: LoadingIndicator(),
-      ),
-      error: (error, stack) => const LoginScreen(),
-    );
+    // Geliştirme: Giriş/kayıt/onboarding atlanıyor, doğrudan ana sayfaya gidiliyor.
+    return const MainNavigationScreen();
   }
 }

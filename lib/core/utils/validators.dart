@@ -70,4 +70,16 @@ class Validators {
     }
     return null;
   }
+
+  /// Validates slug: lowercase letters, numbers, and hyphens only.
+  static String? validateSlug(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Slug is required';
+    }
+    final slugRegex = RegExp(r'^[a-z0-9\-]+$');
+    if (!slugRegex.hasMatch(value)) {
+      return 'Only lowercase letters, numbers, and hyphens';
+    }
+    return null;
+  }
 }

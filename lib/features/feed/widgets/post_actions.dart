@@ -84,9 +84,7 @@ class PostActions extends ConsumerWidget {
           icon: Icons.share_outlined,
           onTap: () {
             final text = post.content ?? '';
-            SharePlus.instance.share(
-              ShareParams(text: text.isNotEmpty ? text : 'Check this post on Nûbar!'),
-            );
+            Share.share(text.isNotEmpty ? text : 'Check this post on Nûbar!');
           },
         ),
       ],

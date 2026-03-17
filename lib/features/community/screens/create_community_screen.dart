@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:nubar/core/l10n/app_localizations.dart';
 import 'package:nubar/core/utils/validators.dart';
 import 'package:nubar/features/community/providers/community_provider.dart';
 import 'package:nubar/features/community/screens/community_feed_screen.dart';
@@ -116,15 +116,7 @@ class _CreateCommunityScreenState
                 controller: _slugController,
                 label: 'Slug',
                 hint: 'kurdistan-books',
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Slug is required';
-                  }
-                  if (!Validators.isValidUsername(value.trim())) {
-                    return 'Only lowercase letters, numbers, and hyphens';
-                  }
-                  return null;
-                },
+                validator: (value) => Validators.validateSlug(value?.trim()),
               ),
               const SizedBox(height: 16),
 

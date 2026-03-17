@@ -110,7 +110,7 @@ final conversationsProvider =
             ? (sender?['full_name'] as String? ?? '')
             : '',
         otherAvatarUrl: isOtherSender
-            ? sender?['avatar_url'] as String?
+            ? (sender?['avatar_url'] as String?)
             : null,
         lastMessage: message['content'] as String?,
         lastMessageTime:

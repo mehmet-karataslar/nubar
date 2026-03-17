@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:nubar/core/l10n/app_localizations.dart';
 import 'package:nubar/core/utils/date_utils.dart';
 import 'package:nubar/features/notifications/providers/notifications_provider.dart';
 import 'package:nubar/shared/widgets/loading_indicator.dart';

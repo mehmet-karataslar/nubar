@@ -12,20 +12,18 @@ final authStateProvider = StreamProvider<AuthState>((ref) {
 // Current user profile
 final currentUserProvider = FutureProvider<UserModel?>((ref) async {
   final authState = ref.watch(authStateProvider);
-  return authState.whenOrNull(
-    data: (state) async {
-      final user = state.session?.user;
-      if (user == null) return null;
+  final state = authState.valueOrNull;
+  if (state == null) return null;
+  final user = state.session?.user;
+  if (user == null) return null;
 
-      final response = await SupabaseService.from(SupabaseConstants.usersTable)
-          .select()
-          .eq('auth_id', user.id)
-          .maybeSingle();
+  final response = await SupabaseService.from(SupabaseConstants.usersTable)
+      .select()
+      .eq('auth_id', user.id)
+      .maybeSingle();
 
-      if (response == null) return null;
-      return UserModel.fromJson(response);
-    },
-  );
+  if (response == null) return null;
+  return UserModel.fromJson(response);
 });
 
 // Auth notifier for login/register/logout actions

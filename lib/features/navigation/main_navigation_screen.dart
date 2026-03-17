@@ -1,37 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nubar/core/l10n/app_localizations.dart';
+import 'package:nubar/features/auth/providers/auth_provider.dart';
 import 'package:nubar/features/feed/screens/feed_screen.dart';
 import 'package:nubar/features/search/screens/search_screen.dart';
 import 'package:nubar/features/notifications/screens/notifications_screen.dart';
 import 'package:nubar/features/messages/screens/messages_list_screen.dart';
 import 'package:nubar/features/profile/screens/profile_screen.dart';
 
-class MainNavigationScreen extends StatefulWidget {
+class MainNavigationScreen extends ConsumerStatefulWidget {
   const MainNavigationScreen({super.key});
 
   @override
-  State<MainNavigationScreen> createState() => _MainNavigationScreenState();
+  ConsumerState<MainNavigationScreen> createState() =>
+      _MainNavigationScreenState();
 }
 
-class _MainNavigationScreenState extends State<MainNavigationScreen> {
+class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   int _currentIndex = 0;
-
-  final List<Widget> _screens = const [
-    FeedScreen(),
-    SearchScreen(),
-    NotificationsScreen(),
-    MessagesListScreen(),
-    ProfileScreen(),
-  ];
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final currentUser = ref.watch(currentUserProvider).valueOrNull;
+    final userId = currentUser?.id ?? '';
+
+    final screens = [
+      const FeedScreen(),
+      const SearchScreen(),
+      const NotificationsScreen(),
+      const MessagesListScreen(),
+      ProfileScreen(userId: userId),
+    ];
 
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: _screens,
+        children: screens,
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,

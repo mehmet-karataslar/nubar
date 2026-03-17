@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:nubar/core/l10n/app_localizations.dart';
 import 'package:nubar/features/feed/widgets/post_card.dart';
 import 'package:nubar/features/profile/screens/profile_screen.dart';
 import 'package:nubar/features/search/providers/search_provider.dart';

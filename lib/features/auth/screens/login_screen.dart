@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:nubar/core/l10n/app_localizations.dart';
 import 'package:nubar/core/utils/validators.dart';
 import 'package:nubar/features/auth/providers/auth_provider.dart';
 import 'package:nubar/features/auth/screens/register_screen.dart';
