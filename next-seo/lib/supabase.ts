@@ -1,3 +1,3 @@
 export function getSeoSupabaseClient() {
-  throw new Error('getSeoSupabaseClient is not implemented yet.');
+  throw new Error('SEO Supabase client not implemented - Phase 5 feature.');
 }
