@@ -29,7 +29,7 @@ Users can share text, images, videos, and PDFs; create communities; discuss topi
 >
 > - Flutter application currently lives directly at the repository root (`/lib`, `/pubspec.yaml`), not under `/flutter_app/`.
 > - Implemented Supabase Edge Functions are currently: `generate-upload-url`, `delete-file`, `send-notification`.
-> - `generate-thumbnail`, `moderate-content`, and `next-seo/` are planned structures (Phase 2/5) and are not yet present in this repository.
+> - `next-seo/` now exists as a starter scaffold; `generate-thumbnail` and `moderate-content` remain planned structures (Phase 2/5) and are not yet present in this repository.
 
 ```
 nubar/
