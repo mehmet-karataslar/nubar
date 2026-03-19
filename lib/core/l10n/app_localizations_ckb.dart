@@ -278,4 +278,73 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get forYou => 'بۆ تۆ';
+
+  @override
+  String get block => 'بلۆککردن';
+
+  @override
+  String get unblock => 'لابردنی بلۆک';
+
+  @override
+  String get blocked => 'بلۆککراوە';
+
+  @override
+  String get blockUser => 'بەکارهێنەر بلۆکبکە';
+
+  @override
+  String get unblockUser => 'بلۆکی بەکارهێنەر لاببە';
+
+  @override
+  String get userBlocked => 'بەکارهێنەر بلۆککرا';
+
+  @override
+  String get userUnblocked => 'بلۆکی بەکارهێنەر لابرا';
+
+  @override
+  String get reportReason => 'هۆکاری ڕاپۆرت';
+
+  @override
+  String get spam => 'سپام';
+
+  @override
+  String get harassment => 'ئازاردان';
+
+  @override
+  String get hateSpeech => 'قسەی ڕقەبەری';
+
+  @override
+  String get misinformation => 'زانیاری هەڵە';
+
+  @override
+  String get other => 'هیتر';
+
+  @override
+  String get reportSubmitted => 'ڕاپۆرت نێردرا';
+
+  @override
+  String get reportDetails => 'وردەکاری (دڵخوازانە)';
+
+  @override
+  String get badges => 'نیشان';
+
+  @override
+  String get level => 'ئاست';
+
+  @override
+  String get noBadges => 'هێشتا نیشانێک نییە';
+
+  @override
+  String get online => 'سەرهێڵ';
+
+  @override
+  String get typing => 'دەنووسێت...';
+
+  @override
+  String get delivered => 'گەیشت';
+
+  @override
+  String get newMessage => 'نامەیەکی نوێ';
+
+  @override
+  String get verified => 'پشتڕاستکراوە';
 }

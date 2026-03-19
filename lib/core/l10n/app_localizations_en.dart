@@ -278,4 +278,73 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get forYou => 'For You';
+
+  @override
+  String get block => 'Block';
+
+  @override
+  String get unblock => 'Unblock';
+
+  @override
+  String get blocked => 'Blocked';
+
+  @override
+  String get blockUser => 'Block User';
+
+  @override
+  String get unblockUser => 'Unblock User';
+
+  @override
+  String get userBlocked => 'User blocked';
+
+  @override
+  String get userUnblocked => 'User unblocked';
+
+  @override
+  String get reportReason => 'Report Reason';
+
+  @override
+  String get spam => 'Spam';
+
+  @override
+  String get harassment => 'Harassment';
+
+  @override
+  String get hateSpeech => 'Hate Speech';
+
+  @override
+  String get misinformation => 'Misinformation';
+
+  @override
+  String get other => 'Other';
+
+  @override
+  String get reportSubmitted => 'Report submitted';
+
+  @override
+  String get reportDetails => 'Details (optional)';
+
+  @override
+  String get badges => 'Badges';
+
+  @override
+  String get level => 'Level';
+
+  @override
+  String get noBadges => 'No badges yet';
+
+  @override
+  String get online => 'Online';
+
+  @override
+  String get typing => 'Typing...';
+
+  @override
+  String get delivered => 'Delivered';
+
+  @override
+  String get newMessage => 'New message';
+
+  @override
+  String get verified => 'Verified';
 }

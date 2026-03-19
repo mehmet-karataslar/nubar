@@ -278,4 +278,73 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get forYou => 'Senin İçin';
+
+  @override
+  String get block => 'Engelle';
+
+  @override
+  String get unblock => 'Engeli Kaldır';
+
+  @override
+  String get blocked => 'Engellendi';
+
+  @override
+  String get blockUser => 'Kullanıcıyı Engelle';
+
+  @override
+  String get unblockUser => 'Engeli Kaldır';
+
+  @override
+  String get userBlocked => 'Kullanıcı engellendi';
+
+  @override
+  String get userUnblocked => 'Engel kaldırıldı';
+
+  @override
+  String get reportReason => 'Şikayet Nedeni';
+
+  @override
+  String get spam => 'Spam';
+
+  @override
+  String get harassment => 'Taciz';
+
+  @override
+  String get hateSpeech => 'Nefret Söylemi';
+
+  @override
+  String get misinformation => 'Yanlış Bilgi';
+
+  @override
+  String get other => 'Diğer';
+
+  @override
+  String get reportSubmitted => 'Şikayet gönderildi';
+
+  @override
+  String get reportDetails => 'Detaylar (isteğe bağlı)';
+
+  @override
+  String get badges => 'Rozetler';
+
+  @override
+  String get level => 'Seviye';
+
+  @override
+  String get noBadges => 'Henüz rozet yok';
+
+  @override
+  String get online => 'Çevrimiçi';
+
+  @override
+  String get typing => 'Yazıyor...';
+
+  @override
+  String get delivered => 'İletildi';
+
+  @override
+  String get newMessage => 'Yeni mesaj';
+
+  @override
+  String get verified => 'Doğrulanmış';
 }

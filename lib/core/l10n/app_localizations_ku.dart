@@ -278,4 +278,73 @@ class AppLocalizationsKu extends AppLocalizations {
 
   @override
   String get forYou => 'Ji bo te';
+
+  @override
+  String get block => 'Asteng bike';
+
+  @override
+  String get unblock => 'Astengê rake';
+
+  @override
+  String get blocked => 'Astengkirî';
+
+  @override
+  String get blockUser => 'Bikarhêner asteng bike';
+
+  @override
+  String get unblockUser => 'Astengê ji bikarhêner rake';
+
+  @override
+  String get userBlocked => 'Bikarhêner hat astengkirin';
+
+  @override
+  String get userUnblocked => 'Asteng ji bikarhêner hat rakirin';
+
+  @override
+  String get reportReason => 'Sedema raporê';
+
+  @override
+  String get spam => 'Spam';
+
+  @override
+  String get harassment => 'Tacîzkirin';
+
+  @override
+  String get hateSpeech => 'Axaftina nefretê';
+
+  @override
+  String get misinformation => 'Agahiya çewt';
+
+  @override
+  String get other => 'Yên din';
+
+  @override
+  String get reportSubmitted => 'Rapor hat şandin';
+
+  @override
+  String get reportDetails => 'Hûrgilî (vebijarkî)';
+
+  @override
+  String get badges => 'Nîşan';
+
+  @override
+  String get level => 'Ast';
+
+  @override
+  String get noBadges => 'Hîn nîşan tune ne';
+
+  @override
+  String get online => 'Serhêl';
+
+  @override
+  String get typing => 'Dinivîse...';
+
+  @override
+  String get delivered => 'Gihand';
+
+  @override
+  String get newMessage => 'Peyamek nû';
+
+  @override
+  String get verified => 'Pejirandî';
 }

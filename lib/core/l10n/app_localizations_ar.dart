@@ -278,4 +278,73 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get forYou => 'لك';
+
+  @override
+  String get block => 'حظر';
+
+  @override
+  String get unblock => 'إلغاء الحظر';
+
+  @override
+  String get blocked => 'محظور';
+
+  @override
+  String get blockUser => 'حظر المستخدم';
+
+  @override
+  String get unblockUser => 'إلغاء حظر المستخدم';
+
+  @override
+  String get userBlocked => 'تم حظر المستخدم';
+
+  @override
+  String get userUnblocked => 'تم إلغاء حظر المستخدم';
+
+  @override
+  String get reportReason => 'سبب الإبلاغ';
+
+  @override
+  String get spam => 'رسائل مزعجة';
+
+  @override
+  String get harassment => 'تحرش';
+
+  @override
+  String get hateSpeech => 'خطاب كراهية';
+
+  @override
+  String get misinformation => 'معلومات مضللة';
+
+  @override
+  String get other => 'أخرى';
+
+  @override
+  String get reportSubmitted => 'تم إرسال الإبلاغ';
+
+  @override
+  String get reportDetails => 'التفاصيل (اختياري)';
+
+  @override
+  String get badges => 'الشارات';
+
+  @override
+  String get level => 'المستوى';
+
+  @override
+  String get noBadges => 'لا توجد شارات بعد';
+
+  @override
+  String get online => 'متصل';
+
+  @override
+  String get typing => 'يكتب...';
+
+  @override
+  String get delivered => 'تم التسليم';
+
+  @override
+  String get newMessage => 'رسالة جديدة';
+
+  @override
+  String get verified => 'موثق';
 }

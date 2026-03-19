@@ -625,6 +625,144 @@ abstract class AppLocalizations {
   /// In ku, this message translates to:
   /// **'Ji bo te'**
   String get forYou;
+
+  /// No description provided for @block.
+  ///
+  /// In ku, this message translates to:
+  /// **'Asteng bike'**
+  String get block;
+
+  /// No description provided for @unblock.
+  ///
+  /// In ku, this message translates to:
+  /// **'Astengê rake'**
+  String get unblock;
+
+  /// No description provided for @blocked.
+  ///
+  /// In ku, this message translates to:
+  /// **'Astengkirî'**
+  String get blocked;
+
+  /// No description provided for @blockUser.
+  ///
+  /// In ku, this message translates to:
+  /// **'Bikarhêner asteng bike'**
+  String get blockUser;
+
+  /// No description provided for @unblockUser.
+  ///
+  /// In ku, this message translates to:
+  /// **'Astengê ji bikarhêner rake'**
+  String get unblockUser;
+
+  /// No description provided for @userBlocked.
+  ///
+  /// In ku, this message translates to:
+  /// **'Bikarhêner hat astengkirin'**
+  String get userBlocked;
+
+  /// No description provided for @userUnblocked.
+  ///
+  /// In ku, this message translates to:
+  /// **'Asteng ji bikarhêner hat rakirin'**
+  String get userUnblocked;
+
+  /// No description provided for @reportReason.
+  ///
+  /// In ku, this message translates to:
+  /// **'Sedema raporê'**
+  String get reportReason;
+
+  /// No description provided for @spam.
+  ///
+  /// In ku, this message translates to:
+  /// **'Spam'**
+  String get spam;
+
+  /// No description provided for @harassment.
+  ///
+  /// In ku, this message translates to:
+  /// **'Tacîzkirin'**
+  String get harassment;
+
+  /// No description provided for @hateSpeech.
+  ///
+  /// In ku, this message translates to:
+  /// **'Axaftina nefretê'**
+  String get hateSpeech;
+
+  /// No description provided for @misinformation.
+  ///
+  /// In ku, this message translates to:
+  /// **'Agahiya çewt'**
+  String get misinformation;
+
+  /// No description provided for @other.
+  ///
+  /// In ku, this message translates to:
+  /// **'Yên din'**
+  String get other;
+
+  /// No description provided for @reportSubmitted.
+  ///
+  /// In ku, this message translates to:
+  /// **'Rapor hat şandin'**
+  String get reportSubmitted;
+
+  /// No description provided for @reportDetails.
+  ///
+  /// In ku, this message translates to:
+  /// **'Hûrgilî (vebijarkî)'**
+  String get reportDetails;
+
+  /// No description provided for @badges.
+  ///
+  /// In ku, this message translates to:
+  /// **'Nîşan'**
+  String get badges;
+
+  /// No description provided for @level.
+  ///
+  /// In ku, this message translates to:
+  /// **'Ast'**
+  String get level;
+
+  /// No description provided for @noBadges.
+  ///
+  /// In ku, this message translates to:
+  /// **'Hîn nîşan tune ne'**
+  String get noBadges;
+
+  /// No description provided for @online.
+  ///
+  /// In ku, this message translates to:
+  /// **'Serhêl'**
+  String get online;
+
+  /// No description provided for @typing.
+  ///
+  /// In ku, this message translates to:
+  /// **'Dinivîse...'**
+  String get typing;
+
+  /// No description provided for @delivered.
+  ///
+  /// In ku, this message translates to:
+  /// **'Gihand'**
+  String get delivered;
+
+  /// No description provided for @newMessage.
+  ///
+  /// In ku, this message translates to:
+  /// **'Peyamek nû'**
+  String get newMessage;
+
+  /// No description provided for @verified.
+  ///
+  /// In ku, this message translates to:
+  /// **'Pejirandî'**
+  String get verified;
 }
 
 class _AppLocalizationsDelegate
