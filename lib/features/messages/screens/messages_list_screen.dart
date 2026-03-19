@@ -39,7 +39,7 @@ class MessagesListScreen extends ConsumerWidget {
 
           return RefreshIndicator(
             onRefresh: () async {
-              ref.invalidate(conversationsProvider);
+              ref.read(conversationsProvider.notifier).refresh();
             },
             child: ListView.separated(
               itemCount: conversations.length,

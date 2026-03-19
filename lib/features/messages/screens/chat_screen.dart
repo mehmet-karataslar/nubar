@@ -31,6 +31,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     super.dispose();
   }
 
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
+  }
+
   void _sendMessage() {
     final content = _messageController.text.trim();
     if (content.isEmpty) return;
@@ -40,12 +54,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           content: content,
         );
     _messageController.clear();
+    _scrollToBottom();
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final messagesAsync = ref.watch(chatMessagesProvider(widget.otherUserId));
+    final messagesAsync =
+        ref.watch(realtimeChatMessagesProvider(widget.otherUserId));
+
+    // Auto-scroll when new messages arrive
+    ref.listen(realtimeChatMessagesProvider(widget.otherUserId),
+        (prev, next) {
+      final prevCount = prev?.valueOrNull?.length ?? 0;
+      final nextCount = next.valueOrNull?.length ?? 0;
+      if (nextCount > prevCount) {
+        _scrollToBottom();
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -73,17 +99,22 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   );
                 }
 
+                // Schedule scroll after first build
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (_scrollController.hasClients) {
+                    _scrollController.jumpTo(
+                      _scrollController.position.maxScrollExtent,
+                    );
+                  }
+                });
+
                 return ListView.builder(
                   controller: _scrollController,
                   padding: const EdgeInsets.all(16),
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final message = messages[index];
-                    final currentUser = SupabaseService.currentUser;
-                    final isMe = currentUser != null &&
-                        message.senderUsername != null;
 
-                    // Simple check: compare with sender
                     final isSentByMe =
                         message.senderId != widget.otherUserId;
 

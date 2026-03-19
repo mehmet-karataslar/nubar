@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:nubar/features/feed/screens/feed_screen.dart';
 import 'package:nubar/features/search/screens/search_screen.dart';
 import 'package:nubar/features/notifications/screens/notifications_screen.dart';
+import 'package:nubar/features/notifications/providers/notifications_provider.dart';
 import 'package:nubar/features/messages/screens/messages_list_screen.dart';
 import 'package:nubar/features/profile/screens/profile_screen.dart';
 
-class MainNavigationScreen extends StatefulWidget {
+class MainNavigationScreen extends ConsumerStatefulWidget {
   const MainNavigationScreen({super.key});
 
   @override
-  State<MainNavigationScreen> createState() => _MainNavigationScreenState();
+  ConsumerState<MainNavigationScreen> createState() =>
+      _MainNavigationScreenState();
 }
 
-class _MainNavigationScreenState extends State<MainNavigationScreen> {
+class _MainNavigationScreenState
+    extends ConsumerState<MainNavigationScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = const [
@@ -27,6 +31,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final unreadCount = ref.watch(unreadNotificationCountProvider);
 
     return Scaffold(
       body: IndexedStack(
@@ -52,8 +57,18 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             label: l10n.search,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.notifications_outlined),
-            selectedIcon: const Icon(Icons.notifications),
+            icon: unreadCount > 0
+                ? Badge(
+                    label: Text(unreadCount > 99 ? '99+' : '$unreadCount'),
+                    child: const Icon(Icons.notifications_outlined),
+                  )
+                : const Icon(Icons.notifications_outlined),
+            selectedIcon: unreadCount > 0
+                ? Badge(
+                    label: Text(unreadCount > 99 ? '99+' : '$unreadCount'),
+                    child: const Icon(Icons.notifications),
+                  )
+                : const Icon(Icons.notifications),
             label: l10n.notifications,
           ),
           NavigationDestination(
