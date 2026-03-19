@@ -19,6 +19,9 @@ class SupabaseConstants {
   static const String reportsTable = 'reports';
   static const String hashtagsTable = 'hashtags';
   static const String postHashtagsTable = 'post_hashtags';
+  static const String userBlocksTable = 'user_blocks';
+  static const String badgesTable = 'badges';
+  static const String userBadgesTable = 'user_badges';
 
   // Edge function names
   static const String generateUploadUrlFunction = 'generate-upload-url';

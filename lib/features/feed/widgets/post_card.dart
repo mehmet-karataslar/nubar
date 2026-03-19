@@ -7,6 +7,7 @@ import 'package:nubar/features/feed/providers/feed_provider.dart';
 import 'package:nubar/features/feed/widgets/post_actions.dart';
 import 'package:nubar/features/post/detail/post_detail_screen.dart';
 import 'package:nubar/features/profile/screens/profile_screen.dart';
+import 'package:nubar/features/report/report_dialog.dart';
 import 'package:nubar/shared/widgets/nubar_avatar.dart';
 
 class PostCard extends ConsumerWidget {
@@ -100,6 +101,11 @@ class PostCard extends ConsumerWidget {
                                 title: Text(l10n.report),
                                 onTap: () {
                                   Navigator.pop(context);
+                                  showReportDialog(
+                                    context,
+                                    ref,
+                                    postId: post.id,
+                                  );
                                 },
                               ),
                             ],

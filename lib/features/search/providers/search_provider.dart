@@ -2,16 +2,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nubar/core/constants/supabase_constants.dart';
 import 'package:nubar/features/auth/models/auth_model.dart';
 import 'package:nubar/features/feed/providers/feed_provider.dart';
+import 'package:nubar/features/profile/providers/block_provider.dart';
 import 'package:nubar/shared/services/supabase_service.dart';
 
 // Search query state
 final searchQueryProvider = StateProvider<String>((ref) => '');
 
-// Search results - posts
+// Search results - posts (filtered by blocked users)
 final searchPostsProvider =
     FutureProvider<List<PostModel>>((ref) async {
   final query = ref.watch(searchQueryProvider);
   if (query.isEmpty) return [];
+
+  final blockedIds = await ref.watch(blockedUserIdsProvider.future);
 
   final response = await SupabaseService.from(SupabaseConstants.postsTable)
       .select('*, users!posts_user_id_fkey(username, full_name, avatar_url)')
@@ -22,14 +25,17 @@ final searchPostsProvider =
 
   return (response as List)
       .map((json) => PostModel.fromJson(json as Map<String, dynamic>))
+      .where((post) => !blockedIds.contains(post.userId))
       .toList();
 });
 
-// Search results - users
+// Search results - users (filtered by blocked users)
 final searchUsersProvider =
     FutureProvider<List<UserModel>>((ref) async {
   final query = ref.watch(searchQueryProvider);
   if (query.isEmpty) return [];
+
+  final blockedIds = await ref.watch(blockedUserIdsProvider.future);
 
   final response = await SupabaseService.from(SupabaseConstants.usersTable)
       .select()
@@ -38,6 +44,7 @@ final searchUsersProvider =
 
   return (response as List)
       .map((json) => UserModel.fromJson(json as Map<String, dynamic>))
+      .where((user) => !blockedIds.contains(user.id))
       .toList();
 });
 

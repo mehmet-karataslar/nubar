@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nubar/core/constants/app_constants.dart';
 import 'package:nubar/core/constants/supabase_constants.dart';
+import 'package:nubar/features/profile/providers/block_provider.dart';
 import 'package:nubar/shared/services/supabase_service.dart';
 
 // Post model
@@ -125,10 +126,12 @@ class CommentModel {
   }
 }
 
-// Feed provider - fetches paginated posts
+// Feed provider - fetches paginated posts, filtering blocked users
 final feedProvider = FutureProvider.family<List<PostModel>, int>((ref, page) async {
   final from = page * AppConstants.defaultPageSize;
   final to = from + AppConstants.defaultPageSize - 1;
+
+  final blockedIds = await ref.watch(blockedUserIdsProvider.future);
 
   final response = await SupabaseService.from(SupabaseConstants.postsTable)
       .select('*, users!posts_user_id_fkey(username, full_name, avatar_url)')
@@ -138,6 +141,7 @@ final feedProvider = FutureProvider.family<List<PostModel>, int>((ref, page) asy
 
   return (response as List)
       .map((json) => PostModel.fromJson(json as Map<String, dynamic>))
+      .where((post) => !blockedIds.contains(post.userId))
       .toList();
 });
 

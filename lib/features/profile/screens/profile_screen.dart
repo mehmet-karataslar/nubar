@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nubar/core/l10n/app_localizations.dart';
 import 'package:nubar/features/auth/providers/auth_provider.dart';
 import 'package:nubar/features/profile/providers/profile_provider.dart';
+import 'package:nubar/features/profile/providers/block_provider.dart';
+import 'package:nubar/features/profile/providers/badge_provider.dart';
+import 'package:nubar/features/profile/widgets/badge_display.dart';
 import 'package:nubar/features/profile/screens/edit_profile_screen.dart';
 import 'package:nubar/shared/widgets/nubar_avatar.dart';
 import 'package:nubar/shared/widgets/nubar_button.dart';
@@ -19,10 +22,57 @@ class ProfileScreen extends ConsumerWidget {
     final profileAsync = ref.watch(userProfileProvider(userId));
     final currentUserAsync = ref.watch(currentUserProvider);
     final isFollowingAsync = ref.watch(isFollowingProvider(userId));
+    final isBlockedAsync = ref.watch(isBlockedProvider(userId));
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.profile),
+        actions: [
+          if (currentUserAsync.valueOrNull?.id != userId)
+            PopupMenuButton<String>(
+              onSelected: (value) {
+                if (value == 'block') {
+                  final isBlocked = isBlockedAsync.valueOrNull ?? false;
+                  if (isBlocked) {
+                    ref
+                        .read(blockActionsProvider.notifier)
+                        .unblockUser(userId);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l10n.userUnblocked)),
+                    );
+                  } else {
+                    ref
+                        .read(blockActionsProvider.notifier)
+                        .blockUser(userId);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l10n.userBlocked)),
+                    );
+                  }
+                }
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem<String>(
+                  value: 'block',
+                  child: Row(
+                    children: [
+                      Icon(
+                        (isBlockedAsync.valueOrNull ?? false)
+                            ? Icons.lock_open
+                            : Icons.block,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        (isBlockedAsync.valueOrNull ?? false)
+                            ? l10n.unblock
+                            : l10n.block,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+        ],
       ),
       body: profileAsync.when(
         loading: () => const LoadingIndicator(),
@@ -46,6 +96,7 @@ class ProfileScreen extends ConsumerWidget {
           }
 
           final isOwnProfile = currentUserAsync.valueOrNull?.id == userId;
+          final isBlocked = isBlockedAsync.valueOrNull ?? false;
 
           return SingleChildScrollView(
             child: Column(
@@ -60,11 +111,33 @@ class ProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
 
                 // Name & username
-                Text(
-                  user.fullName,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      user.fullName,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineSmall
+                          ?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    if (user.verified)
+                      Padding(
+                        padding: const EdgeInsetsDirectional.only(start: 6),
+                        child: Icon(
+                          Icons.verified,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 20,
+                        ),
                       ),
+                    // Level stars
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(start: 6),
+                      child: _LevelStars(userId: userId),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -76,15 +149,6 @@ class ProfileScreen extends ConsumerWidget {
                             .withValues(alpha: 0.6),
                       ),
                 ),
-                if (user.verified)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Icon(
-                      Icons.verified,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 20,
-                    ),
-                  ),
                 const SizedBox(height: 12),
 
                 // Bio
@@ -97,7 +161,15 @@ class ProfileScreen extends ConsumerWidget {
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ),
-                const SizedBox(height: 16),
+
+                // Badges
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  child: BadgeDisplay(userId: userId),
+                ),
+
+                const SizedBox(height: 8),
 
                 // Location & Website
                 if (user.location != null || user.website != null)
@@ -165,7 +237,7 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
 
-                // Action button (Edit or Follow/Unfollow)
+                // Action button
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: isOwnProfile
@@ -183,33 +255,51 @@ class ProfileScreen extends ConsumerWidget {
                             );
                           },
                         )
-                      : isFollowingAsync.when(
-                          data: (isFollowing) => NubarButton(
-                            text: isFollowing ? l10n.unfollow : l10n.follow,
-                            isOutlined: isFollowing,
-                            width: double.infinity,
-                            onPressed: () {
-                              if (isFollowing) {
+                      : isBlocked
+                          ? NubarButton(
+                              text: l10n.blocked,
+                              isOutlined: true,
+                              width: double.infinity,
+                              onPressed: () {
                                 ref
-                                    .read(profileActionsProvider.notifier)
-                                    .unfollowUser(userId);
-                              } else {
-                                ref
-                                    .read(profileActionsProvider.notifier)
-                                    .followUser(userId);
-                              }
-                            },
-                          ),
-                          loading: () => const LoadingIndicator(),
-                          error: (_, __) => const SizedBox.shrink(),
-                        ),
+                                    .read(blockActionsProvider.notifier)
+                                    .unblockUser(userId);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(l10n.userUnblocked)),
+                                );
+                              },
+                            )
+                          : isFollowingAsync.when(
+                              data: (isFollowing) => NubarButton(
+                                text:
+                                    isFollowing ? l10n.unfollow : l10n.follow,
+                                isOutlined: isFollowing,
+                                width: double.infinity,
+                                onPressed: () {
+                                  if (isFollowing) {
+                                    ref
+                                        .read(
+                                            profileActionsProvider.notifier)
+                                        .unfollowUser(userId);
+                                  } else {
+                                    ref
+                                        .read(
+                                            profileActionsProvider.notifier)
+                                        .followUser(userId);
+                                  }
+                                },
+                              ),
+                              loading: () => const LoadingIndicator(),
+                              error: (_, __) => const SizedBox.shrink(),
+                            ),
                 ),
                 const SizedBox(height: 24),
 
                 // Divider
                 const Divider(),
 
-                // User's posts will go here (placeholder)
+                // User's posts placeholder
                 Padding(
                   padding: const EdgeInsets.all(32),
                   child: Text(
@@ -227,6 +317,36 @@ class ProfileScreen extends ConsumerWidget {
           );
         },
       ),
+    );
+  }
+}
+
+class _LevelStars extends ConsumerWidget {
+  final String userId;
+
+  const _LevelStars({required this.userId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final levelAsync = ref.watch(userLevelProvider(userId));
+
+    return levelAsync.when(
+      data: (level) {
+        if (level <= 1) return const SizedBox.shrink();
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: List.generate(
+            level,
+            (_) => Icon(
+              Icons.star,
+              size: 14,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
     );
   }
 }

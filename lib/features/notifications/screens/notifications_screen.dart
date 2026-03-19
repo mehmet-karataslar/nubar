@@ -48,7 +48,7 @@ class NotificationsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    final notificationsAsync = ref.watch(notificationsProvider);
+    final notificationsAsync = ref.watch(realtimeNotificationsProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -58,7 +58,7 @@ class NotificationsScreen extends ConsumerWidget {
             icon: const Icon(Icons.done_all),
             onPressed: () {
               ref
-                  .read(notificationActionsProvider.notifier)
+                  .read(realtimeNotificationsProvider.notifier)
                   .markAllAsRead();
             },
           ),
@@ -84,7 +84,7 @@ class NotificationsScreen extends ConsumerWidget {
 
           return RefreshIndicator(
             onRefresh: () async {
-              ref.invalidate(notificationsProvider);
+              ref.read(realtimeNotificationsProvider.notifier).refresh();
             },
             child: ListView.separated(
               itemCount: notifications.length,
@@ -139,7 +139,7 @@ class NotificationsScreen extends ConsumerWidget {
                   onTap: () {
                     if (!notification.isRead) {
                       ref
-                          .read(notificationActionsProvider.notifier)
+                          .read(realtimeNotificationsProvider.notifier)
                           .markAsRead(notification.id);
                     }
                   },
