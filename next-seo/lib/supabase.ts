@@ -51,3 +51,7 @@ export interface UserProfile {
   post_count: number;
   created_at: string;
 }
+
+export function getSeoSupabaseClient() {
+  return supabase;
+}
