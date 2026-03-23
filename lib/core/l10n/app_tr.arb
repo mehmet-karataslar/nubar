@@ -25,6 +25,9 @@
   "messages": "Mesajlar",
   "settings": "Ayarlar",
   "editProfile": "Profili Düzenle",
+  "editPost": "Gönderiyi düzenle",
+  "postShowFullContent": "Tam metni göster",
+  "postShowLessContent": "Daha az göster",
   "followers": "Takipçiler",
   "following": "Takip Edilenler",
   "posts": "Gönderiler",
@@ -168,7 +171,7 @@
   "camera": "Kamera",
   "poll": "Anket",
   "pollDuration": "Süre",
-  "addOption": "Seçenek ekle",
+  "addOption": "Seçenek Ekle",
   "option": "Seçenek",
   "fontSize": "Yazı Boyutu",
   "fontFamily": "Yazı Tipi",
@@ -179,7 +182,6 @@
   "bookHub": "Kitap (PDF)",
   "thread": "Zincir Gönderi",
   "voiceNote": "Sesli Kayıt",
-  "addOption": "Seçenek Ekle",
   "articleTitleHint": "Makale Başlığı...",
   "articleSubtitleHint": "Alt başlık (isteğe bağlı)...",
   "articleBodyHint": "Makale metnini yaz...",
@@ -207,5 +209,25 @@
   "voiceUploadFromDevice": "Veya Cihazdan Ses Yükle",
   "voiceTitleHint": "Podcast / Ses Başlığı",
   "voiceDescHint": "Açıklama veya özet yazın...",
-  "voiceBgImage": "Arka Plan Görseli"
+  "voiceBgImage": "Arka Plan Görseli",
+  "replies": "Yanıtlar",
+  "media": "Medya",
+  "photos": "Fotoğraflar",
+  "likes": "Beğeniler",
+  "liked": "Beğenilenler",
+  "saved": "Kaydedilenler",
+  "noReplies": "Henüz yanıt yok",
+  "noMedia": "Henüz medya yok",
+  "noPhotos": "Henüz fotoğraf yok",
+  "noLikedPosts": "Henüz beğenilen gönderi yok",
+  "noSavedPosts": "Henüz kaydedilen gönderi yok",
+  "reply": "Yanıtla",
+  "replyingToUser": "{username} için yanıt",
+  "@replyingToUser": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  }
 }

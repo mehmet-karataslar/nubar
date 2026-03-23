@@ -8,6 +8,7 @@ import 'package:nubar/shared/services/supabase_service.dart';
 class PostModel {
   final String id;
   final String userId;
+  final String? replyToPostId;
   final String? content;
   final String type;
   final List<String>? mediaUrls;
@@ -32,6 +33,7 @@ class PostModel {
   const PostModel({
     required this.id,
     required this.userId,
+    this.replyToPostId,
     this.content,
     this.type = 'text',
     this.mediaUrls,
@@ -58,6 +60,7 @@ class PostModel {
     return PostModel(
       id: json['id'] as String,
       userId: json['user_id'] as String,
+      replyToPostId: json['reply_to_post_id'] as String?,
       content: json['content'] as String?,
       type: json['type'] as String? ?? 'text',
       mediaUrls: (json['media_urls'] as List<dynamic>?)
@@ -353,6 +356,24 @@ class FeedActionsNotifier extends StateNotifier<AsyncValue<void>> {
       await SupabaseService.from(
         SupabaseConstants.postsTable,
       ).update({'is_deleted': true}).eq('id', postId);
+      _ref.invalidate(feedProvider);
+      _ref.invalidate(postDetailProvider(postId));
+    });
+  }
+
+  Future<void> updatePostContent(String postId, String content) async {
+    state = await AsyncValue.guard(() async {
+      final sanitized = content.trim();
+      if (sanitized.isEmpty) {
+        throw Exception('Post content is required');
+      }
+
+      await SupabaseService.from(
+        SupabaseConstants.postsTable,
+      ).update({'content': sanitized}).eq('id', postId);
+
+      _ref.invalidate(feedProvider);
+      _ref.invalidate(postDetailProvider(postId));
     });
   }
 }

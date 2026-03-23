@@ -176,11 +176,12 @@ class _NubarQuillToolbarState extends State<NubarQuillToolbar> {
   }
 
   void _showLinkDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final tController = TextEditingController();
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Bağlantı Ekle / Add Link'),
+        title: Text(l10n.share),
         content: TextField(
           controller: tController,
           decoration: const InputDecoration(hintText: 'https://...'),
@@ -188,7 +189,7 @@ class _NubarQuillToolbarState extends State<NubarQuillToolbar> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('İptal'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () {
@@ -205,7 +206,7 @@ class _NubarQuillToolbarState extends State<NubarQuillToolbar> {
                 Navigator.pop(ctx);
               }
             },
-            child: const Text('Ekle'),
+            child: Text(l10n.done),
           ),
         ],
       ),

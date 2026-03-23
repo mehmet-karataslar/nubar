@@ -1,6 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nubar/core/l10n/app_localizations.dart';
@@ -85,29 +82,18 @@ class _StudioQuizScreenState extends ConsumerState<StudioQuizScreen> {
   }
 
   void _handlePost() async {
+    final l10n = AppLocalizations.of(context)!;
     final question = _questionController.text.trim();
     final explanation = _explanationController.text.trim();
     final options = _optionControllers.map((c) => c.text.trim()).toList();
 
-    // Since our provider only takes title, subtitle and contentDelta right now,
-    // we need to adapt StudioProvider.
-    // We can store the quiz data encoded into contentDelta or we update the provider.
-    // For now, we will store Quiz structure inside contentDelta as JSON to reuse provider.
-
-    final quizData = {
-      'type': 'quiz',
-      'question': question,
-      'options': options,
-      'correctIndex': _correctOptionIndex,
-      if (explanation.isNotEmpty) 'explanation': explanation,
-    };
-
     await ref
         .read(studioProvider.notifier)
-        .createArticle(
-          title: 'Quiz: $question',
-          contentDelta: jsonEncode(quizData),
-          // The backend uses 'article' type but we can override it if we update the provider.
+        .createQuiz(
+          question: question,
+          options: options,
+          correctOptionIndex: _correctOptionIndex,
+          explanation: explanation,
         );
 
     if (mounted) {
@@ -115,7 +101,7 @@ class _StudioQuizScreenState extends ConsumerState<StudioQuizScreen> {
       if (error != null) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Hata: $error')));
+        ).showSnackBar(SnackBar(content: Text('${l10n.error}: $error')));
       } else {
         Navigator.pop(context); // close screen on success
       }
@@ -139,7 +125,7 @@ class _StudioQuizScreenState extends ConsumerState<StudioQuizScreen> {
             scrolledUnderElevation: 0,
             actions: [
               Padding(
-                padding: const EdgeInsets.only(right: 12),
+                padding: const EdgeInsetsDirectional.only(end: 12),
                 child: AnimatedOpacity(
                   opacity: _hasContent && !isLoading ? 1.0 : 0.4,
                   duration: const Duration(milliseconds: 200),
@@ -213,67 +199,67 @@ class _StudioQuizScreenState extends ConsumerState<StudioQuizScreen> {
                 const SizedBox(height: 12),
 
                 // Dynamic Options List
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _optionControllers.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final isCorrect = _correctOptionIndex == index;
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Radio to select correct
-                        Radio<int>(
-                          value: index,
-                          groupValue: _correctOptionIndex,
-                          activeColor: cs.tertiary,
-                          onChanged: (val) {
-                            if (val != null) {
-                              setState(() => _correctOptionIndex = val);
-                            }
-                          },
-                        ),
-                        // Option TextField
-                        Expanded(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: isCorrect
-                                  ? cs.tertiary.withValues(alpha: 0.1)
-                                  : cs.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
+                RadioGroup<int>(
+                  groupValue: _correctOptionIndex,
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() => _correctOptionIndex = val);
+                    }
+                  },
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _optionControllers.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final isCorrect = _correctOptionIndex == index;
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Radio to select correct
+                          Radio<int>(value: index, activeColor: cs.tertiary),
+                          // Option TextField
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
                                 color: isCorrect
-                                    ? cs.tertiary
-                                    : cs.tertiary.withValues(alpha: 0),
-                                width: 2,
+                                    ? cs.tertiary.withValues(alpha: 0.1)
+                                    : cs.surfaceContainerHighest,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: isCorrect
+                                      ? cs.tertiary
+                                      : cs.tertiary.withValues(alpha: 0),
+                                  width: 2,
+                                ),
                               ),
-                            ),
-                            child: TextField(
-                              controller: _optionControllers[index],
-                              decoration: InputDecoration(
-                                hintText: '${l10n.quizOptionHint} ${index + 1}',
-                                border: InputBorder.none,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 14,
+                              child: TextField(
+                                controller: _optionControllers[index],
+                                decoration: InputDecoration(
+                                  hintText:
+                                      '${l10n.quizOptionHint} ${index + 1}',
+                                  border: InputBorder.none,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 14,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        // Remove button
-                        if (_optionControllers.length > 2)
-                          IconButton(
-                            icon: const Icon(Icons.close_rounded),
-                            color: cs.error,
-                            onPressed: () => _removeOption(index),
-                          )
-                        else
-                          const SizedBox(width: 48), // Spacer to align
-                      ],
-                    );
-                  },
+                          // Remove button
+                          if (_optionControllers.length > 2)
+                            IconButton(
+                              icon: const Icon(Icons.close_rounded),
+                              color: cs.error,
+                              onPressed: () => _removeOption(index),
+                            )
+                          else
+                            const SizedBox(width: 48), // Spacer to align
+                        ],
+                      );
+                    },
+                  ),
                 ),
 
                 const SizedBox(height: 16),

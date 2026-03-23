@@ -30,6 +30,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get fullName => 'الاسم الكامل';
 
   @override
+  String get firstName => 'الاسم الأول';
+
+  @override
+  String get lastName => 'اسم العائلة';
+
+  @override
+  String get phoneOptional => 'رقم الهاتف (اختياري)';
+
+  @override
+  String get authUserAlreadyExists =>
+      'هذا البريد الإلكتروني مسجل بالفعل. يرجى تسجيل الدخول.';
+
+  @override
+  String get authGenericError => 'حدث خطأ. يرجى المحاولة مرة أخرى.';
+
+  @override
   String get forgotPassword => 'نسيت كلمة المرور؟';
 
   @override
@@ -67,6 +83,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get editProfile => 'تعديل الملف الشخصي';
+
+  @override
+  String get editPost => 'تعديل المنشور';
+
+  @override
+  String get postShowFullContent => 'عرض المنشور كاملاً';
+
+  @override
+  String get postShowLessContent => 'عرض أقل';
 
   @override
   String get followers => 'المتابعون';
@@ -347,4 +372,217 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get verified => 'موثق';
+
+  @override
+  String get blockedUsers => 'المستخدمون المحظورون';
+
+  @override
+  String get noBlockedUsers => 'لا يوجد مستخدمون محظورون';
+
+  @override
+  String get unblockConfirm => 'سيتم إلغاء حظره؟';
+
+  @override
+  String get maxLevel => 'أعلى مستوى';
+
+  @override
+  String get privacy => 'الخصوصية';
+
+  @override
+  String get account => 'الحساب';
+
+  @override
+  String get about => 'حول';
+
+  @override
+  String get changePassword => 'تغيير كلمة المرور';
+
+  @override
+  String get resetPasswordDesc =>
+      'أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة تعيين كلمة المرور.';
+
+  @override
+  String get resetPasswordSent => 'تم إرسال بريد إعادة تعيين كلمة المرور';
+
+  @override
+  String get logoutConfirm => 'هل أنت متأكد أنك تريد تسجيل الخروج؟';
+
+  @override
+  String get noFollowers => 'لا يوجد متابعون بعد';
+
+  @override
+  String get noFollowing => 'لا يتابع أحداً بعد';
+
+  @override
+  String get discard => 'تجاهل';
+
+  @override
+  String get discardConfirm => 'هل تريد التجاهل؟ سيتم فقدان منشورك.';
+
+  @override
+  String get camera => 'الكاميرا';
+
+  @override
+  String get poll => 'استطلاع';
+
+  @override
+  String get pollDuration => 'المدة';
+
+  @override
+  String get addOption => 'إضافة خيار';
+
+  @override
+  String get option => 'خيار';
+
+  @override
+  String get fontSize => 'حجم الخط';
+
+  @override
+  String get fontFamily => 'نوع الخط';
+
+  @override
+  String get contentStudio => 'استوديو المحتوى';
+
+  @override
+  String get quickPost => 'منشور سريع';
+
+  @override
+  String get article => 'مقال / مدونة';
+
+  @override
+  String get quiz => 'اختبار المعرفة';
+
+  @override
+  String get bookHub => 'كتاب (PDF)';
+
+  @override
+  String get thread => 'سلسلة';
+
+  @override
+  String get voiceNote => 'تسجيل صوتي';
+
+  @override
+  String get articleTitleHint => 'عنوان المقال...';
+
+  @override
+  String get articleSubtitleHint => 'العنوان الفرعي (اختياري)...';
+
+  @override
+  String get articleBodyHint => 'اكتب مقالك...';
+
+  @override
+  String get addCoverImage => 'إضافة صورة للغلاف';
+
+  @override
+  String get quizQuestionHint => 'اكتب السؤال هنا...';
+
+  @override
+  String get quizOptionsAndAnswer => 'الخيارات والإجابة الصحيحة';
+
+  @override
+  String get quizOptionHint => 'خيار';
+
+  @override
+  String get quizExplanationOptional => 'شرح (اختياري)';
+
+  @override
+  String get quizExplanationDesc => 'سيرى المستخدمون هذا الشرح بعد الإجابة.';
+
+  @override
+  String get quizExplanationHint => 'اشرح لماذا هذه الإجابة صحيحة...';
+
+  @override
+  String get pdfCover => 'الغلاف';
+
+  @override
+  String get pdfTitle => 'عنوان الكتاب';
+
+  @override
+  String get pdfAuthor => 'المؤلف';
+
+  @override
+  String get pdfPagesOptional => 'عدد الصفحات (اختياري)';
+
+  @override
+  String get pdfDocAdded => 'تم إضافة المستند PDF';
+
+  @override
+  String get pdfSelectDoc => 'اختر ملف PDF';
+
+  @override
+  String get pdfSummaryInfo => 'ملخص ومقدمة';
+
+  @override
+  String get pdfSummaryHint => 'موضوع الكتاب، النقاط الرئيسية...';
+
+  @override
+  String get threadAdd => 'إضافة إلى السلسلة';
+
+  @override
+  String get threadFirstHint => 'ماذا يحدث؟';
+
+  @override
+  String get threadNextHint => 'إضافة إلى هذا...';
+
+  @override
+  String get voiceAdded => 'تم إضافة الصوت';
+
+  @override
+  String get voiceRecording => 'جاري التسجيل...';
+
+  @override
+  String get voicePrompt => 'احكِ قصة صوتية...';
+
+  @override
+  String get voiceUploadFromDevice => 'أو رفع صوت من الجهاز';
+
+  @override
+  String get voiceTitleHint => 'عنوان البودكاست / الصوت';
+
+  @override
+  String get voiceDescHint => 'اكتب الوصف أو الملخص...';
+
+  @override
+  String get voiceBgImage => 'صورة الخلفية';
+
+  @override
+  String get replies => 'الردود';
+
+  @override
+  String get media => 'الوسائط';
+
+  @override
+  String get photos => 'الصور';
+
+  @override
+  String get likes => 'الإعجابات';
+
+  @override
+  String get liked => 'المعجب بها';
+
+  @override
+  String get saved => 'المحفوظات';
+
+  @override
+  String get noReplies => 'لا توجد ردود بعد';
+
+  @override
+  String get noMedia => 'لا توجد وسائط بعد';
+
+  @override
+  String get noPhotos => 'لا توجد صور بعد';
+
+  @override
+  String get noLikedPosts => 'لا توجد منشورات معجب بها بعد';
+
+  @override
+  String get noSavedPosts => 'لا توجد منشورات محفوظة بعد';
+
+  @override
+  String get reply => 'رد';
+
+  @override
+  String replyingToUser(String username) {
+    return 'الرد على $username';
+  }
 }

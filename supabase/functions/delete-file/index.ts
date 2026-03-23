@@ -27,7 +27,14 @@ serve(async (req) => {
       })
     }
 
-    const { fileName } = await req.json()
+    const body = await req.json()
+    const fileName = body.fileName ?? body.path
+    if (!fileName) {
+      return new Response(JSON.stringify({ error: 'fileName is required' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
 
     // Authenticate with Backblaze B2
     const authResponse = await fetch(

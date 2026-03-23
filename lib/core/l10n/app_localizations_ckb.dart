@@ -30,6 +30,22 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get fullName => 'ناوی تەواو';
 
   @override
+  String get firstName => 'ناو';
+
+  @override
+  String get lastName => 'ناوی باوک';
+
+  @override
+  String get phoneOptional => 'ژمارەی تەلەفۆن (ئارەزوومەندانە)';
+
+  @override
+  String get authUserAlreadyExists =>
+      'ئەم ئیمەیڵە پێشتر تۆمارکراوە. تکایە بچۆرە ژوورەوە.';
+
+  @override
+  String get authGenericError => 'هەڵەیەک ڕوویدا. تکایە دووبارە هەوڵبدەرەوە.';
+
+  @override
   String get forgotPassword => 'وشەی نهێنیت لەبیرچووە؟';
 
   @override
@@ -67,6 +83,15 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get editProfile => 'دەستکاری پرۆفایل';
+
+  @override
+  String get editPost => 'دەستکاری پۆست';
+
+  @override
+  String get postShowFullContent => 'هەموو دەقەکە پیشان بدە';
+
+  @override
+  String get postShowLessContent => 'کەمتر پیشان بدە';
 
   @override
   String get followers => 'شوێنکەوتوو';
@@ -347,4 +372,219 @@ class AppLocalizationsCkb extends AppLocalizations {
 
   @override
   String get verified => 'پشتڕاستکراوە';
+
+  @override
+  String get blockedUsers => 'بەکارهێنەرە بلۆککراوەکان';
+
+  @override
+  String get noBlockedUsers => 'بەکارهێنەری بلۆککراو نییە';
+
+  @override
+  String get unblockConfirm => 'بلۆکی لادەبرێت؟';
+
+  @override
+  String get maxLevel => 'بەرزترین ئاست';
+
+  @override
+  String get privacy => 'تایبەتمەندی';
+
+  @override
+  String get account => 'هەژمار';
+
+  @override
+  String get about => 'دەربارەی';
+
+  @override
+  String get changePassword => 'گۆڕینی وشەی نهێنی';
+
+  @override
+  String get resetPasswordDesc =>
+      'ئیمەیڵەکەت بنووسە و ئێمە لینکی نوێکردنەوەی وشەی نهێنیت بۆ دەنێرین.';
+
+  @override
+  String get resetPasswordSent => 'ئیمەیڵی نوێکردنەوەی وشەی نهێنی نێردرا';
+
+  @override
+  String get logoutConfirm => 'دڵنیایت دەتەوێت بچیتە دەرەوە؟';
+
+  @override
+  String get noFollowers => 'هێشتا شوێنکەوتوو نییە';
+
+  @override
+  String get noFollowing => 'هێشتا کەسی شوێن ناکەوێت';
+
+  @override
+  String get discard => 'پاشگەزبوونەوە';
+
+  @override
+  String get discardConfirm =>
+      'دڵنیایت لە پاشگەزبوونەوە؟ بابەتەکەت لەدەست دەدەیت.';
+
+  @override
+  String get camera => 'کامێرا';
+
+  @override
+  String get poll => 'ڕاپرسی';
+
+  @override
+  String get pollDuration => 'ماوە';
+
+  @override
+  String get addOption => 'هەڵبژاردە زیاد بکە';
+
+  @override
+  String get option => 'هەڵبژاردە';
+
+  @override
+  String get fontSize => 'قەبارەی فۆنت';
+
+  @override
+  String get fontFamily => 'جۆری فۆنت';
+
+  @override
+  String get contentStudio => 'ستۆدیۆی ناوەڕۆک';
+
+  @override
+  String get quickPost => 'پۆستی خێرا';
+
+  @override
+  String get article => 'وتار / بلۆگ';
+
+  @override
+  String get quiz => 'تاقیکردنەوەی زانیاری';
+
+  @override
+  String get bookHub => 'کتێب (PDF)';
+
+  @override
+  String get thread => 'زنجیرە پۆست';
+
+  @override
+  String get voiceNote => 'تۆماری دەنگی';
+
+  @override
+  String get articleTitleHint => 'ناونیشانی وتار...';
+
+  @override
+  String get articleSubtitleHint => 'ناونیشانی لاوەکی (ئارەزوومەندانە)...';
+
+  @override
+  String get articleBodyHint => 'وتارەکەت بنووسە...';
+
+  @override
+  String get addCoverImage => 'وێنەی بەرگ زیاد بکە';
+
+  @override
+  String get quizQuestionHint => 'پرسیارەکە لێرە بنووسە...';
+
+  @override
+  String get quizOptionsAndAnswer => 'هەڵبژاردەکان و وەڵامی ڕاست';
+
+  @override
+  String get quizOptionHint => 'هەڵبژاردە';
+
+  @override
+  String get quizExplanationOptional => 'ڕوونکردنەوە (ئارەزوومەندانە)';
+
+  @override
+  String get quizExplanationDesc =>
+      'بەکارهێنەران پاش وەڵامدانەوە ئەم ڕوونکردنەوەیە دەبینن.';
+
+  @override
+  String get quizExplanationHint => 'ڕوونی بکەرەوە بۆچی ئەم وەڵامە ڕاستە...';
+
+  @override
+  String get pdfCover => 'بەرگ';
+
+  @override
+  String get pdfTitle => 'ناونیشانی کتێب';
+
+  @override
+  String get pdfAuthor => 'نووسەر';
+
+  @override
+  String get pdfPagesOptional => 'ژمارەی پەڕەکان (ئارەزوومەندانە)';
+
+  @override
+  String get pdfDocAdded => 'بەڵگەنامەی PDF زیادکرا';
+
+  @override
+  String get pdfSelectDoc => 'فایلی PDF هەڵبژێرە';
+
+  @override
+  String get pdfSummaryInfo => 'پوختە و پێشەکی';
+
+  @override
+  String get pdfSummaryHint => 'بابەتی کتێب، خاڵە گرنگەکان...';
+
+  @override
+  String get threadAdd => 'زیادی بکە بۆ زنجیرەکە';
+
+  @override
+  String get threadFirstHint => 'چی ڕوودەدات؟';
+
+  @override
+  String get threadNextHint => 'زیادی بکە بۆ ئەمە...';
+
+  @override
+  String get voiceAdded => 'دەنگ زیادکرا';
+
+  @override
+  String get voiceRecording => 'تۆمار دەکرێت...';
+
+  @override
+  String get voicePrompt => 'چیرۆکێکی دەنگی بگێڕەوە...';
+
+  @override
+  String get voiceUploadFromDevice => 'یان دەنگ لە ئامێرەکەتەوە باربکە';
+
+  @override
+  String get voiceTitleHint => 'ناونیشانی پۆدکاست / دەنگ';
+
+  @override
+  String get voiceDescHint => 'پوختە یان ڕوونکردنەوە بنووسە...';
+
+  @override
+  String get voiceBgImage => 'وێنەی باکگراوند';
+
+  @override
+  String get replies => 'وەڵامەکان';
+
+  @override
+  String get media => 'میدیا';
+
+  @override
+  String get photos => 'وێنەکان';
+
+  @override
+  String get likes => 'بەدڵبوونەکان';
+
+  @override
+  String get liked => 'بەدڵبووەکان';
+
+  @override
+  String get saved => 'پاشەکەوتکراوەکان';
+
+  @override
+  String get noReplies => 'هێشتا وەڵام نییە';
+
+  @override
+  String get noMedia => 'هێشتا میدیا نییە';
+
+  @override
+  String get noPhotos => 'هێشتا وێنە نییە';
+
+  @override
+  String get noLikedPosts => 'هێشتا بابەتی بەدڵبوو نییە';
+
+  @override
+  String get noSavedPosts => 'هێشتا بابەتی پاشەکەوتکراو نییە';
+
+  @override
+  String get reply => 'وەڵام';
+
+  @override
+  String replyingToUser(String username) {
+    return 'وەڵام بۆ $username';
+  }
 }

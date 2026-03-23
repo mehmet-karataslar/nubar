@@ -146,6 +146,36 @@ abstract class AppLocalizations {
   /// **'Navê tevahî'**
   String get fullName;
 
+  /// No description provided for @firstName.
+  ///
+  /// In ku, this message translates to:
+  /// **'Nav'**
+  String get firstName;
+
+  /// No description provided for @lastName.
+  ///
+  /// In ku, this message translates to:
+  /// **'Paşnav'**
+  String get lastName;
+
+  /// No description provided for @phoneOptional.
+  ///
+  /// In ku, this message translates to:
+  /// **'Hejmara Telefonê (Vebijarkî)'**
+  String get phoneOptional;
+
+  /// No description provided for @authUserAlreadyExists.
+  ///
+  /// In ku, this message translates to:
+  /// **'Ev e-peyam jixwe tomar bûye. Ji kerema xwe têkeve.'**
+  String get authUserAlreadyExists;
+
+  /// No description provided for @authGenericError.
+  ///
+  /// In ku, this message translates to:
+  /// **'Çewtiyek çêbû. Ji kerema xwe dîsa biceribîne.'**
+  String get authGenericError;
+
   /// No description provided for @forgotPassword.
   ///
   /// In ku, this message translates to:
@@ -223,6 +253,24 @@ abstract class AppLocalizations {
   /// In ku, this message translates to:
   /// **'Profîlê biguherîne'**
   String get editProfile;
+
+  /// No description provided for @editPost.
+  ///
+  /// In ku, this message translates to:
+  /// **'Şandî biguherîne'**
+  String get editPost;
+
+  /// No description provided for @postShowFullContent.
+  ///
+  /// In ku, this message translates to:
+  /// **'Hemî nivîsarê veke'**
+  String get postShowFullContent;
+
+  /// No description provided for @postShowLessContent.
+  ///
+  /// In ku, this message translates to:
+  /// **'Kurt bike'**
+  String get postShowLessContent;
 
   /// No description provided for @followers.
   ///
@@ -763,6 +811,426 @@ abstract class AppLocalizations {
   /// In ku, this message translates to:
   /// **'Pejirandî'**
   String get verified;
+
+  /// No description provided for @blockedUsers.
+  ///
+  /// In ku, this message translates to:
+  /// **'Bikarhênerên astengkirî'**
+  String get blockedUsers;
+
+  /// No description provided for @noBlockedUsers.
+  ///
+  /// In ku, this message translates to:
+  /// **'Bikarhênerên astengkirî tune ne'**
+  String get noBlockedUsers;
+
+  /// No description provided for @unblockConfirm.
+  ///
+  /// In ku, this message translates to:
+  /// **'astengê wê bê rakirin?'**
+  String get unblockConfirm;
+
+  /// No description provided for @maxLevel.
+  ///
+  /// In ku, this message translates to:
+  /// **'Asta herî bilind'**
+  String get maxLevel;
+
+  /// No description provided for @privacy.
+  ///
+  /// In ku, this message translates to:
+  /// **'Taybetmendî'**
+  String get privacy;
+
+  /// No description provided for @account.
+  ///
+  /// In ku, this message translates to:
+  /// **'Hesab'**
+  String get account;
+
+  /// No description provided for @about.
+  ///
+  /// In ku, this message translates to:
+  /// **'Derbarê'**
+  String get about;
+
+  /// No description provided for @changePassword.
+  ///
+  /// In ku, this message translates to:
+  /// **'Şîfreyê biguherîne'**
+  String get changePassword;
+
+  /// No description provided for @resetPasswordDesc.
+  ///
+  /// In ku, this message translates to:
+  /// **'E-peyamê binivîse û em ê lînka guheztina şîfreyê bişînin.'**
+  String get resetPasswordDesc;
+
+  /// No description provided for @resetPasswordSent.
+  ///
+  /// In ku, this message translates to:
+  /// **'E-peyama guheztina şîfreyê hat şandin'**
+  String get resetPasswordSent;
+
+  /// No description provided for @logoutConfirm.
+  ///
+  /// In ku, this message translates to:
+  /// **'Tu dixwazî derkevî?'**
+  String get logoutConfirm;
+
+  /// No description provided for @noFollowers.
+  ///
+  /// In ku, this message translates to:
+  /// **'Hîn şopîner tune ne'**
+  String get noFollowers;
+
+  /// No description provided for @noFollowing.
+  ///
+  /// In ku, this message translates to:
+  /// **'Hîn kesî naşopîne'**
+  String get noFollowing;
+
+  /// No description provided for @discard.
+  ///
+  /// In ku, this message translates to:
+  /// **'Dev jê berde'**
+  String get discard;
+
+  /// No description provided for @discardConfirm.
+  ///
+  /// In ku, this message translates to:
+  /// **'Tu dixwazî dev jê berdî? Nivîsa te wê winda bibe.'**
+  String get discardConfirm;
+
+  /// No description provided for @camera.
+  ///
+  /// In ku, this message translates to:
+  /// **'Kamera'**
+  String get camera;
+
+  /// No description provided for @poll.
+  ///
+  /// In ku, this message translates to:
+  /// **'Rapirsî'**
+  String get poll;
+
+  /// No description provided for @pollDuration.
+  ///
+  /// In ku, this message translates to:
+  /// **'Dem'**
+  String get pollDuration;
+
+  /// No description provided for @addOption.
+  ///
+  /// In ku, this message translates to:
+  /// **'Vebijêrk Zêde Bike'**
+  String get addOption;
+
+  /// No description provided for @option.
+  ///
+  /// In ku, this message translates to:
+  /// **'Vebijêrk'**
+  String get option;
+
+  /// No description provided for @fontSize.
+  ///
+  /// In ku, this message translates to:
+  /// **'Mezinahiya Nivîsê'**
+  String get fontSize;
+
+  /// No description provided for @fontFamily.
+  ///
+  /// In ku, this message translates to:
+  /// **'Cureyê Nivîsê'**
+  String get fontFamily;
+
+  /// No description provided for @contentStudio.
+  ///
+  /// In ku, this message translates to:
+  /// **'Studyoya Naverokê'**
+  String get contentStudio;
+
+  /// No description provided for @quickPost.
+  ///
+  /// In ku, this message translates to:
+  /// **'Posta Bilez'**
+  String get quickPost;
+
+  /// No description provided for @article.
+  ///
+  /// In ku, this message translates to:
+  /// **'Gotar / Blog'**
+  String get article;
+
+  /// No description provided for @quiz.
+  ///
+  /// In ku, this message translates to:
+  /// **'Testa Zanînê'**
+  String get quiz;
+
+  /// No description provided for @bookHub.
+  ///
+  /// In ku, this message translates to:
+  /// **'Pirtûk (PDF)'**
+  String get bookHub;
+
+  /// No description provided for @thread.
+  ///
+  /// In ku, this message translates to:
+  /// **'Postên Rêzkirî'**
+  String get thread;
+
+  /// No description provided for @voiceNote.
+  ///
+  /// In ku, this message translates to:
+  /// **'Qeyda Dengî'**
+  String get voiceNote;
+
+  /// No description provided for @articleTitleHint.
+  ///
+  /// In ku, this message translates to:
+  /// **'Sernavê Gotarê...'**
+  String get articleTitleHint;
+
+  /// No description provided for @articleSubtitleHint.
+  ///
+  /// In ku, this message translates to:
+  /// **'Binnivîs (vebijarkî)...'**
+  String get articleSubtitleHint;
+
+  /// No description provided for @articleBodyHint.
+  ///
+  /// In ku, this message translates to:
+  /// **'Nivîsa gotarê binivîse...'**
+  String get articleBodyHint;
+
+  /// No description provided for @addCoverImage.
+  ///
+  /// In ku, this message translates to:
+  /// **'Wêneyê Bergê Zêde Bike'**
+  String get addCoverImage;
+
+  /// No description provided for @quizQuestionHint.
+  ///
+  /// In ku, this message translates to:
+  /// **'Pirsê li vir binivîsin...'**
+  String get quizQuestionHint;
+
+  /// No description provided for @quizOptionsAndAnswer.
+  ///
+  /// In ku, this message translates to:
+  /// **'Vebijêrk û Bersiva Rast'**
+  String get quizOptionsAndAnswer;
+
+  /// No description provided for @quizOptionHint.
+  ///
+  /// In ku, this message translates to:
+  /// **'Vebijêrk'**
+  String get quizOptionHint;
+
+  /// No description provided for @quizExplanationOptional.
+  ///
+  /// In ku, this message translates to:
+  /// **'Ravekirin (Vebijarkî)'**
+  String get quizExplanationOptional;
+
+  /// No description provided for @quizExplanationDesc.
+  ///
+  /// In ku, this message translates to:
+  /// **'Bikarhêner piştî bersivdanê dê vê ravekirinê bibînin.'**
+  String get quizExplanationDesc;
+
+  /// No description provided for @quizExplanationHint.
+  ///
+  /// In ku, this message translates to:
+  /// **'Rave bikin çima ev bersiv rast e...'**
+  String get quizExplanationHint;
+
+  /// No description provided for @pdfCover.
+  ///
+  /// In ku, this message translates to:
+  /// **'Berg'**
+  String get pdfCover;
+
+  /// No description provided for @pdfTitle.
+  ///
+  /// In ku, this message translates to:
+  /// **'Sernavê Pirtûkê'**
+  String get pdfTitle;
+
+  /// No description provided for @pdfAuthor.
+  ///
+  /// In ku, this message translates to:
+  /// **'Nivîskar'**
+  String get pdfAuthor;
+
+  /// No description provided for @pdfPagesOptional.
+  ///
+  /// In ku, this message translates to:
+  /// **'Hejmara Rûpelan (Vebijarkî)'**
+  String get pdfPagesOptional;
+
+  /// No description provided for @pdfDocAdded.
+  ///
+  /// In ku, this message translates to:
+  /// **'Belgeya PDF Hat Zêdekirin'**
+  String get pdfDocAdded;
+
+  /// No description provided for @pdfSelectDoc.
+  ///
+  /// In ku, this message translates to:
+  /// **'Belgeyek PDF Hilbijêrin'**
+  String get pdfSelectDoc;
+
+  /// No description provided for @pdfSummaryInfo.
+  ///
+  /// In ku, this message translates to:
+  /// **'Kurtî û Danasîn'**
+  String get pdfSummaryInfo;
+
+  /// No description provided for @pdfSummaryHint.
+  ///
+  /// In ku, this message translates to:
+  /// **'Mijara pirtûkê, xalên girîng...'**
+  String get pdfSummaryHint;
+
+  /// No description provided for @threadAdd.
+  ///
+  /// In ku, this message translates to:
+  /// **'Li Rêzê Zêde Bike'**
+  String get threadAdd;
+
+  /// No description provided for @threadFirstHint.
+  ///
+  /// In ku, this message translates to:
+  /// **'Çi diqewime?'**
+  String get threadFirstHint;
+
+  /// No description provided for @threadNextHint.
+  ///
+  /// In ku, this message translates to:
+  /// **'Zêde bike...'**
+  String get threadNextHint;
+
+  /// No description provided for @voiceAdded.
+  ///
+  /// In ku, this message translates to:
+  /// **'Deng Hat Zêdekirin'**
+  String get voiceAdded;
+
+  /// No description provided for @voiceRecording.
+  ///
+  /// In ku, this message translates to:
+  /// **'Tê tomarkirin...'**
+  String get voiceRecording;
+
+  /// No description provided for @voicePrompt.
+  ///
+  /// In ku, this message translates to:
+  /// **'Çîrokek bi deng vebêje...'**
+  String get voicePrompt;
+
+  /// No description provided for @voiceUploadFromDevice.
+  ///
+  /// In ku, this message translates to:
+  /// **'An Ji Amûrê Deng Bar Bike'**
+  String get voiceUploadFromDevice;
+
+  /// No description provided for @voiceTitleHint.
+  ///
+  /// In ku, this message translates to:
+  /// **'Sernavê Deng/Podcast'**
+  String get voiceTitleHint;
+
+  /// No description provided for @voiceDescHint.
+  ///
+  /// In ku, this message translates to:
+  /// **'Kurtî an ravekirin binivîse...'**
+  String get voiceDescHint;
+
+  /// No description provided for @voiceBgImage.
+  ///
+  /// In ku, this message translates to:
+  /// **'Wêneyê Paşxaneyê'**
+  String get voiceBgImage;
+
+  /// No description provided for @replies.
+  ///
+  /// In ku, this message translates to:
+  /// **'Bersiv'**
+  String get replies;
+
+  /// No description provided for @media.
+  ///
+  /// In ku, this message translates to:
+  /// **'Medya'**
+  String get media;
+
+  /// No description provided for @photos.
+  ///
+  /// In ku, this message translates to:
+  /// **'Wêne'**
+  String get photos;
+
+  /// No description provided for @likes.
+  ///
+  /// In ku, this message translates to:
+  /// **'Hezkirin'**
+  String get likes;
+
+  /// No description provided for @liked.
+  ///
+  /// In ku, this message translates to:
+  /// **'Hezkirî'**
+  String get liked;
+
+  /// No description provided for @saved.
+  ///
+  /// In ku, this message translates to:
+  /// **'Tomarkirî'**
+  String get saved;
+
+  /// No description provided for @noReplies.
+  ///
+  /// In ku, this message translates to:
+  /// **'Hêj bersiv tune ne'**
+  String get noReplies;
+
+  /// No description provided for @noMedia.
+  ///
+  /// In ku, this message translates to:
+  /// **'Hêj medya tune ne'**
+  String get noMedia;
+
+  /// No description provided for @noPhotos.
+  ///
+  /// In ku, this message translates to:
+  /// **'Hêj wêne tune ne'**
+  String get noPhotos;
+
+  /// No description provided for @noLikedPosts.
+  ///
+  /// In ku, this message translates to:
+  /// **'Hêj postên hezkirî tune ne'**
+  String get noLikedPosts;
+
+  /// No description provided for @noSavedPosts.
+  ///
+  /// In ku, this message translates to:
+  /// **'Hêj postên tomarkirî tune ne'**
+  String get noSavedPosts;
+
+  /// No description provided for @reply.
+  ///
+  /// In ku, this message translates to:
+  /// **'Bersiv'**
+  String get reply;
+
+  /// No description provided for @replyingToUser.
+  ///
+  /// In ku, this message translates to:
+  /// **'Bersiva {username}'**
+  String replyingToUser(String username);
 }
 
 class _AppLocalizationsDelegate

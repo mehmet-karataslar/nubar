@@ -30,6 +30,22 @@ class AppLocalizationsTr extends AppLocalizations {
   String get fullName => 'Tam Ad';
 
   @override
+  String get firstName => 'Ad';
+
+  @override
+  String get lastName => 'Soyad';
+
+  @override
+  String get phoneOptional => 'Telefon Numarası (Opsiyonel)';
+
+  @override
+  String get authUserAlreadyExists =>
+      'Bu e-posta zaten kayıtlı. Lütfen giriş yapın.';
+
+  @override
+  String get authGenericError => 'Bir hata oluştu. Lütfen tekrar deneyin.';
+
+  @override
   String get forgotPassword => 'Şifreni mi unuttun?';
 
   @override
@@ -67,6 +83,15 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get editProfile => 'Profili Düzenle';
+
+  @override
+  String get editPost => 'Gönderiyi düzenle';
+
+  @override
+  String get postShowFullContent => 'Tam metni göster';
+
+  @override
+  String get postShowLessContent => 'Daha az göster';
 
   @override
   String get followers => 'Takipçiler';
@@ -347,4 +372,220 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get verified => 'Doğrulanmış';
+
+  @override
+  String get blockedUsers => 'Engellenen Kullanıcılar';
+
+  @override
+  String get noBlockedUsers => 'Engellenen kullanıcı yok';
+
+  @override
+  String get unblockConfirm => 'kullanıcısının engeli kaldırılacak?';
+
+  @override
+  String get maxLevel => 'En Yüksek Seviye';
+
+  @override
+  String get privacy => 'Gizlilik';
+
+  @override
+  String get account => 'Hesap';
+
+  @override
+  String get about => 'Hakkında';
+
+  @override
+  String get changePassword => 'Şifre Değiştir';
+
+  @override
+  String get resetPasswordDesc =>
+      'E-posta adresinizi girin, size şifre sıfırlama bağlantısı gönderelim.';
+
+  @override
+  String get resetPasswordSent => 'Şifre sıfırlama e-postası gönderildi';
+
+  @override
+  String get logoutConfirm => 'Çıkış yapmak istediğinize emin misiniz?';
+
+  @override
+  String get noFollowers => 'Henüz takipçi yok';
+
+  @override
+  String get noFollowing => 'Henüz kimseyi takip etmiyor';
+
+  @override
+  String get discard => 'Vazgeç';
+
+  @override
+  String get discardConfirm =>
+      'Vazgeçmek istediğinize emin misiniz? Gönderiniz kaybolacak.';
+
+  @override
+  String get camera => 'Kamera';
+
+  @override
+  String get poll => 'Anket';
+
+  @override
+  String get pollDuration => 'Süre';
+
+  @override
+  String get addOption => 'Seçenek Ekle';
+
+  @override
+  String get option => 'Seçenek';
+
+  @override
+  String get fontSize => 'Yazı Boyutu';
+
+  @override
+  String get fontFamily => 'Yazı Tipi';
+
+  @override
+  String get contentStudio => 'İçerik Stüdyosu';
+
+  @override
+  String get quickPost => 'Hızlı Gönderi';
+
+  @override
+  String get article => 'Makale / Blog';
+
+  @override
+  String get quiz => 'Bilgi Testi';
+
+  @override
+  String get bookHub => 'Kitap (PDF)';
+
+  @override
+  String get thread => 'Zincir Gönderi';
+
+  @override
+  String get voiceNote => 'Sesli Kayıt';
+
+  @override
+  String get articleTitleHint => 'Makale Başlığı...';
+
+  @override
+  String get articleSubtitleHint => 'Alt başlık (isteğe bağlı)...';
+
+  @override
+  String get articleBodyHint => 'Makale metnini yaz...';
+
+  @override
+  String get addCoverImage => 'Kapak Görseli Ekle';
+
+  @override
+  String get quizQuestionHint => 'Soruyu buraya yazın...';
+
+  @override
+  String get quizOptionsAndAnswer => 'Seçenekler & Doğru Cevap';
+
+  @override
+  String get quizOptionHint => 'Seçenek';
+
+  @override
+  String get quizExplanationOptional => 'Açıklama (İsteğe Bağlı)';
+
+  @override
+  String get quizExplanationDesc =>
+      'Kullanıcılar cevap verdikten sonra bu açıklamayı görecek.';
+
+  @override
+  String get quizExplanationHint =>
+      'Bu cevabın neden doğru olduğunu açıklayın...';
+
+  @override
+  String get pdfCover => 'Kapak';
+
+  @override
+  String get pdfTitle => 'Kitap Başlığı';
+
+  @override
+  String get pdfAuthor => 'Yazar';
+
+  @override
+  String get pdfPagesOptional => 'Sayfa Sayısı (Opsiyonel)';
+
+  @override
+  String get pdfDocAdded => 'PDF Belgesi Eklendi';
+
+  @override
+  String get pdfSelectDoc => 'PDF Dosyasını Seçin';
+
+  @override
+  String get pdfSummaryInfo => 'Özet & Tanıtım';
+
+  @override
+  String get pdfSummaryHint => 'Kitabın konusu, öne çıkan noktalar...';
+
+  @override
+  String get threadAdd => 'Zincire Ekle';
+
+  @override
+  String get threadFirstHint => 'Neler oluyor?';
+
+  @override
+  String get threadNextHint => 'Buna ekle...';
+
+  @override
+  String get voiceAdded => 'Ses Eklendi';
+
+  @override
+  String get voiceRecording => 'Kaydediliyor...';
+
+  @override
+  String get voicePrompt => 'Sesli bir hikaye anlat...';
+
+  @override
+  String get voiceUploadFromDevice => 'Veya Cihazdan Ses Yükle';
+
+  @override
+  String get voiceTitleHint => 'Podcast / Ses Başlığı';
+
+  @override
+  String get voiceDescHint => 'Açıklama veya özet yazın...';
+
+  @override
+  String get voiceBgImage => 'Arka Plan Görseli';
+
+  @override
+  String get replies => 'Yanıtlar';
+
+  @override
+  String get media => 'Medya';
+
+  @override
+  String get photos => 'Fotoğraflar';
+
+  @override
+  String get likes => 'Beğeniler';
+
+  @override
+  String get liked => 'Beğenilenler';
+
+  @override
+  String get saved => 'Kaydedilenler';
+
+  @override
+  String get noReplies => 'Henüz yanıt yok';
+
+  @override
+  String get noMedia => 'Henüz medya yok';
+
+  @override
+  String get noPhotos => 'Henüz fotoğraf yok';
+
+  @override
+  String get noLikedPosts => 'Henüz beğenilen gönderi yok';
+
+  @override
+  String get noSavedPosts => 'Henüz kaydedilen gönderi yok';
+
+  @override
+  String get reply => 'Yanıtla';
+
+  @override
+  String replyingToUser(String username) {
+    return '$username için yanıt';
+  }
 }

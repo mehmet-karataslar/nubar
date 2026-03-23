@@ -75,7 +75,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final authState = ref.watch(authNotifierProvider);
 
@@ -90,6 +89,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -99,102 +99,122 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         ),
         child: SafeArea(
           child: Container(
-            color: Colors.black.withValues(alpha: 0.18),
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsetsDirectional.all(20),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 560),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          l10n.login,
-                          style: textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            color: colorScheme.onSurface,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          l10n.welcomeSubtitle,
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurface.withValues(alpha: 0.7),
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 24),
-                        NubarTextField(
-                          controller: _emailController,
-                          label: l10n.email,
-                          prefixIcon: Icons.email_outlined,
-                          keyboardType: TextInputType.emailAddress,
-                          validator: Validators.validateEmail,
-                        ),
-                        const SizedBox(height: 14),
-                        NubarTextField(
-                          controller: _passwordController,
-                          label: l10n.password,
-                          prefixIcon: Icons.lock_outlined,
-                          obscureText: _obscurePassword,
-                          validator: Validators.validatePassword,
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility_outlined
-                                  : Icons.visibility_off_outlined,
-                            ),
-                            onPressed: () {
-                              setState(
-                                () => _obscurePassword = !_obscurePassword,
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Align(
-                          alignment: AlignmentDirectional.centerEnd,
-                          child: TextButton(
-                            onPressed: () {
-                              _showForgotPasswordDialog(context, l10n);
-                            },
-                            child: Text(l10n.forgotPassword),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        NubarButton(
-                          text: l10n.login,
-                          onPressed: _handleLogin,
-                          isLoading: authState.isLoading,
-                          width: double.infinity,
-                          icon: Icons.login_rounded,
-                        ),
-                        const SizedBox(height: 14),
-                        Row(
+            color: Colors.black.withValues(alpha: 0.34),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  padding: const EdgeInsetsDirectional.all(20),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                      maxWidth: 560,
+                    ),
+                    child: Center(
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Text(l10n.dontHaveAccount),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const RegisterScreen(),
+                            Text(
+                              l10n.login,
+                              style: textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                                shadows: const [
+                                  Shadow(
+                                    color: Colors.black54,
+                                    blurRadius: 10,
+                                    offset: Offset(0, 2),
                                   ),
-                                );
-                              },
-                              child: Text(l10n.register),
+                                ],
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              l10n.welcomeSubtitle,
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: Colors.white.withValues(alpha: 0.9),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 24),
+                            NubarTextField(
+                              controller: _emailController,
+                              label: l10n.email,
+                              prefixIcon: Icons.email_outlined,
+                              keyboardType: TextInputType.emailAddress,
+                              validator: Validators.validateEmail,
+                            ),
+                            const SizedBox(height: 14),
+                            NubarTextField(
+                              controller: _passwordController,
+                              label: l10n.password,
+                              prefixIcon: Icons.lock_outlined,
+                              obscureText: _obscurePassword,
+                              validator: Validators.validatePassword,
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                ),
+                                onPressed: () {
+                                  setState(
+                                    () => _obscurePassword = !_obscurePassword,
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Align(
+                              alignment: AlignmentDirectional.centerEnd,
+                              child: TextButton(
+                                onPressed: () {
+                                  _showForgotPasswordDialog(context, l10n);
+                                },
+                                child: Text(l10n.forgotPassword),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            NubarButton(
+                              text: l10n.login,
+                              onPressed: _handleLogin,
+                              isLoading: authState.isLoading,
+                              width: double.infinity,
+                              icon: Icons.login_rounded,
+                            ),
+                            const SizedBox(height: 14),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  l10n.dontHaveAccount,
+                                  style: textTheme.bodyMedium?.copyWith(
+                                    color: Colors.white.withValues(alpha: 0.95),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => const RegisterScreen(),
+                                      ),
+                                    );
+                                  },
+                                  child: Text(l10n.register),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
         ),

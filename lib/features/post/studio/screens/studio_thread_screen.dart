@@ -63,6 +63,7 @@ class _StudioThreadScreenState extends ConsumerState<StudioThreadScreen> {
   }
 
   void _handlePost() async {
+    final l10n = AppLocalizations.of(context)!;
     final texts = _controllers
         .map((c) => c.text.trim())
         .where((t) => t.isNotEmpty)
@@ -77,7 +78,7 @@ class _StudioThreadScreenState extends ConsumerState<StudioThreadScreen> {
       if (error != null) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Hata: $error')));
+        ).showSnackBar(SnackBar(content: Text('${l10n.error}: $error')));
       } else {
         Navigator.pop(context); // close screen on success
       }
@@ -101,7 +102,7 @@ class _StudioThreadScreenState extends ConsumerState<StudioThreadScreen> {
             scrolledUnderElevation: 0,
             actions: [
               Padding(
-                padding: const EdgeInsets.only(right: 12),
+                padding: const EdgeInsetsDirectional.only(end: 12),
                 child: AnimatedOpacity(
                   opacity: _hasContent && !isLoading ? 1.0 : 0.4,
                   duration: const Duration(milliseconds: 200),
@@ -137,9 +138,13 @@ class _StudioThreadScreenState extends ConsumerState<StudioThreadScreen> {
               if (index == _controllers.length) {
                 // Add button
                 return Padding(
-                  padding: const EdgeInsets.only(left: 48, top: 16, bottom: 40),
+                  padding: const EdgeInsetsDirectional.only(
+                    start: 48,
+                    top: 16,
+                    bottom: 40,
+                  ),
                   child: Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: TextButton.icon(
                       onPressed: _controllers.length < 10
                           ? _addThreadPart
@@ -226,7 +231,7 @@ class _StudioThreadScreenState extends ConsumerState<StudioThreadScreen> {
                               ),
                               if (index > 0)
                                 Align(
-                                  alignment: Alignment.centerRight,
+                                  alignment: AlignmentDirectional.centerEnd,
                                   child: IconButton(
                                     icon: const Icon(Icons.close, size: 18),
                                     color: cs.error,

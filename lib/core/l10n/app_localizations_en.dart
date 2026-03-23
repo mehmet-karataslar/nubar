@@ -30,6 +30,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fullName => 'Full Name';
 
   @override
+  String get firstName => 'First Name';
+
+  @override
+  String get lastName => 'Last Name';
+
+  @override
+  String get phoneOptional => 'Phone Number (Optional)';
+
+  @override
+  String get authUserAlreadyExists =>
+      'This email is already registered. Please log in.';
+
+  @override
+  String get authGenericError => 'An error occurred. Please try again.';
+
+  @override
   String get forgotPassword => 'Forgot password?';
 
   @override
@@ -67,6 +83,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editProfile => 'Edit Profile';
+
+  @override
+  String get editPost => 'Edit post';
+
+  @override
+  String get postShowFullContent => 'Show full post';
+
+  @override
+  String get postShowLessContent => 'Show less';
 
   @override
   String get followers => 'Followers';
@@ -347,4 +372,219 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get verified => 'Verified';
+
+  @override
+  String get blockedUsers => 'Blocked Users';
+
+  @override
+  String get noBlockedUsers => 'No blocked users';
+
+  @override
+  String get unblockConfirm => 'will be unblocked?';
+
+  @override
+  String get maxLevel => 'Maximum Level';
+
+  @override
+  String get privacy => 'Privacy';
+
+  @override
+  String get account => 'Account';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get changePassword => 'Change Password';
+
+  @override
+  String get resetPasswordDesc =>
+      'Enter your email and we\'ll send you a password reset link.';
+
+  @override
+  String get resetPasswordSent => 'Password reset email sent';
+
+  @override
+  String get logoutConfirm => 'Are you sure you want to log out?';
+
+  @override
+  String get noFollowers => 'No followers yet';
+
+  @override
+  String get noFollowing => 'Not following anyone yet';
+
+  @override
+  String get discard => 'Discard';
+
+  @override
+  String get discardConfirm =>
+      'Are you sure you want to discard? Your post will be lost.';
+
+  @override
+  String get camera => 'Camera';
+
+  @override
+  String get poll => 'Poll';
+
+  @override
+  String get pollDuration => 'Duration';
+
+  @override
+  String get addOption => 'Add Option';
+
+  @override
+  String get option => 'Option';
+
+  @override
+  String get fontSize => 'Font Size';
+
+  @override
+  String get fontFamily => 'Font Family';
+
+  @override
+  String get contentStudio => 'Content Studio';
+
+  @override
+  String get quickPost => 'Quick Post';
+
+  @override
+  String get article => 'Article / Blog';
+
+  @override
+  String get quiz => 'Trivia & Quiz';
+
+  @override
+  String get bookHub => 'Book (PDF)';
+
+  @override
+  String get thread => 'Thread';
+
+  @override
+  String get voiceNote => 'Voice Note';
+
+  @override
+  String get articleTitleHint => 'Article Title...';
+
+  @override
+  String get articleSubtitleHint => 'Subtitle (Optional)...';
+
+  @override
+  String get articleBodyHint => 'Write your article...';
+
+  @override
+  String get addCoverImage => 'Add Cover Image';
+
+  @override
+  String get quizQuestionHint => 'Write the question here...';
+
+  @override
+  String get quizOptionsAndAnswer => 'Options & Correct Answer';
+
+  @override
+  String get quizOptionHint => 'Option';
+
+  @override
+  String get quizExplanationOptional => 'Explanation (Optional)';
+
+  @override
+  String get quizExplanationDesc =>
+      'Users will see this explanation after answering.';
+
+  @override
+  String get quizExplanationHint => 'Explain why this answer is correct...';
+
+  @override
+  String get pdfCover => 'Cover';
+
+  @override
+  String get pdfTitle => 'Book Title';
+
+  @override
+  String get pdfAuthor => 'Author';
+
+  @override
+  String get pdfPagesOptional => 'Page Count (Optional)';
+
+  @override
+  String get pdfDocAdded => 'PDF Document Added';
+
+  @override
+  String get pdfSelectDoc => 'Select PDF File';
+
+  @override
+  String get pdfSummaryInfo => 'Summary & Intro';
+
+  @override
+  String get pdfSummaryHint => 'The topic, key points...';
+
+  @override
+  String get threadAdd => 'Add to Thread';
+
+  @override
+  String get threadFirstHint => 'What\'s happening?';
+
+  @override
+  String get threadNextHint => 'Add to this...';
+
+  @override
+  String get voiceAdded => 'Audio Added';
+
+  @override
+  String get voiceRecording => 'Recording...';
+
+  @override
+  String get voicePrompt => 'Tell an audio story...';
+
+  @override
+  String get voiceUploadFromDevice => 'Or Upload Audio';
+
+  @override
+  String get voiceTitleHint => 'Podcast / Voice Title';
+
+  @override
+  String get voiceDescHint => 'Write description or summary...';
+
+  @override
+  String get voiceBgImage => 'Background Image';
+
+  @override
+  String get replies => 'Replies';
+
+  @override
+  String get media => 'Media';
+
+  @override
+  String get photos => 'Photos';
+
+  @override
+  String get likes => 'Likes';
+
+  @override
+  String get liked => 'Liked';
+
+  @override
+  String get saved => 'Saved';
+
+  @override
+  String get noReplies => 'No replies yet';
+
+  @override
+  String get noMedia => 'No media yet';
+
+  @override
+  String get noPhotos => 'No photos yet';
+
+  @override
+  String get noLikedPosts => 'No liked posts yet';
+
+  @override
+  String get noSavedPosts => 'No saved posts yet';
+
+  @override
+  String get reply => 'Reply';
+
+  @override
+  String replyingToUser(String username) {
+    return 'Replying to $username';
+  }
 }

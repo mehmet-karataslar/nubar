@@ -25,6 +25,9 @@
   "messages": "الرسائل",
   "settings": "الإعدادات",
   "editProfile": "تعديل الملف الشخصي",
+  "editPost": "تعديل المنشور",
+  "postShowFullContent": "عرض المنشور كاملاً",
+  "postShowLessContent": "عرض أقل",
   "followers": "المتابعون",
   "following": "المتابَعون",
   "posts": "المنشورات",
@@ -179,7 +182,6 @@
   "bookHub": "كتاب (PDF)",
   "thread": "سلسلة",
   "voiceNote": "تسجيل صوتي",
-  "addOption": "إضافة خيار",
   "articleTitleHint": "عنوان المقال...",
   "articleSubtitleHint": "العنوان الفرعي (اختياري)...",
   "articleBodyHint": "اكتب مقالك...",
@@ -207,5 +209,25 @@
   "voiceUploadFromDevice": "أو رفع صوت من الجهاز",
   "voiceTitleHint": "عنوان البودكاست / الصوت",
   "voiceDescHint": "اكتب الوصف أو الملخص...",
-  "voiceBgImage": "صورة الخلفية"
+  "voiceBgImage": "صورة الخلفية",
+  "replies": "الردود",
+  "media": "الوسائط",
+  "photos": "الصور",
+  "likes": "الإعجابات",
+  "liked": "المعجب بها",
+  "saved": "المحفوظات",
+  "noReplies": "لا توجد ردود بعد",
+  "noMedia": "لا توجد وسائط بعد",
+  "noPhotos": "لا توجد صور بعد",
+  "noLikedPosts": "لا توجد منشورات معجب بها بعد",
+  "noSavedPosts": "لا توجد منشورات محفوظة بعد",
+  "reply": "رد",
+  "replyingToUser": "الرد على {username}",
+  "@replyingToUser": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  }
 }

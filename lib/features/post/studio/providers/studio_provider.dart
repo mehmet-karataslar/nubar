@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nubar/core/constants/app_constants.dart';
 import 'package:nubar/core/constants/backblaze_constants.dart';
 import 'package:nubar/core/constants/supabase_constants.dart';
+import 'package:nubar/core/utils/current_user_profile.dart';
 import 'package:nubar/shared/services/backblaze_service.dart';
 import 'package:nubar/shared/services/supabase_service.dart';
 
@@ -26,12 +28,7 @@ class StudioNotifier extends StateNotifier<AsyncValue<void>> {
     state = await AsyncValue.guard(() async {
       final currentUser = SupabaseService.currentUser;
       if (currentUser == null) throw Exception('Not authenticated');
-
-      final profile = await SupabaseService.from(
-        SupabaseConstants.usersTable,
-      ).select('id').eq('auth_id', currentUser.id).single();
-
-      final userId = profile['id'] as String;
+      final userId = await CurrentUserProfile.getOrCreateId();
 
       final metadata = {
         'article_title': title,
@@ -56,13 +53,15 @@ class StudioNotifier extends StateNotifier<AsyncValue<void>> {
       final postId = postResponse['id'] as String;
 
       if (coverImage != null) {
-        final filename = '${DateTime.now().millisecondsSinceEpoch}_cover.jpg';
+        final extension = _extensionOf(coverImage.path, fallback: 'jpg');
+        final filename =
+            '${DateTime.now().millisecondsSinceEpoch}_cover.$extension';
         final path = BackblazeConstants.postImagePath(postId, filename);
 
         final url = await BackblazeService.uploadFile(
           file: coverImage,
           path: path,
-          contentType: 'image/jpeg',
+          contentType: _contentTypeForImage(extension),
         );
 
         await SupabaseService.from(SupabaseConstants.postsTable)
@@ -87,12 +86,7 @@ class StudioNotifier extends StateNotifier<AsyncValue<void>> {
     state = await AsyncValue.guard(() async {
       final currentUser = SupabaseService.currentUser;
       if (currentUser == null) throw Exception('Not authenticated');
-
-      final profile = await SupabaseService.from(
-        SupabaseConstants.usersTable,
-      ).select('id').eq('auth_id', currentUser.id).single();
-
-      final userId = profile['id'] as String;
+      final userId = await CurrentUserProfile.getOrCreateId();
 
       final metadata = {
         'book_title': title,
@@ -118,19 +112,21 @@ class StudioNotifier extends StateNotifier<AsyncValue<void>> {
       final postId = postResponse['id'] as String;
 
       // Upload Cover Image
+      final coverExt = _extensionOf(coverImage.path, fallback: 'jpg');
       final coverFilename =
-          '${DateTime.now().millisecondsSinceEpoch}_cover.jpg';
+          '${DateTime.now().millisecondsSinceEpoch}_cover.$coverExt';
       final coverPath = BackblazeConstants.postImagePath(postId, coverFilename);
       final coverUrl = await BackblazeService.uploadFile(
         file: coverImage,
         path: coverPath,
-        contentType: 'image/jpeg',
+        contentType: _contentTypeForImage(coverExt),
       );
 
       // Upload PDF
+      _validateFileSize(pdfFile, AppConstants.maxPdfSizeMB);
       final pdfFilename =
           '${DateTime.now().millisecondsSinceEpoch}_document.pdf';
-      final pdfPath = BackblazeConstants.postImagePath(postId, pdfFilename);
+      final pdfPath = BackblazeConstants.postPdfPath(postId, pdfFilename);
       final pdfUrl = await BackblazeService.uploadFile(
         file: pdfFile,
         path: pdfPath,
@@ -156,12 +152,7 @@ class StudioNotifier extends StateNotifier<AsyncValue<void>> {
     state = await AsyncValue.guard(() async {
       final currentUser = SupabaseService.currentUser;
       if (currentUser == null) throw Exception('Not authenticated');
-
-      final profile = await SupabaseService.from(
-        SupabaseConstants.usersTable,
-      ).select('id').eq('auth_id', currentUser.id).single();
-
-      final userId = profile['id'] as String;
+      final userId = await CurrentUserProfile.getOrCreateId();
 
       final metadata = {'is_thread': true, 'thread_parts': threadTexts};
 
@@ -187,12 +178,7 @@ class StudioNotifier extends StateNotifier<AsyncValue<void>> {
     state = await AsyncValue.guard(() async {
       final currentUser = SupabaseService.currentUser;
       if (currentUser == null) throw Exception('Not authenticated');
-
-      final profile = await SupabaseService.from(
-        SupabaseConstants.usersTable,
-      ).select('id').eq('auth_id', currentUser.id).single();
-
-      final userId = profile['id'] as String;
+      final userId = await CurrentUserProfile.getOrCreateId();
 
       final metadata = {'voice_title': title, 'is_voice_note': true};
 
@@ -212,24 +198,27 @@ class StudioNotifier extends StateNotifier<AsyncValue<void>> {
       final postId = postResponse['id'] as String;
 
       // Upload Audio
+      _validateFileSize(audioFile, AppConstants.maxVideoSizeMB);
+      final audioExt = _extensionOf(audioFile.path, fallback: 'm4a');
       final audioFilename =
-          '${DateTime.now().millisecondsSinceEpoch}_audio.m4a';
-      final audioPath = BackblazeConstants.postImagePath(postId, audioFilename);
+          '${DateTime.now().millisecondsSinceEpoch}_audio.$audioExt';
+      final audioPath = BackblazeConstants.postVideoPath(postId, audioFilename);
       final audioUrl = await BackblazeService.uploadFile(
         file: audioFile,
         path: audioPath,
-        contentType: 'audio/mp4', // Gen for m4a/mp3
+        contentType: _contentTypeForAudio(audioExt),
       );
 
       // Upload Background Image
       String? bgUrl;
       if (backgroundImage != null) {
-        final bgFilename = '${DateTime.now().millisecondsSinceEpoch}_bg.jpg';
+        final bgExt = _extensionOf(backgroundImage.path, fallback: 'jpg');
+        final bgFilename = '${DateTime.now().millisecondsSinceEpoch}_bg.$bgExt';
         final bgPath = BackblazeConstants.postImagePath(postId, bgFilename);
         bgUrl = await BackblazeService.uploadFile(
           file: backgroundImage,
           path: bgPath,
-          contentType: 'image/jpeg',
+          contentType: _contentTypeForImage(bgExt),
         );
       }
 
@@ -240,5 +229,79 @@ class StudioNotifier extends StateNotifier<AsyncValue<void>> {
           })
           .eq('id', postId);
     });
+  }
+
+  Future<void> createQuiz({
+    required String question,
+    required List<String> options,
+    required int correctOptionIndex,
+    String? explanation,
+    String language = 'ku',
+  }) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final currentUser = SupabaseService.currentUser;
+      if (currentUser == null) throw Exception('Not authenticated');
+      final userId = await CurrentUserProfile.getOrCreateId();
+      final metadata = {
+        'quiz_question': question,
+        'quiz_options': options,
+        'quiz_correct_index': correctOptionIndex,
+        if (explanation != null && explanation.trim().isNotEmpty)
+          'quiz_explanation': explanation.trim(),
+      };
+
+      await SupabaseService.from(SupabaseConstants.postsTable).insert({
+        'user_id': userId,
+        'content': question,
+        'type': 'quiz',
+        'language': language,
+        'metadata': metadata,
+      });
+    });
+  }
+
+  String _extensionOf(String path, {required String fallback}) {
+    final fileName = path.split('/').last.split('\\').last;
+    final dotIndex = fileName.lastIndexOf('.');
+    if (dotIndex < 0 || dotIndex == fileName.length - 1) return fallback;
+    return fileName.substring(dotIndex + 1).toLowerCase();
+  }
+
+  String _contentTypeForImage(String extension) {
+    switch (extension) {
+      case 'png':
+        return 'image/png';
+      case 'gif':
+        return 'image/gif';
+      case 'webp':
+        return 'image/webp';
+      default:
+        return 'image/jpeg';
+    }
+  }
+
+  String _contentTypeForAudio(String extension) {
+    switch (extension) {
+      case 'mp3':
+        return 'audio/mpeg';
+      case 'wav':
+        return 'audio/wav';
+      case 'aac':
+        return 'audio/aac';
+      case 'm4a':
+      default:
+        return 'audio/mp4';
+    }
+  }
+
+  void _validateFileSize(File file, int maxSizeMb) {
+    final bytes = file.lengthSync();
+    final maxBytes = maxSizeMb * 1024 * 1024;
+    if (bytes > maxBytes) {
+      throw Exception(
+        'File is too large. Maximum allowed size is $maxSizeMb MB.',
+      );
+    }
   }
 }

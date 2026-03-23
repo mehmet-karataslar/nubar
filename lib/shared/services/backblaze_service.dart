@@ -7,7 +7,8 @@ import 'package:nubar/core/constants/supabase_constants.dart';
 import 'package:nubar/shared/services/supabase_service.dart';
 
 class BackblazeService {
-  static String get cdnUrl => dotenv.env['BACKBLAZE_CDN_URL'] ?? 'https://cdn.nubar.app';
+  static String get cdnUrl =>
+      dotenv.env['BACKBLAZE_CDN_URL'] ?? 'https://cdn.nubar.app';
 
   static Future<String> uploadFile({
     required File file,
@@ -17,10 +18,7 @@ class BackblazeService {
     // 1. Get signed upload URL from Edge Function
     final response = await SupabaseService.invokeFunction(
       SupabaseConstants.generateUploadUrlFunction,
-      body: {
-        'path': path,
-        'contentType': contentType,
-      },
+      body: {'path': path, 'contentType': contentType},
     );
 
     final data = jsonDecode(response.data as String);
@@ -49,7 +47,7 @@ class BackblazeService {
   static Future<void> deleteFile(String path) async {
     await SupabaseService.invokeFunction(
       SupabaseConstants.deleteFileFunction,
-      body: {'path': path},
+      body: {'fileName': path},
     );
   }
 }

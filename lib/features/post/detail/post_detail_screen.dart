@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nubar/core/l10n/app_localizations.dart';
 import 'package:nubar/core/utils/date_utils.dart';
 import 'package:nubar/features/feed/providers/feed_provider.dart';
 import 'package:nubar/features/feed/widgets/post_actions.dart';
+import 'package:nubar/features/post/create/create_post_screen.dart';
 import 'package:nubar/shared/widgets/loading_indicator.dart';
 import 'package:nubar/shared/widgets/nubar_avatar.dart';
 import 'package:nubar/shared/widgets/nubar_text_field.dart';
@@ -30,9 +32,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     final content = _commentController.text.trim();
     if (content.isEmpty) return;
 
-    ref
-        .read(feedActionsProvider.notifier)
-        .addComment(widget.postId, content);
+    ref.read(feedActionsProvider.notifier).addComment(widget.postId, content);
     _commentController.clear();
   }
 
@@ -42,17 +42,45 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     final postAsync = ref.watch(postDetailProvider(widget.postId));
     final commentsAsync = ref.watch(commentsProvider(widget.postId));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.post),
+    return postAsync.when(
+      loading: () => Scaffold(
+        appBar: AppBar(title: Text(l10n.post)),
+        body: const LoadingIndicator(),
       ),
-      body: postAsync.when(
-        loading: () => const LoadingIndicator(),
-        error: (error, _) => Center(child: Text(l10n.error)),
-        data: (post) {
-          if (post == null) return Center(child: Text(l10n.noResults));
+      error: (error, _) => Scaffold(
+        appBar: AppBar(title: Text(l10n.post)),
+        body: Center(child: Text(l10n.error)),
+      ),
+      data: (post) {
+        if (post == null) {
+          return Scaffold(
+            appBar: AppBar(title: Text(l10n.post)),
+            body: Center(child: Text(l10n.noResults)),
+          );
+        }
 
-          return Column(
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(l10n.post),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.reply_rounded),
+                tooltip: l10n.reply,
+                onPressed: () {
+                  Navigator.push<void>(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (_) => CreatePostScreen(
+                        replyToPostId: post.id,
+                        replyToUsername: post.authorUsername,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          body: Column(
             children: [
               Expanded(
                 child: SingleChildScrollView(
@@ -83,7 +111,8 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                                           .textTheme
                                           .titleMedium
                                           ?.copyWith(
-                                              fontWeight: FontWeight.bold),
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                     ),
                                     Text(
                                       '@${post.authorUsername ?? ''}',
@@ -101,23 +130,23 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 12),
+                            if (post.replyToPostId != null) ...[
+                              _ReplyParentBanner(
+                                parentPostId: post.replyToPostId!,
+                              ),
+                              const SizedBox(height: 12),
+                            ],
 
                             // Content
                             if (post.content != null)
-                              Text(
-                                post.content!,
-                                style:
-                                    Theme.of(context).textTheme.bodyLarge,
-                              ),
+                              _PostDetailRichContent(post: post),
                             const SizedBox(height: 12),
 
                             // Date
                             Text(
                               NubarDateUtils.formatDateTime(post.createdAt),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
+                              style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(
                                     color: Theme.of(context)
                                         .colorScheme
@@ -132,20 +161,14 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                               children: [
                                 Text(
                                   l10n.followerCount(post.likeCount),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                          fontWeight: FontWeight.bold),
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(fontWeight: FontWeight.bold),
                                 ),
                                 const SizedBox(width: 16),
                                 Text(
                                   l10n.postCount(post.commentCount),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                          fontWeight: FontWeight.bold),
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
@@ -180,9 +203,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                               child: Center(
                                 child: Text(
                                   l10n.noResults,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
+                                  style: Theme.of(context).textTheme.bodyMedium
                                       ?.copyWith(
                                         color: Theme.of(context)
                                             .colorScheme
@@ -216,12 +237,12 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                                           .textTheme
                                           .bodyMedium
                                           ?.copyWith(
-                                              fontWeight: FontWeight.bold),
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                      NubarDateUtils.timeAgo(
-                                          comment.createdAt),
+                                      NubarDateUtils.timeAgo(comment.createdAt),
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodySmall
@@ -274,9 +295,113 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 ),
               ),
             ],
-          );
-        },
-      ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ReplyParentBanner extends ConsumerWidget {
+  final String parentPostId;
+
+  const _ReplyParentBanner({required this.parentPostId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final parentAsync = ref.watch(postDetailProvider(parentPostId));
+    final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return parentAsync.when(
+      loading: () => const LinearProgressIndicator(minHeight: 2),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (parent) {
+        if (parent == null) return const SizedBox.shrink();
+        final handle = parent.authorUsername;
+        return Material(
+          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () {
+              Navigator.push<void>(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) => PostDetailScreen(postId: parent.id),
+                ),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsetsDirectional.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.replyingToUser(
+                      (handle == null || handle.isEmpty) ? '…' : '@$handle',
+                    ),
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    parent.content?.trim().isNotEmpty == true
+                        ? parent.content!.trim()
+                        : '…',
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurface.withValues(alpha: 0.85),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _PostDetailRichContent extends StatelessWidget {
+  final PostModel post;
+
+  const _PostDetailRichContent({required this.post});
+
+  @override
+  Widget build(BuildContext context) {
+    final delta = post.metadata?['rich_delta'];
+    if (delta is List) {
+      try {
+        final doc = Document.fromJson(List<Map<String, dynamic>>.from(delta));
+        final controller = QuillController(
+          document: doc,
+          selection: const TextSelection.collapsed(offset: 0),
+          readOnly: true,
+        );
+        return IgnorePointer(
+          child: QuillEditor.basic(
+            controller: controller,
+            config: QuillEditorConfig(
+              expands: false,
+              scrollable: false,
+              padding: EdgeInsets.zero,
+              showCursor: false,
+            ),
+          ),
+        );
+      } catch (_) {
+        // Fallback to plain text below.
+      }
+    }
+
+    return Text(
+      post.content ?? '',
+      style: Theme.of(context).textTheme.bodyLarge,
     );
   }
 }

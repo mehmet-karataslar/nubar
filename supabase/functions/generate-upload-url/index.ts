@@ -28,6 +28,12 @@ serve(async (req) => {
     }
 
     const { path, contentType } = await req.json()
+    if (!path) {
+      return new Response(JSON.stringify({ error: 'path is required' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
 
     // Authenticate with Backblaze B2
     const authResponse = await fetch(

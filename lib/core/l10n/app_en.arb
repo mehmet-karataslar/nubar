@@ -25,6 +25,9 @@
   "messages": "Messages",
   "settings": "Settings",
   "editProfile": "Edit Profile",
+  "editPost": "Edit post",
+  "postShowFullContent": "Show full post",
+  "postShowLessContent": "Show less",
   "followers": "Followers",
   "following": "Following",
   "posts": "Posts",
@@ -168,7 +171,7 @@
   "camera": "Camera",
   "poll": "Poll",
   "pollDuration": "Duration",
-  "addOption": "Add option",
+  "addOption": "Add Option",
   "option": "Option",
   "fontSize": "Font Size",
   "fontFamily": "Font Family",
@@ -179,7 +182,6 @@
   "bookHub": "Book (PDF)",
   "thread": "Thread",
   "voiceNote": "Voice Note",
-  "addOption": "Add Option",
   "articleTitleHint": "Article Title...",
   "articleSubtitleHint": "Subtitle (Optional)...",
   "articleBodyHint": "Write your article...",
@@ -207,5 +209,25 @@
   "voiceUploadFromDevice": "Or Upload Audio",
   "voiceTitleHint": "Podcast / Voice Title",
   "voiceDescHint": "Write description or summary...",
-  "voiceBgImage": "Background Image"
+  "voiceBgImage": "Background Image",
+  "replies": "Replies",
+  "media": "Media",
+  "photos": "Photos",
+  "likes": "Likes",
+  "liked": "Liked",
+  "saved": "Saved",
+  "noReplies": "No replies yet",
+  "noMedia": "No media yet",
+  "noPhotos": "No photos yet",
+  "noLikedPosts": "No liked posts yet",
+  "noSavedPosts": "No saved posts yet",
+  "reply": "Reply",
+  "replyingToUser": "Replying to {username}",
+  "@replyingToUser": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -30,6 +30,23 @@ class AppLocalizationsKu extends AppLocalizations {
   String get fullName => 'Navê tevahî';
 
   @override
+  String get firstName => 'Nav';
+
+  @override
+  String get lastName => 'Paşnav';
+
+  @override
+  String get phoneOptional => 'Hejmara Telefonê (Vebijarkî)';
+
+  @override
+  String get authUserAlreadyExists =>
+      'Ev e-peyam jixwe tomar bûye. Ji kerema xwe têkeve.';
+
+  @override
+  String get authGenericError =>
+      'Çewtiyek çêbû. Ji kerema xwe dîsa biceribîne.';
+
+  @override
   String get forgotPassword => 'Şîfre ji bîr kir?';
 
   @override
@@ -67,6 +84,15 @@ class AppLocalizationsKu extends AppLocalizations {
 
   @override
   String get editProfile => 'Profîlê biguherîne';
+
+  @override
+  String get editPost => 'Şandî biguherîne';
+
+  @override
+  String get postShowFullContent => 'Hemî nivîsarê veke';
+
+  @override
+  String get postShowLessContent => 'Kurt bike';
 
   @override
   String get followers => 'Şopîner';
@@ -347,4 +373,219 @@ class AppLocalizationsKu extends AppLocalizations {
 
   @override
   String get verified => 'Pejirandî';
+
+  @override
+  String get blockedUsers => 'Bikarhênerên astengkirî';
+
+  @override
+  String get noBlockedUsers => 'Bikarhênerên astengkirî tune ne';
+
+  @override
+  String get unblockConfirm => 'astengê wê bê rakirin?';
+
+  @override
+  String get maxLevel => 'Asta herî bilind';
+
+  @override
+  String get privacy => 'Taybetmendî';
+
+  @override
+  String get account => 'Hesab';
+
+  @override
+  String get about => 'Derbarê';
+
+  @override
+  String get changePassword => 'Şîfreyê biguherîne';
+
+  @override
+  String get resetPasswordDesc =>
+      'E-peyamê binivîse û em ê lînka guheztina şîfreyê bişînin.';
+
+  @override
+  String get resetPasswordSent => 'E-peyama guheztina şîfreyê hat şandin';
+
+  @override
+  String get logoutConfirm => 'Tu dixwazî derkevî?';
+
+  @override
+  String get noFollowers => 'Hîn şopîner tune ne';
+
+  @override
+  String get noFollowing => 'Hîn kesî naşopîne';
+
+  @override
+  String get discard => 'Dev jê berde';
+
+  @override
+  String get discardConfirm =>
+      'Tu dixwazî dev jê berdî? Nivîsa te wê winda bibe.';
+
+  @override
+  String get camera => 'Kamera';
+
+  @override
+  String get poll => 'Rapirsî';
+
+  @override
+  String get pollDuration => 'Dem';
+
+  @override
+  String get addOption => 'Vebijêrk Zêde Bike';
+
+  @override
+  String get option => 'Vebijêrk';
+
+  @override
+  String get fontSize => 'Mezinahiya Nivîsê';
+
+  @override
+  String get fontFamily => 'Cureyê Nivîsê';
+
+  @override
+  String get contentStudio => 'Studyoya Naverokê';
+
+  @override
+  String get quickPost => 'Posta Bilez';
+
+  @override
+  String get article => 'Gotar / Blog';
+
+  @override
+  String get quiz => 'Testa Zanînê';
+
+  @override
+  String get bookHub => 'Pirtûk (PDF)';
+
+  @override
+  String get thread => 'Postên Rêzkirî';
+
+  @override
+  String get voiceNote => 'Qeyda Dengî';
+
+  @override
+  String get articleTitleHint => 'Sernavê Gotarê...';
+
+  @override
+  String get articleSubtitleHint => 'Binnivîs (vebijarkî)...';
+
+  @override
+  String get articleBodyHint => 'Nivîsa gotarê binivîse...';
+
+  @override
+  String get addCoverImage => 'Wêneyê Bergê Zêde Bike';
+
+  @override
+  String get quizQuestionHint => 'Pirsê li vir binivîsin...';
+
+  @override
+  String get quizOptionsAndAnswer => 'Vebijêrk û Bersiva Rast';
+
+  @override
+  String get quizOptionHint => 'Vebijêrk';
+
+  @override
+  String get quizExplanationOptional => 'Ravekirin (Vebijarkî)';
+
+  @override
+  String get quizExplanationDesc =>
+      'Bikarhêner piştî bersivdanê dê vê ravekirinê bibînin.';
+
+  @override
+  String get quizExplanationHint => 'Rave bikin çima ev bersiv rast e...';
+
+  @override
+  String get pdfCover => 'Berg';
+
+  @override
+  String get pdfTitle => 'Sernavê Pirtûkê';
+
+  @override
+  String get pdfAuthor => 'Nivîskar';
+
+  @override
+  String get pdfPagesOptional => 'Hejmara Rûpelan (Vebijarkî)';
+
+  @override
+  String get pdfDocAdded => 'Belgeya PDF Hat Zêdekirin';
+
+  @override
+  String get pdfSelectDoc => 'Belgeyek PDF Hilbijêrin';
+
+  @override
+  String get pdfSummaryInfo => 'Kurtî û Danasîn';
+
+  @override
+  String get pdfSummaryHint => 'Mijara pirtûkê, xalên girîng...';
+
+  @override
+  String get threadAdd => 'Li Rêzê Zêde Bike';
+
+  @override
+  String get threadFirstHint => 'Çi diqewime?';
+
+  @override
+  String get threadNextHint => 'Zêde bike...';
+
+  @override
+  String get voiceAdded => 'Deng Hat Zêdekirin';
+
+  @override
+  String get voiceRecording => 'Tê tomarkirin...';
+
+  @override
+  String get voicePrompt => 'Çîrokek bi deng vebêje...';
+
+  @override
+  String get voiceUploadFromDevice => 'An Ji Amûrê Deng Bar Bike';
+
+  @override
+  String get voiceTitleHint => 'Sernavê Deng/Podcast';
+
+  @override
+  String get voiceDescHint => 'Kurtî an ravekirin binivîse...';
+
+  @override
+  String get voiceBgImage => 'Wêneyê Paşxaneyê';
+
+  @override
+  String get replies => 'Bersiv';
+
+  @override
+  String get media => 'Medya';
+
+  @override
+  String get photos => 'Wêne';
+
+  @override
+  String get likes => 'Hezkirin';
+
+  @override
+  String get liked => 'Hezkirî';
+
+  @override
+  String get saved => 'Tomarkirî';
+
+  @override
+  String get noReplies => 'Hêj bersiv tune ne';
+
+  @override
+  String get noMedia => 'Hêj medya tune ne';
+
+  @override
+  String get noPhotos => 'Hêj wêne tune ne';
+
+  @override
+  String get noLikedPosts => 'Hêj postên hezkirî tune ne';
+
+  @override
+  String get noSavedPosts => 'Hêj postên tomarkirî tune ne';
+
+  @override
+  String get reply => 'Bersiv';
+
+  @override
+  String replyingToUser(String username) {
+    return 'Bersiva $username';
+  }
 }

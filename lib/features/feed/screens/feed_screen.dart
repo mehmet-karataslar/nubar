@@ -34,7 +34,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
 
   Future<void> _fetchPage(int pageKey) async {
     try {
-      final posts = await ref.read(feedProvider(pageKey).future);
+      final posts = await ref.refresh(feedProvider(pageKey).future);
       final isLastPage = posts.length < AppConstants.defaultPageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(posts);
@@ -99,12 +99,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                     cs.primary,
                     () {
                       Navigator.pop(ctx);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const CreatePostScreen(),
-                        ),
-                      );
+                      _openCreator(context, const CreatePostScreen());
                     },
                   ),
                   _buildMenuButton(
@@ -114,12 +109,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                     cs.secondary,
                     () {
                       Navigator.pop(ctx);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const StudioArticleScreen(),
-                        ),
-                      );
+                      _openCreator(context, const StudioArticleScreen());
                     },
                   ),
                   _buildMenuButton(
@@ -129,12 +119,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                     cs.tertiary,
                     () {
                       Navigator.pop(ctx);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const StudioQuizScreen(),
-                        ),
-                      );
+                      _openCreator(context, const StudioQuizScreen());
                     },
                   ),
                   _buildMenuButton(
@@ -144,12 +129,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                     cs.error,
                     () {
                       Navigator.pop(ctx);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const StudioPdfHubScreen(),
-                        ),
-                      );
+                      _openCreator(context, const StudioPdfHubScreen());
                     },
                   ),
                   _buildMenuButton(
@@ -159,12 +139,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                     cs.primaryContainer,
                     () {
                       Navigator.pop(ctx);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const StudioThreadScreen(),
-                        ),
-                      );
+                      _openCreator(context, const StudioThreadScreen());
                     },
                   ),
                   _buildMenuButton(
@@ -174,12 +149,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                     cs.onSurfaceVariant,
                     () {
                       Navigator.pop(ctx);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const StudioVoiceScreen(),
-                        ),
-                      );
+                      _openCreator(context, const StudioVoiceScreen());
                     },
                   ),
                 ],
@@ -190,6 +160,12 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
         );
       },
     );
+  }
+
+  Future<void> _openCreator(BuildContext context, Widget screen) async {
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+    if (!mounted) return;
+    _pagingController.refresh();
   }
 
   Widget _buildMenuButton(

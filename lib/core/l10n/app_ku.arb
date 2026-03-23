@@ -25,6 +25,9 @@
   "messages": "Peyam",
   "settings": "Mîheng",
   "editProfile": "Profîlê biguherîne",
+  "editPost": "Şandî biguherîne",
+  "postShowFullContent": "Hemî nivîsarê veke",
+  "postShowLessContent": "Kurt bike",
   "followers": "Şopîner",
   "following": "Dişopîne",
   "posts": "Şandin",
@@ -168,7 +171,7 @@
   "camera": "Kamera",
   "poll": "Rapirsî",
   "pollDuration": "Dem",
-  "addOption": "Vebijêrk zêde bike",
+  "addOption": "Vebijêrk Zêde Bike",
   "option": "Vebijêrk",
   "fontSize": "Mezinahiya Nivîsê",
   "fontFamily": "Cureyê Nivîsê",
@@ -179,7 +182,6 @@
   "bookHub": "Pirtûk (PDF)",
   "thread": "Postên Rêzkirî",
   "voiceNote": "Qeyda Dengî",
-  "addOption": "Vebijêrk Zêde Bike",
   "articleTitleHint": "Sernavê Gotarê...",
   "articleSubtitleHint": "Binnivîs (vebijarkî)...",
   "articleBodyHint": "Nivîsa gotarê binivîse...",
@@ -207,5 +209,25 @@
   "voiceUploadFromDevice": "An Ji Amûrê Deng Bar Bike",
   "voiceTitleHint": "Sernavê Deng/Podcast",
   "voiceDescHint": "Kurtî an ravekirin binivîse...",
-  "voiceBgImage": "Wêneyê Paşxaneyê"
+  "voiceBgImage": "Wêneyê Paşxaneyê",
+  "replies": "Bersiv",
+  "media": "Medya",
+  "photos": "Wêne",
+  "likes": "Hezkirin",
+  "liked": "Hezkirî",
+  "saved": "Tomarkirî",
+  "noReplies": "Hêj bersiv tune ne",
+  "noMedia": "Hêj medya tune ne",
+  "noPhotos": "Hêj wêne tune ne",
+  "noLikedPosts": "Hêj postên hezkirî tune ne",
+  "noSavedPosts": "Hêj postên tomarkirî tune ne",
+  "reply": "Bersiv",
+  "replyingToUser": "Bersiva {username}",
+  "@replyingToUser": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  }
 }

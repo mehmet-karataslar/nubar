@@ -82,6 +82,7 @@ class _StudioPdfHubScreenState extends ConsumerState<StudioPdfHubScreen> {
   }
 
   void _handlePost() async {
+    final l10n = AppLocalizations.of(context)!;
     final title = _titleController.text.trim();
     final author = _authorController.text.trim();
     final pages = _pagesController.text.trim();
@@ -103,7 +104,7 @@ class _StudioPdfHubScreenState extends ConsumerState<StudioPdfHubScreen> {
       if (error != null) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Hata: $error')));
+        ).showSnackBar(SnackBar(content: Text('${l10n.error}: $error')));
       } else {
         Navigator.pop(context); // close screen on success
       }
@@ -127,7 +128,7 @@ class _StudioPdfHubScreenState extends ConsumerState<StudioPdfHubScreen> {
             scrolledUnderElevation: 0,
             actions: [
               Padding(
-                padding: const EdgeInsets.only(right: 12),
+                padding: const EdgeInsetsDirectional.only(end: 12),
                 child: AnimatedOpacity(
                   opacity: _hasContent && !isLoading ? 1.0 : 0.4,
                   duration: const Duration(milliseconds: 200),

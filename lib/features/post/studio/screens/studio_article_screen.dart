@@ -62,6 +62,7 @@ class _StudioArticleScreenState extends ConsumerState<StudioArticleScreen> {
   }
 
   void _handlePost() async {
+    final l10n = AppLocalizations.of(context)!;
     final title = _titleController.text.trim();
     final subtitle = _subtitleController.text.trim();
     final contentDelta = _quillController.document.toDelta().toJson();
@@ -80,7 +81,7 @@ class _StudioArticleScreenState extends ConsumerState<StudioArticleScreen> {
       if (error != null) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Hata: $error')));
+        ).showSnackBar(SnackBar(content: Text('${l10n.error}: $error')));
       } else {
         Navigator.pop(context); // close screen on success
       }
@@ -104,7 +105,7 @@ class _StudioArticleScreenState extends ConsumerState<StudioArticleScreen> {
             scrolledUnderElevation: 0,
             actions: [
               Padding(
-                padding: const EdgeInsets.only(right: 12),
+                padding: const EdgeInsetsDirectional.only(end: 12),
                 child: AnimatedOpacity(
                   opacity: _hasContent && !isLoading ? 1.0 : 0.4,
                   duration: const Duration(milliseconds: 200),
@@ -176,7 +177,7 @@ class _StudioArticleScreenState extends ConsumerState<StudioArticleScreen> {
                                     ],
                                   )
                                 : Align(
-                                    alignment: Alignment.topRight,
+                                    alignment: AlignmentDirectional.topEnd,
                                     child: IconButton(
                                       icon: Container(
                                         padding: const EdgeInsets.all(4),
@@ -245,9 +246,9 @@ class _StudioArticleScreenState extends ConsumerState<StudioArticleScreen> {
                       ),
                       SliverToBoxAdapter(
                         child: Padding(
-                          padding: const EdgeInsets.only(
-                            left: 20,
-                            right: 20,
+                          padding: const EdgeInsetsDirectional.only(
+                            start: 20,
+                            end: 20,
                             top: 8,
                           ),
                           child: Divider(height: 1, color: cs.outlineVariant),

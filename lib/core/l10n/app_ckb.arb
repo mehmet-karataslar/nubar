@@ -25,6 +25,9 @@
   "messages": "نامە",
   "settings": "ڕێکخستن",
   "editProfile": "دەستکاری پرۆفایل",
+  "editPost": "دەستکاری پۆست",
+  "postShowFullContent": "هەموو دەقەکە پیشان بدە",
+  "postShowLessContent": "کەمتر پیشان بدە",
   "followers": "شوێنکەوتوو",
   "following": "شوێنکەوتن",
   "posts": "بابەت",
@@ -179,7 +182,6 @@
   "bookHub": "کتێب (PDF)",
   "thread": "زنجیرە پۆست",
   "voiceNote": "تۆماری دەنگی",
-  "addOption": "هەڵبژاردە زیاد بکە",
   "articleTitleHint": "ناونیشانی وتار...",
   "articleSubtitleHint": "ناونیشانی لاوەکی (ئارەزوومەندانە)...",
   "articleBodyHint": "وتارەکەت بنووسە...",
@@ -207,5 +209,25 @@
   "voiceUploadFromDevice": "یان دەنگ لە ئامێرەکەتەوە باربکە",
   "voiceTitleHint": "ناونیشانی پۆدکاست / دەنگ",
   "voiceDescHint": "پوختە یان ڕوونکردنەوە بنووسە...",
-  "voiceBgImage": "وێنەی باکگراوند"
+  "voiceBgImage": "وێنەی باکگراوند",
+  "replies": "وەڵامەکان",
+  "media": "میدیا",
+  "photos": "وێنەکان",
+  "likes": "بەدڵبوونەکان",
+  "liked": "بەدڵبووەکان",
+  "saved": "پاشەکەوتکراوەکان",
+  "noReplies": "هێشتا وەڵام نییە",
+  "noMedia": "هێشتا میدیا نییە",
+  "noPhotos": "هێشتا وێنە نییە",
+  "noLikedPosts": "هێشتا بابەتی بەدڵبوو نییە",
+  "noSavedPosts": "هێشتا بابەتی پاشەکەوتکراو نییە",
+  "reply": "وەڵام",
+  "replyingToUser": "وەڵام بۆ {username}",
+  "@replyingToUser": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  }
 }

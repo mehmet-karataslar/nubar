@@ -7,16 +7,35 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nubar/core/l10n/app_localizations.dart';
+import 'package:nubar/features/feed/providers/feed_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:nubar/core/constants/app_constants.dart';
+import 'package:nubar/core/utils/validators.dart';
+import 'package:nubar/core/utils/current_user_profile.dart';
 import 'package:nubar/features/post/create/create_post_provider.dart';
+import 'package:nubar/features/profile/providers/profile_content_provider.dart';
 import 'package:nubar/shared/widgets/nubar_quill_toolbar.dart';
 
 class CreatePostScreen extends ConsumerStatefulWidget {
   final String? communityId;
+  final String? editPostId;
+  final String? initialContent;
+  final List<dynamic>? initialRichDelta;
 
-  const CreatePostScreen({super.key, this.communityId});
+  /// When set, creates a Twitter-style post reply (see [reply_to_post_id]).
+  final String? replyToPostId;
+  final String? replyToUsername;
+
+  const CreatePostScreen({
+    super.key,
+    this.communityId,
+    this.editPostId,
+    this.initialContent,
+    this.initialRichDelta,
+    this.replyToPostId,
+    this.replyToUsername,
+  });
 
   @override
   ConsumerState<CreatePostScreen> createState() => _CreatePostScreenState();
@@ -44,12 +63,40 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
   // Media bar
   bool _showMediaBar = false;
   late final AnimationController _mediaBarAnim;
+  bool get _isEditMode => widget.editPostId != null;
+
+  ProviderSubscription<AsyncValue<void>>? _createPostSub;
 
   @override
   void initState() {
     super.initState();
     _quillController = QuillController.basic();
-    _loadDraft();
+    if (_isEditMode) {
+      final delta = widget.initialRichDelta;
+      if (delta != null && delta.isNotEmpty) {
+        try {
+          _quillController.document = Document.fromJson(
+            List<Map<String, dynamic>>.from(delta),
+          );
+        } catch (_) {
+          final initialText = widget.initialContent?.trim() ?? '';
+          if (initialText.isNotEmpty) {
+            _quillController.document = Document.fromJson([
+              {'insert': '$initialText\n'},
+            ]);
+          }
+        }
+      } else {
+        final initialText = widget.initialContent?.trim() ?? '';
+        if (initialText.isNotEmpty) {
+          _quillController.document = Document.fromJson([
+            {'insert': '$initialText\n'},
+          ]);
+        }
+      }
+    } else if (widget.replyToPostId == null) {
+      _loadDraft();
+    }
     _quillController.document.changes.listen((_) => _saveDraft());
     _mediaBarAnim = AnimationController(
       vsync: this,
@@ -58,7 +105,61 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _createPostSub ??= ref.listenManual<AsyncValue<void>>(createPostProvider, (
+      previous,
+      next,
+    ) {
+      next.whenOrNull(
+        data: (_) {
+          if (previous is! AsyncLoading) return;
+          if (!_hasContent) return;
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            if (!mounted) return;
+            HapticFeedback.mediumImpact();
+            ref.invalidate(feedProvider);
+            if (!_isEditMode) {
+              await _clearDraft();
+              try {
+                final uid = await CurrentUserProfile.getOrCreateId();
+                ref.invalidate(profilePostsProvider(uid));
+                ref.invalidate(profileRepliesProvider(uid));
+                ref.invalidate(profilePhotosProvider(uid));
+                ref.invalidate(profileMediaProvider(uid));
+                ref.invalidate(profileLikedPostsProvider(uid));
+                ref.invalidate(profileSavedPostsProvider(uid));
+              } catch (_) {}
+            }
+            if (_isEditMode && widget.editPostId != null) {
+              ref.invalidate(postDetailProvider(widget.editPostId!));
+            }
+            if (!mounted) return;
+            Navigator.of(context).maybePop();
+          });
+        },
+        error: (error, _) {
+          if (previous is! AsyncLoading) return;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(error.toString()),
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            );
+          });
+        },
+      );
+    });
+  }
+
+  @override
   void dispose() {
+    _createPostSub?.close();
     _quillController.dispose();
     _focusNode.dispose();
     _scrollController.dispose();
@@ -81,6 +182,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
   }
 
   Future<void> _saveDraft() async {
+    if (_isEditMode || widget.replyToPostId != null) return;
     final prefs = await SharedPreferences.getInstance();
     final deltaJson = jsonEncode(_quillController.document.toDelta().toJson());
     await prefs.setString('nubar_post_draft', deltaJson);
@@ -100,7 +202,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
         _isPollMode;
   }
 
-  // ── Media ──
+  // â”€â”€ Media â”€â”€
 
   Future<void> _pickImages() async {
     final imgs = await _imagePicker.pickMultiImage();
@@ -133,8 +235,18 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
   Future<void> _pickVideo() async {
     final v = await _imagePicker.pickVideo(source: ImageSource.gallery);
     if (v != null) {
+      final videoFile = File(v.path);
+      final maxBytes = AppConstants.maxVideoSizeMB * 1024 * 1024;
+      if (await videoFile.length() > maxBytes) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Max ${AppConstants.maxVideoSizeMB}MB')),
+          );
+        }
+        return;
+      }
       setState(() {
-        _selectedVideo = File(v.path);
+        _selectedVideo = videoFile;
         _selectedImages.clear();
         _selectedPdf = null;
         _isPollMode = false;
@@ -148,9 +260,18 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
       allowedExtensions: ['pdf'],
     );
     if (r != null && r.files.isNotEmpty) {
+      final picked = r.files.first;
+      if (picked.size > AppConstants.maxPdfSizeMB * 1024 * 1024) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Max ${AppConstants.maxPdfSizeMB}MB')),
+          );
+        }
+        return;
+      }
       setState(() {
-        _selectedPdf = File(r.files.first.path!);
-        _pdfFileName = r.files.first.name;
+        _selectedPdf = File(picked.path!);
+        _pdfFileName = picked.name;
         _selectedImages.clear();
         _selectedVideo = null;
         _isPollMode = false;
@@ -182,12 +303,57 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
   void _handlePost() {
     if (!_hasContent) return;
     final plainText = _quillController.document.toPlainText().trim();
+    final richDeltaJson = jsonEncode(
+      _quillController.document.toDelta().toJson(),
+    );
+    final postValidation = Validators.validatePostContent(plainText);
+    if (postValidation != null &&
+        _selectedImages.isEmpty &&
+        _selectedVideo == null &&
+        _selectedPdf == null &&
+        !_isPollMode) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(postValidation)));
+      return;
+    }
+    final pollOptions = _pollControllers
+        .map((c) => c.text.trim())
+        .where((text) => text.isNotEmpty)
+        .toList();
+    if (_isPollMode && pollOptions.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${AppLocalizations.of(context)!.addOption} (2+)'),
+        ),
+      );
+      return;
+    }
+
+    if (_isEditMode) {
+      ref
+          .read(createPostProvider.notifier)
+          .updatePostContent(
+            postId: widget.editPostId!,
+            content: plainText,
+            richDeltaJson: richDeltaJson,
+          );
+      return;
+    }
 
     ref
         .read(createPostProvider.notifier)
         .createPost(
           content: plainText,
+          replyToPostId: widget.replyToPostId,
           images: _selectedImages.isNotEmpty ? _selectedImages : null,
+          video: _selectedVideo,
+          pdf: _selectedPdf,
+          pdfFileName: _pdfFileName,
+          pollQuestion: plainText,
+          pollOptions: _isPollMode ? pollOptions : null,
+          pollHours: _isPollMode ? _pollHours : null,
+          richDeltaJson: richDeltaJson,
           communityId: widget.communityId,
         );
   }
@@ -198,28 +364,6 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
     final cs = Theme.of(context).colorScheme;
     final createState = ref.watch(createPostProvider);
 
-    ref.listen(createPostProvider, (_, state) {
-      state.whenOrNull(
-        data: (_) {
-          if (_hasContent) {
-            HapticFeedback.mediumImpact();
-            Navigator.pop(context);
-          }
-        },
-        error: (error, _) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(error.toString()),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          );
-        },
-      );
-    });
-
     return Scaffold(
       backgroundColor: cs.surface,
       resizeToAvoidBottomInset: true,
@@ -229,9 +373,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
           bottom: false,
           child: Column(
             children: [
-              // ── Top bar ──
+              // â”€â”€ Top bar â”€â”€
               Padding(
-                padding: const EdgeInsets.fromLTRB(4, 4, 12, 0),
+                padding: const EdgeInsetsDirectional.fromSTEB(4, 4, 12, 0),
                 child: Row(
                   children: [
                     IconButton(
@@ -244,7 +388,28 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
                         }
                       },
                     ),
-                    const Spacer(),
+                    if (widget.replyToPostId != null) ...[
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsetsDirectional.only(end: 8),
+                          child: Text(
+                            l10n.replyingToUser(
+                              (widget.replyToUsername ?? '').isEmpty
+                                  ? '…'
+                                  : widget.replyToUsername!,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.labelLarge
+                                ?.copyWith(
+                                  color: cs.onSurface.withValues(alpha: 0.75),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                        ),
+                      ),
+                    ] else
+                      const Spacer(),
                     AnimatedOpacity(
                       opacity: _hasContent ? 1.0 : 0.4,
                       duration: const Duration(milliseconds: 200),
@@ -284,7 +449,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
                 ),
               ),
 
-              // ── Rich text editor (fills remaining space) ──
+              // â”€â”€ Rich text editor (fills remaining space) â”€â”€
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -302,7 +467,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
                 ),
               ),
 
-              // ── Poll / Media attachments ──
+              // â”€â”€ Poll / Media attachments â”€â”€
               if (_isPollMode ||
                   _selectedImages.isNotEmpty ||
                   _selectedVideo != null ||
@@ -362,73 +527,77 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
                   ),
                 ),
 
-              // ── Expandable media row ──
+              // â”€â”€ Expandable media row â”€â”€
               SizeTransition(
                 sizeFactor: _mediaBarAnim,
                 axisAlignment: -1,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: cs.surfaceContainerLow,
-                    border: Border(
-                      top: BorderSide(
-                        color: cs.outlineVariant.withValues(alpha: 0.15),
+                child: _isEditMode
+                    ? const SizedBox.shrink()
+                    : Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: cs.surfaceContainerLow,
+                          border: Border(
+                            top: BorderSide(
+                              color: cs.outlineVariant.withValues(alpha: 0.15),
+                            ),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            _MediaBtn(
+                              Icons.photo_library_outlined,
+                              l10n.addImage,
+                              cs.primary,
+                              _pickImages,
+                            ),
+                            _MediaBtn(
+                              Icons.camera_alt_outlined,
+                              l10n.camera,
+                              cs.primary,
+                              _takePhoto,
+                            ),
+                            _MediaBtn(
+                              Icons.videocam_outlined,
+                              l10n.addVideo,
+                              cs.tertiary,
+                              _pickVideo,
+                            ),
+                            _MediaBtn(
+                              Icons.picture_as_pdf_outlined,
+                              l10n.addPdf,
+                              cs.error,
+                              _pickPdf,
+                            ),
+                            _MediaBtn(
+                              Icons.poll_outlined,
+                              l10n.poll,
+                              cs.secondary,
+                              _togglePoll,
+                              active: _isPollMode,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      _MediaBtn(
-                        Icons.photo_library_outlined,
-                        l10n.addImage,
-                        cs.primary,
-                        _pickImages,
-                      ),
-                      _MediaBtn(
-                        Icons.camera_alt_outlined,
-                        l10n.camera,
-                        cs.primary,
-                        _takePhoto,
-                      ),
-                      _MediaBtn(
-                        Icons.videocam_outlined,
-                        l10n.addVideo,
-                        cs.tertiary,
-                        _pickVideo,
-                      ),
-                      _MediaBtn(
-                        Icons.picture_as_pdf_outlined,
-                        'PDF',
-                        cs.error,
-                        _pickPdf,
-                      ),
-                      _MediaBtn(
-                        Icons.poll_outlined,
-                        l10n.poll,
-                        cs.secondary,
-                        _togglePoll,
-                        active: _isPollMode,
-                      ),
-                    ],
-                  ),
-                ),
               ),
 
-              // ── Bottom formatting toolbar ──
+              // â”€â”€ Bottom formatting toolbar â”€â”€
               NubarQuillToolbar(
                 controller: _quillController,
                 focusNode: _focusNode,
-                trailingAction: NubarQuillToolIcon(
-                  icon: _showMediaBar
-                      ? Icons.close_rounded
-                      : Icons.add_circle_outline_rounded,
-                  onTap: _toggleMediaBar,
-                  active: _showMediaBar,
-                  baseColor: cs.secondary,
-                ),
+                trailingAction: _isEditMode
+                    ? null
+                    : NubarQuillToolIcon(
+                        icon: _showMediaBar
+                            ? Icons.close_rounded
+                            : Icons.add_circle_outline_rounded,
+                        onTap: _toggleMediaBar,
+                        active: _showMediaBar,
+                        baseColor: cs.secondary,
+                      ),
               ),
             ],
           ),
@@ -509,9 +678,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// ── Media button for expandable bar ──
-// ═══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// â”€â”€ Media button for expandable bar â”€â”€
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 class _MediaBtn extends StatelessWidget {
   final IconData icon;
@@ -563,9 +732,9 @@ class _MediaBtn extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// ── Attachment chip ──
-// ═══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// â”€â”€ Attachment chip â”€â”€
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 class _AttachmentChip extends StatelessWidget {
   final IconData icon;
@@ -611,9 +780,9 @@ class _AttachmentChip extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// ── Poll editor ──
-// ═══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// â”€â”€ Poll editor â”€â”€
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 class _PollEditor extends StatelessWidget {
   final List<TextEditingController> controllers;

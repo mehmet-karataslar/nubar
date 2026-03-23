@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -7,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:nubar/core/l10n/app_localizations.dart';
 import 'package:nubar/features/post/studio/providers/studio_provider.dart';
 import 'package:nubar/shared/widgets/loading_indicator.dart';
+import 'package:record/record.dart';
 
 class StudioVoiceScreen extends ConsumerStatefulWidget {
   const StudioVoiceScreen({super.key});
@@ -22,7 +24,8 @@ class _StudioVoiceScreenState extends ConsumerState<StudioVoiceScreen> {
   File? _bgImage;
   File? _audioFile;
   bool _hasContent = false;
-  bool _isMockRecording = false;
+  bool _isRecording = false;
+  final AudioRecorder _recorder = AudioRecorder();
 
   @override
   void initState() {
@@ -43,6 +46,7 @@ class _StudioVoiceScreenState extends ConsumerState<StudioVoiceScreen> {
 
   @override
   void dispose() {
+    _recorder.dispose();
     _titleController.dispose();
     _descController.dispose();
     super.dispose();
@@ -71,23 +75,43 @@ class _StudioVoiceScreenState extends ConsumerState<StudioVoiceScreen> {
     }
   }
 
-  void _toggleMockRecording() {
-    // This is just a UI flare for the MVP. Since we don't have record package yet.
-    setState(() {
-      _isMockRecording = !_isMockRecording;
-    });
-    if (!_isMockRecording && _audioFile == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Ses kaydedildi (MVP Simülasyonu). Cihazdan bir dosya seçmeniz gerekiyor.',
-          ),
-        ),
-      );
+  Future<void> _toggleRecording() async {
+    final l10n = AppLocalizations.of(context)!;
+    if (_isRecording) {
+      final path = await _recorder.stop();
+      if (path != null) {
+        setState(() {
+          _audioFile = File(path);
+          _isRecording = false;
+        });
+        _checkContent();
+      }
+      return;
     }
+
+    if (!await _recorder.hasPermission()) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.error)));
+      }
+      return;
+    }
+
+    final tempDir = await getTemporaryDirectory();
+    final filePath =
+        '${tempDir.path}/voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
+    await _recorder.start(
+      const RecordConfig(encoder: AudioEncoder.aacLc, bitRate: 128000),
+      path: filePath,
+    );
+    setState(() {
+      _isRecording = true;
+    });
   }
 
   void _handlePost() async {
+    final l10n = AppLocalizations.of(context)!;
     final title = _titleController.text.trim();
     final desc = _descController.text.trim();
 
@@ -105,7 +129,7 @@ class _StudioVoiceScreenState extends ConsumerState<StudioVoiceScreen> {
       if (error != null) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Hata: $error')));
+        ).showSnackBar(SnackBar(content: Text('${l10n.error}: $error')));
       } else {
         Navigator.pop(context); // close screen on success
       }
@@ -132,7 +156,7 @@ class _StudioVoiceScreenState extends ConsumerState<StudioVoiceScreen> {
             iconTheme: IconThemeData(color: cs.onPrimary),
             actions: [
               Padding(
-                padding: const EdgeInsets.only(right: 12),
+                padding: const EdgeInsetsDirectional.only(end: 12),
                 child: AnimatedOpacity(
                   opacity: _hasContent && !isLoading ? 1.0 : 0.4,
                   duration: const Duration(milliseconds: 200),
@@ -226,7 +250,7 @@ class _StudioVoiceScreenState extends ConsumerState<StudioVoiceScreen> {
                             ],
                           ),
                         ).animate().fadeIn().slideY(begin: -0.2, end: 0)
-                      else if (_isMockRecording)
+                      else if (_isRecording)
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -278,11 +302,7 @@ class _StudioVoiceScreenState extends ConsumerState<StudioVoiceScreen> {
                       // Giant Record Button
                       GestureDetector(
                         onTap: () {
-                          if (_audioFile != null) {
-                            // play dummy
-                          } else {
-                            _toggleMockRecording();
-                          }
+                          _toggleRecording();
                         },
                         child:
                             Container(
@@ -290,11 +310,11 @@ class _StudioVoiceScreenState extends ConsumerState<StudioVoiceScreen> {
                                   height: 120,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: _isMockRecording
+                                    color: _isRecording
                                         ? cs.error.withValues(alpha: 0.2)
                                         : cs.onPrimary.withValues(alpha: 0.1),
                                     border: Border.all(
-                                      color: _isMockRecording
+                                      color: _isRecording
                                           ? cs.error
                                           : cs.onPrimary.withValues(alpha: 0.3),
                                       width: 2,
@@ -306,25 +326,25 @@ class _StudioVoiceScreenState extends ConsumerState<StudioVoiceScreen> {
                                       height: 80,
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: _isMockRecording
+                                        color: _isRecording
                                             ? cs.error
                                             : cs.onPrimary,
                                       ),
                                       child: Icon(
                                         _audioFile != null
                                             ? Icons.play_arrow_rounded
-                                            : (_isMockRecording
+                                            : (_isRecording
                                                   ? Icons.stop_rounded
                                                   : Icons.mic_rounded),
                                         size: 40,
-                                        color: _isMockRecording
+                                        color: _isRecording
                                             ? cs.onPrimary
                                             : cs.onSurface,
                                       ),
                                     ),
                                   ),
                                 )
-                                .animate(target: _isMockRecording ? 1 : 0)
+                                .animate(target: _isRecording ? 1 : 0)
                                 .scaleXY(end: 1.2)
                                 .tint(color: cs.error.withValues(alpha: 0.3)),
                       ),
