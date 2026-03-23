@@ -134,146 +134,154 @@ class _StudioArticleScreenState extends ConsumerState<StudioArticleScreen> {
               ),
             ],
           ),
-          body: Column(
-            children: [
-              Expanded(
-                child: CustomScrollView(
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: GestureDetector(
-                        onTap: _pickCoverImage,
-                        child: Container(
-                          width: double.infinity,
-                          height: 220,
-                          decoration: BoxDecoration(
-                            color: cs.surfaceContainerHighest,
-                            image: _coverImage != null
-                                ? DecorationImage(
-                                    image: FileImage(_coverImage!),
-                                    fit: BoxFit.cover,
-                                  )
-                                : null,
-                          ),
-                          child: _coverImage == null
-                              ? Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.add_photo_alternate_rounded,
-                                      size: 48,
-                                      color: cs.onSurfaceVariant,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      l10n.addCoverImage,
-                                      style: TextStyle(
+          body: GestureDetector(
+            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+            child: Column(
+              children: [
+                Expanded(
+                  child: CustomScrollView(
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: GestureDetector(
+                          onTap: _pickCoverImage,
+                          child: Container(
+                            width: double.infinity,
+                            height: 220,
+                            decoration: BoxDecoration(
+                              color: cs.surfaceContainerHighest,
+                              image: _coverImage != null
+                                  ? DecorationImage(
+                                      image: FileImage(_coverImage!),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : null,
+                            ),
+                            child: _coverImage == null
+                                ? Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.add_photo_alternate_rounded,
+                                        size: 48,
                                         color: cs.onSurfaceVariant,
-                                        fontWeight: FontWeight.w600,
                                       ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        l10n.addCoverImage,
+                                        style: TextStyle(
+                                          color: cs.onSurfaceVariant,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : Align(
+                                    alignment: Alignment.topRight,
+                                    child: IconButton(
+                                      icon: Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: BoxDecoration(
+                                          color: cs.scrim.withValues(
+                                            alpha: 0.6,
+                                          ),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          Icons.close,
+                                          color: cs.onPrimary,
+                                          size: 18,
+                                        ),
+                                      ),
+                                      onPressed: () =>
+                                          setState(() => _coverImage = null),
                                     ),
-                                  ],
-                                )
-                              : Align(
-                                  alignment: Alignment.topRight,
-                                  child: IconButton(
-                                    icon: Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: BoxDecoration(
-                                        color: cs.scrim.withValues(alpha: 0.6),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        Icons.close,
-                                        color: cs.onPrimary,
-                                        size: 18,
-                                      ),
-                                    ),
-                                    onPressed: () =>
-                                        setState(() => _coverImage = null),
                                   ),
-                                ),
+                          ),
                         ),
                       ),
-                    ),
-                    SliverPadding(
-                      padding: const EdgeInsets.all(20),
-                      sliver: SliverToBoxAdapter(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            TextField(
-                              controller: _titleController,
-                              style: tt.headlineLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                              decoration: InputDecoration(
-                                hintText: l10n.articleTitleHint,
-                                hintStyle: tt.headlineLarge?.copyWith(
-                                  color: cs.onSurface.withValues(alpha: 0.3),
+                      SliverPadding(
+                        padding: const EdgeInsets.all(20),
+                        sliver: SliverToBoxAdapter(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              TextField(
+                                controller: _titleController,
+                                style: tt.headlineLarge?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.zero,
-                              ),
-                              maxLines: null,
-                              textInputAction: TextInputAction.next,
-                            ),
-                            const SizedBox(height: 8),
-                            TextField(
-                              controller: _subtitleController,
-                              style: tt.titleMedium?.copyWith(
-                                color: cs.onSurfaceVariant,
-                              ),
-                              decoration: InputDecoration(
-                                hintText: l10n.articleSubtitleHint,
-                                hintStyle: tt.titleMedium?.copyWith(
-                                  color: cs.onSurface.withValues(alpha: 0.3),
+                                decoration: InputDecoration(
+                                  hintText: l10n.articleTitleHint,
+                                  hintStyle: tt.headlineLarge?.copyWith(
+                                    color: cs.onSurface.withValues(alpha: 0.3),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.zero,
                                 ),
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.zero,
+                                maxLines: null,
+                                textInputAction: TextInputAction.next,
                               ),
-                              maxLines: null,
-                              textInputAction: TextInputAction.next,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          left: 20,
-                          right: 20,
-                          top: 8,
-                        ),
-                        child: Divider(height: 1, color: cs.outlineVariant),
-                      ),
-                    ),
-                    SliverFillRemaining(
-                      hasScrollBody: true,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: quill.QuillEditor(
-                          controller: _quillController,
-                          focusNode: _focusNode,
-                          scrollController: _scrollController,
-                          config: NubarQuillConfigBuilder.buildConfig(
-                            context: context,
-                            placeholder: l10n.articleBodyHint,
-                            padding: const EdgeInsets.only(bottom: 80, top: 10),
-                            autoFocus: false,
+                              const SizedBox(height: 8),
+                              TextField(
+                                controller: _subtitleController,
+                                style: tt.titleMedium?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
+                                decoration: InputDecoration(
+                                  hintText: l10n.articleSubtitleHint,
+                                  hintStyle: tt.titleMedium?.copyWith(
+                                    color: cs.onSurface.withValues(alpha: 0.3),
+                                  ),
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.zero,
+                                ),
+                                maxLines: null,
+                                textInputAction: TextInputAction.next,
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            left: 20,
+                            right: 20,
+                            top: 8,
+                          ),
+                          child: Divider(height: 1, color: cs.outlineVariant),
+                        ),
+                      ),
+                      SliverFillRemaining(
+                        hasScrollBody: true,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: quill.QuillEditor(
+                            controller: _quillController,
+                            focusNode: _focusNode,
+                            scrollController: _scrollController,
+                            config: NubarQuillConfigBuilder.buildConfig(
+                              context: context,
+                              placeholder: l10n.articleBodyHint,
+                              padding: const EdgeInsets.only(
+                                bottom: 80,
+                                top: 10,
+                              ),
+                              autoFocus: false,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              NubarQuillToolbar(
-                controller: _quillController,
-                focusNode: _focusNode,
-              ),
-            ],
+                NubarQuillToolbar(
+                  controller: _quillController,
+                  focusNode: _focusNode,
+                ),
+              ],
+            ),
           ),
         ),
         if (isLoading)

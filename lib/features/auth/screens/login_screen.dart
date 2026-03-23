@@ -36,9 +36,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         content: TextField(
           controller: resetEmailController,
           keyboardType: TextInputType.emailAddress,
-          decoration: InputDecoration(
-            hintText: l10n.email,
-          ),
+          decoration: InputDecoration(hintText: l10n.email),
         ),
         actions: [
           TextButton(
@@ -49,13 +47,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             onPressed: () {
               final email = resetEmailController.text.trim();
               if (email.isNotEmpty) {
-                ref
-                    .read(authNotifierProvider.notifier)
-                    .resetPassword(email);
+                ref.read(authNotifierProvider.notifier).resetPassword(email);
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.done)),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(l10n.done)));
               }
             },
             child: Text(l10n.send),
@@ -67,7 +63,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   void _handleLogin() {
     if (_formKey.currentState!.validate()) {
-      ref.read(authNotifierProvider.notifier).signIn(
+      ref
+          .read(authNotifierProvider.notifier)
+          .signIn(
             email: _emailController.text.trim(),
             password: _passwordController.text,
           );
@@ -77,121 +75,125 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     final authState = ref.watch(authNotifierProvider);
 
     ref.listen(authNotifierProvider, (_, state) {
       state.whenOrNull(
         error: (error, _) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(error.toString())),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(error.toString())));
         },
       );
     });
 
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Logo & Title
-                  Text(
-                    l10n.appName,
-                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.bold,
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/arka plan.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: SafeArea(
+          child: Container(
+            color: Colors.black.withValues(alpha: 0.18),
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsetsDirectional.all(20),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 560),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          l10n.login,
+                          style: textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: colorScheme.onSurface,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    l10n.welcomeSubtitle,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.6),
+                        const SizedBox(height: 6),
+                        Text(
+                          l10n.welcomeSubtitle,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurface.withValues(alpha: 0.7),
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 48),
-
-                  // Email field
-                  NubarTextField(
-                    controller: _emailController,
-                    label: l10n.email,
-                    prefixIcon: Icons.email_outlined,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: Validators.validateEmail,
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Password field
-                  NubarTextField(
-                    controller: _passwordController,
-                    label: l10n.password,
-                    prefixIcon: Icons.lock_outlined,
-                    obscureText: _obscurePassword,
-                    validator: Validators.validatePassword,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                      ),
-                      onPressed: () {
-                        setState(() => _obscurePassword = !_obscurePassword);
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Forgot password
-                  Align(
-                    alignment: AlignmentDirectional.centerEnd,
-                    child: TextButton(
-                      onPressed: () {
-                        _showForgotPasswordDialog(context, l10n);
-                      },
-                      child: Text(l10n.forgotPassword),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Login button
-                  NubarButton(
-                    text: l10n.login,
-                    onPressed: _handleLogin,
-                    isLoading: authState.isLoading,
-                    width: double.infinity,
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Register link
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(l10n.dontHaveAccount),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const RegisterScreen(),
+                        const SizedBox(height: 24),
+                        NubarTextField(
+                          controller: _emailController,
+                          label: l10n.email,
+                          prefixIcon: Icons.email_outlined,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: Validators.validateEmail,
+                        ),
+                        const SizedBox(height: 14),
+                        NubarTextField(
+                          controller: _passwordController,
+                          label: l10n.password,
+                          prefixIcon: Icons.lock_outlined,
+                          obscureText: _obscurePassword,
+                          validator: Validators.validatePassword,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
                             ),
-                          );
-                        },
-                        child: Text(l10n.register),
-                      ),
-                    ],
+                            onPressed: () {
+                              setState(
+                                () => _obscurePassword = !_obscurePassword,
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Align(
+                          alignment: AlignmentDirectional.centerEnd,
+                          child: TextButton(
+                            onPressed: () {
+                              _showForgotPasswordDialog(context, l10n);
+                            },
+                            child: Text(l10n.forgotPassword),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        NubarButton(
+                          text: l10n.login,
+                          onPressed: _handleLogin,
+                          isLoading: authState.isLoading,
+                          width: double.infinity,
+                          icon: Icons.login_rounded,
+                        ),
+                        const SizedBox(height: 14),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(l10n.dontHaveAccount),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const RegisterScreen(),
+                                  ),
+                                );
+                              },
+                              child: Text(l10n.register),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ],
+                ),
               ),
             ),
           ),

@@ -55,7 +55,9 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
   void _showCreateMenu(BuildContext context, AppLocalizations l10n) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: Theme.of(
+        context,
+      ).colorScheme.surface.withValues(alpha: 0),
       builder: (ctx) {
         final cs = Theme.of(ctx).colorScheme;
         return Container(

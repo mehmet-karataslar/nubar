@@ -182,7 +182,7 @@ class _StudioThreadScreenState extends ConsumerState<StudioThreadScreen> {
                             child: Container(
                               width: 2,
                               color: isLast
-                                  ? Colors.transparent
+                                  ? cs.outlineVariant.withValues(alpha: 0)
                                   : cs.outlineVariant,
                             ),
                           ),

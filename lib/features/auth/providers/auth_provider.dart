@@ -45,7 +45,10 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
     required String email,
     required String password,
     required String username,
+    required String firstName,
+    required String lastName,
     required String fullName,
+    String? phone,
     String preferredLang = 'ku',
   }) async {
     state = const AsyncValue.loading();
@@ -56,12 +59,29 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
       );
 
       if (authResponse.user != null) {
-        await SupabaseService.from(SupabaseConstants.usersTable).insert({
+        final userData = {
           'auth_id': authResponse.user!.id,
           'username': username,
+          'first_name': firstName,
+          'last_name': lastName,
           'full_name': fullName,
+          if (phone != null && phone.isNotEmpty) 'phone': phone,
           'preferred_lang': preferredLang,
-        });
+        };
+
+        try {
+          await SupabaseService.from(
+            SupabaseConstants.usersTable,
+          ).insert(userData);
+        } on PostgrestException catch (_) {
+          // Backward compatibility if new profile columns are not in schema yet.
+          await SupabaseService.from(SupabaseConstants.usersTable).insert({
+            'auth_id': authResponse.user!.id,
+            'username': username,
+            'full_name': fullName,
+            'preferred_lang': preferredLang,
+          });
+        }
       }
     });
   }

@@ -6,8 +6,11 @@ import 'package:nubar/core/l10n/fallback_material_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nubar/core/theme/app_theme.dart';
 import 'package:nubar/core/theme/theme_provider.dart';
-import 'package:nubar/shared/services/supabase_service.dart';
+import 'package:nubar/features/auth/providers/auth_provider.dart';
+import 'package:nubar/features/auth/screens/login_screen.dart';
 import 'package:nubar/features/navigation/main_navigation_screen.dart';
+import 'package:nubar/shared/services/supabase_service.dart';
+import 'package:nubar/shared/widgets/loading_indicator.dart';
 
 final localeProvider = StateProvider<Locale>((ref) => const Locale('ku'));
 
@@ -18,11 +21,7 @@ Future<void> main() async {
   await dotenv.load(fileName: '.env');
   await SupabaseService.initialize();
 
-  runApp(
-    const ProviderScope(
-      child: NubarApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: NubarApp()));
 }
 
 class NubarApp extends ConsumerWidget {
@@ -64,7 +63,103 @@ class AuthGate extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Geliştirme: Giriş/kayıt/onboarding atlanıyor, doğrudan ana sayfaya gidiliyor.
-    return const MainNavigationScreen();
+    final authState = ref.watch(authStateProvider);
+
+    return FutureBuilder<void>(
+      future: Future<void>.delayed(const Duration(milliseconds: 1400)),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const _StartupSplashScreen();
+        }
+
+        return authState.when(
+          loading: () =>
+              const Scaffold(body: Center(child: LoadingIndicator())),
+          error: (_, _) => const LoginScreen(),
+          data: (state) {
+            final user = state.session?.user;
+            if (user == null) {
+              return const LoginScreen();
+            }
+            return const MainNavigationScreen();
+          },
+        );
+      },
+    );
+  }
+}
+
+class _StartupSplashScreen extends StatelessWidget {
+  const _StartupSplashScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: AlignmentDirectional.topStart,
+            end: AlignmentDirectional.bottomEnd,
+            colors: [
+              colorScheme.primary.withValues(alpha: 0.22),
+              colorScheme.secondary.withValues(alpha: 0.18),
+              colorScheme.error.withValues(alpha: 0.1),
+              colorScheme.surface,
+            ],
+            stops: const [0.0, 0.35, 0.72, 1.0],
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  height: 116,
+                  width: 116,
+                  padding: const EdgeInsetsDirectional.all(14),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surface.withValues(alpha: 0.82),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: colorScheme.primary.withValues(alpha: 0.28),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: colorScheme.primary.withValues(alpha: 0.14),
+                        blurRadius: 26,
+                        offset: const Offset(0, 12),
+                      ),
+                    ],
+                  ),
+                  child: Image.asset('assets/icons/icon.png'),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Nubar',
+                  style: textTheme.headlineMedium?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Kurdish Voices, Shared Freely',
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                const LoadingIndicator(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

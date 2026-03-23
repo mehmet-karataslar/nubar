@@ -1,7 +1,7 @@
 class BackblazeConstants {
   BackblazeConstants._();
 
-  static const String bucketName = 'nubar-bucket';
+  static const String bucketName = 'nubara-app';
 
   // File paths
   static String avatarPath(String userId) => 'avatars/$userId/profile.jpg';

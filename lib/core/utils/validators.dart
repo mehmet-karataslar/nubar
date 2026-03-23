@@ -51,6 +51,28 @@ class Validators {
     return null;
   }
 
+  static String? validateRequiredName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'This field is required';
+    }
+    if (value.trim().length < 2) {
+      return 'Must be at least 2 characters';
+    }
+    return null;
+  }
+
+  static String? validateOptionalPhone(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return null;
+    }
+    final normalized = value.replaceAll(RegExp(r'[\s\-\(\)]'), '');
+    final phoneRegex = RegExp(r'^\+?[0-9]{7,15}$');
+    if (!phoneRegex.hasMatch(normalized)) {
+      return 'Invalid phone number';
+    }
+    return null;
+  }
+
   static String? validatePostContent(String? value) {
     if (value == null || value.isEmpty) {
       return 'Post content is required';

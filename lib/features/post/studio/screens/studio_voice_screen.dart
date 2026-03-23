@@ -169,9 +169,12 @@ class _StudioVoiceScreenState extends ConsumerState<StudioVoiceScreen> {
                 child: _bgImage != null
                     ? Image.file(_bgImage!, fit: BoxFit.cover)
                     : Container(
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [Color(0xFF2C3E50), Color(0xFF000000)],
+                            colors: [
+                              cs.primaryContainer.withValues(alpha: 0.85),
+                              cs.scrim,
+                            ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),

@@ -55,7 +55,9 @@ class PostActions extends ConsumerWidget {
               ? Icons.favorite
               : Icons.favorite_border,
           count: post.likeCount,
-          color: isLiked.valueOrNull == true ? Colors.red : null,
+          color: isLiked.valueOrNull == true
+              ? Theme.of(context).colorScheme.error
+              : null,
           onTap: () {
             if (isLiked.valueOrNull == true) {
               actions.unlikePost(post.id);
@@ -98,12 +100,7 @@ class _ActionButton extends StatelessWidget {
   final Color? color;
   final VoidCallback? onTap;
 
-  const _ActionButton({
-    required this.icon,
-    this.count,
-    this.color,
-    this.onTap,
-  });
+  const _ActionButton({required this.icon, this.count, this.color, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -123,9 +120,9 @@ class _ActionButton extends StatelessWidget {
               const SizedBox(width: 4),
               Text(
                 count.toString(),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: iconColor,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: iconColor),
               ),
             ],
           ],

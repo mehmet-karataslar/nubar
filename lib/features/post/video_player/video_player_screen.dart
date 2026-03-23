@@ -31,8 +31,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 
   Future<void> _initializePlayer() async {
-    _videoController =
-        VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
+    _videoController = VideoPlayerController.networkUrl(
+      Uri.parse(widget.videoUrl),
+    );
 
     try {
       await _videoController.initialize();
@@ -44,14 +45,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         allowMuting: true,
         showControls: true,
         placeholder: widget.thumbnailUrl != null
-            ? Image.network(
-                widget.thumbnailUrl!,
-                fit: BoxFit.cover,
-              )
+            ? Image.network(widget.thumbnailUrl!, fit: BoxFit.cover)
             : null,
-        deviceOrientationsAfterFullScreen: [
-          DeviceOrientation.portraitUp,
-        ],
+        deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitUp],
       );
       if (mounted) setState(() {});
     } catch (e) {
@@ -68,11 +64,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: cs.scrim,
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
+        backgroundColor: cs.scrim,
+        foregroundColor: cs.onPrimary,
         title: widget.title != null ? Text(widget.title!) : null,
       ),
       body: Center(
@@ -80,21 +78,19 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             ? Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.error_outline,
-                      color: Colors.white, size: 48),
+                  Icon(Icons.error_outline, color: cs.onPrimary, size: 48),
                   const SizedBox(height: 16),
                   Text(
                     'Video could not be loaded',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyLarge
-                        ?.copyWith(color: Colors.white),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyLarge?.copyWith(color: cs.onPrimary),
                   ),
                 ],
               )
             : _chewieController != null
-                ? Chewie(controller: _chewieController!)
-                : const CircularProgressIndicator(color: Colors.white),
+            ? Chewie(controller: _chewieController!)
+            : CircularProgressIndicator(color: cs.onPrimary),
       ),
     );
   }

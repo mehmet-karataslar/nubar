@@ -28,20 +28,24 @@ class NotificationsScreen extends ConsumerWidget {
     }
   }
 
-  Color _getNotificationColor(String type, BuildContext context) {
+  (Color background, Color foreground) _getNotificationStyle(
+    String type,
+    BuildContext context,
+  ) {
+    final cs = Theme.of(context).colorScheme;
     switch (type) {
       case 'like':
-        return Colors.red;
+        return (cs.error, cs.onError);
       case 'comment':
-        return Colors.blue;
+        return (cs.primary, cs.onPrimary);
       case 'follow':
-        return Theme.of(context).colorScheme.primary;
+        return (cs.secondary, cs.onSecondary);
       case 'repost':
-        return Colors.green;
+        return (cs.tertiary, cs.onTertiary);
       case 'mention':
-        return Colors.orange;
+        return (cs.primaryContainer, cs.onPrimaryContainer);
       default:
-        return Theme.of(context).colorScheme.primary;
+        return (cs.primary, cs.onPrimary);
     }
   }
 
@@ -57,9 +61,7 @@ class NotificationsScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.done_all),
             onPressed: () {
-              ref
-                  .read(realtimeNotificationsProvider.notifier)
-                  .markAllAsRead();
+              ref.read(realtimeNotificationsProvider.notifier).markAllAsRead();
             },
           ),
         ],
@@ -73,11 +75,10 @@ class NotificationsScreen extends ConsumerWidget {
               child: Text(
                 l10n.noNotifications,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.5),
-                    ),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
               ),
             );
           }
@@ -91,13 +92,16 @@ class NotificationsScreen extends ConsumerWidget {
               separatorBuilder: (_, __) => const Divider(height: 1),
               itemBuilder: (context, index) {
                 final notification = notifications[index];
+                final notificationStyle = _getNotificationStyle(
+                  notification.type,
+                  context,
+                );
                 return ListTile(
                   tileColor: notification.isRead
                       ? null
-                      : Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withValues(alpha: 0.05),
+                      : Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.05),
                   leading: Stack(
                     children: [
                       NubarAvatar(
@@ -111,14 +115,13 @@ class NotificationsScreen extends ConsumerWidget {
                         child: Container(
                           padding: const EdgeInsets.all(2),
                           decoration: BoxDecoration(
-                            color: _getNotificationColor(
-                                notification.type, context),
+                            color: notificationStyle.$1,
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
                             _getNotificationIcon(notification.type),
                             size: 12,
-                            color: Colors.white,
+                            color: notificationStyle.$2,
                           ),
                         ),
                       ),
@@ -126,10 +129,9 @@ class NotificationsScreen extends ConsumerWidget {
                   ),
                   title: Text(
                     notification.actorFullName ?? '',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   subtitle: Text(notification.type),
                   trailing: Text(

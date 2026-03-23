@@ -88,7 +88,7 @@ class NubarQuillConfigBuilder {
 // ═══════════════════════════════════════════════════════════════
 // ── Shared Toolbar Widget ──
 // ═══════════════════════════════════════════════════════════════
-class NubarQuillToolbar extends StatelessWidget {
+class NubarQuillToolbar extends StatefulWidget {
   final QuillController controller;
   final FocusNode focusNode;
   final Widget? trailingAction;
@@ -99,6 +99,13 @@ class NubarQuillToolbar extends StatelessWidget {
     required this.focusNode,
     this.trailingAction,
   });
+
+  @override
+  State<NubarQuillToolbar> createState() => _NubarQuillToolbarState();
+}
+
+class _NubarQuillToolbarState extends State<NubarQuillToolbar> {
+  String? _activeMenu;
 
   void _showFontFamilySheet(BuildContext context) {
     final fonts = [
@@ -111,7 +118,9 @@ class NubarQuillToolbar extends StatelessWidget {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0x00000000),
+      backgroundColor: Theme.of(
+        context,
+      ).colorScheme.surface.withValues(alpha: 0),
       builder: (ctx) {
         final cs = Theme.of(ctx).colorScheme;
         return Container(
@@ -150,8 +159,8 @@ class NubarQuillToolbar extends StatelessWidget {
                   onTap: () {
                     Navigator.pop(ctx);
                     Future.delayed(const Duration(milliseconds: 50), () {
-                      focusNode.requestFocus();
-                      controller.formatSelection(
+                      widget.focusNode.requestFocus();
+                      widget.controller.formatSelection(
                         Attribute.fromKeyValue('font', f.$1),
                       );
                     });
@@ -189,8 +198,8 @@ class NubarQuillToolbar extends StatelessWidget {
                     : 'https://${tController.text}';
                 Navigator.pop(ctx);
                 Future.delayed(const Duration(milliseconds: 50), () {
-                  focusNode.requestFocus();
-                  controller.formatSelection(LinkAttribute(val));
+                  widget.focusNode.requestFocus();
+                  widget.controller.formatSelection(LinkAttribute(val));
                 });
               } else {
                 Navigator.pop(ctx);
@@ -200,6 +209,57 @@ class NubarQuillToolbar extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSizeRow(ColorScheme cs) {
+    final sizes = [8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28];
+    return Row(
+      children: [
+        IconButton(
+          constraints: const BoxConstraints(),
+          padding: const EdgeInsets.all(8),
+          icon: Icon(Icons.arrow_back_rounded, color: cs.onSurface),
+          onPressed: () {
+            widget.focusNode.requestFocus();
+            setState(() => _activeMenu = null);
+          },
+        ),
+        Container(width: 1, height: 24, color: cs.outlineVariant),
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: sizes.map((s) {
+                return InkWell(
+                  onTap: () {
+                    widget.focusNode.requestFocus();
+                    widget.controller.formatSelection(
+                      Attribute.fromKeyValue('size', s.toDouble()),
+                    );
+                    setState(() => _activeMenu = null);
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Text(
+                      '$s',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -217,104 +277,109 @@ class NubarQuillToolbar extends StatelessWidget {
         top: false,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _QuillFmtBtn(
-                    controller: controller,
-                    attribute: Attribute.bold,
-                    icon: Icons.format_bold_rounded,
-                    baseColor: cs.primary,
-                  ),
-                  _QuillFmtBtn(
-                    controller: controller,
-                    attribute: Attribute.italic,
-                    icon: Icons.format_italic_rounded,
-                    baseColor: cs.secondary,
-                  ),
-                  _QuillFmtBtn(
-                    controller: controller,
-                    attribute: Attribute.underline,
-                    icon: Icons.format_underlined_rounded,
-                    baseColor: cs.tertiary,
-                  ),
-                  _QuillFmtBtn(
-                    controller: controller,
-                    attribute: Attribute.strikeThrough,
-                    icon: Icons.strikethrough_s_rounded,
-                    baseColor: cs.error,
-                  ),
-                  _QuillBlockBtn(
-                    controller: controller,
-                    attribute: Attribute.leftAlignment,
-                    icon: Icons.format_align_left_rounded,
-                    baseColor: cs.primaryContainer,
-                  ),
-                  _QuillBlockBtn(
-                    controller: controller,
-                    attribute: Attribute.centerAlignment,
-                    icon: Icons.format_align_center_rounded,
-                    baseColor: cs.primaryContainer,
-                  ),
-                  _QuillBlockBtn(
-                    controller: controller,
-                    attribute: Attribute.rightAlignment,
-                    icon: Icons.format_align_right_rounded,
-                    baseColor: cs.primaryContainer,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _QuillBlockBtn(
-                    controller: controller,
-                    attribute: Attribute.h1,
-                    icon: Icons.title_rounded,
-                    baseColor: cs.secondary,
-                  ),
-                  _QuillBlockBtn(
-                    controller: controller,
-                    attribute: Attribute.h2,
-                    icon: Icons.text_fields_rounded,
-                    baseColor: cs.secondaryContainer,
-                  ),
-                  _QuillBlockBtn(
-                    controller: controller,
-                    attribute: Attribute.blockQuote,
-                    icon: Icons.format_quote_rounded,
-                    baseColor: cs.tertiary,
-                  ),
-                  _QuillBlockBtn(
-                    controller: controller,
-                    attribute: Attribute.ul,
-                    icon: Icons.format_list_bulleted_rounded,
-                    baseColor: cs.primary,
-                  ),
-                  NubarQuillToolIcon(
-                    icon: Icons.link_rounded,
-                    onTap: () => _showLinkDialog(context),
-                    baseColor: cs.tertiaryContainer,
-                  ),
-                  _QuillFontSizeBtn(
-                    controller: controller,
-                    focusNode: focusNode,
-                    baseColor: cs.errorContainer,
-                  ),
-                  NubarQuillToolIcon(
-                    icon: Icons.font_download_outlined,
-                    onTap: () => _showFontFamilySheet(context),
-                    baseColor: cs.secondary,
-                  ),
-                  if (trailingAction != null) trailingAction!,
-                ],
-              ),
-            ],
-          ),
+          child: _activeMenu == 'size'
+              ? _buildSizeRow(cs)
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _QuillFmtBtn(
+                          controller: widget.controller,
+                          attribute: Attribute.bold,
+                          icon: Icons.format_bold_rounded,
+                          baseColor: cs.primary,
+                        ),
+                        _QuillFmtBtn(
+                          controller: widget.controller,
+                          attribute: Attribute.italic,
+                          icon: Icons.format_italic_rounded,
+                          baseColor: cs.secondary,
+                        ),
+                        _QuillFmtBtn(
+                          controller: widget.controller,
+                          attribute: Attribute.underline,
+                          icon: Icons.format_underlined_rounded,
+                          baseColor: cs.tertiary,
+                        ),
+                        _QuillFmtBtn(
+                          controller: widget.controller,
+                          attribute: Attribute.strikeThrough,
+                          icon: Icons.strikethrough_s_rounded,
+                          baseColor: cs.error,
+                        ),
+                        _QuillBlockBtn(
+                          controller: widget.controller,
+                          attribute: Attribute.leftAlignment,
+                          icon: Icons.format_align_left_rounded,
+                          baseColor: cs.primaryContainer,
+                        ),
+                        _QuillBlockBtn(
+                          controller: widget.controller,
+                          attribute: Attribute.centerAlignment,
+                          icon: Icons.format_align_center_rounded,
+                          baseColor: cs.primaryContainer,
+                        ),
+                        _QuillBlockBtn(
+                          controller: widget.controller,
+                          attribute: Attribute.rightAlignment,
+                          icon: Icons.format_align_right_rounded,
+                          baseColor: cs.primaryContainer,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _QuillBlockBtn(
+                          controller: widget.controller,
+                          attribute: Attribute.h1,
+                          icon: Icons.title_rounded,
+                          baseColor: cs.secondary,
+                        ),
+                        _QuillBlockBtn(
+                          controller: widget.controller,
+                          attribute: Attribute.h2,
+                          icon: Icons.text_fields_rounded,
+                          baseColor: cs.secondaryContainer,
+                        ),
+                        _QuillBlockBtn(
+                          controller: widget.controller,
+                          attribute: Attribute.blockQuote,
+                          icon: Icons.format_quote_rounded,
+                          baseColor: cs.tertiary,
+                        ),
+                        _QuillBlockBtn(
+                          controller: widget.controller,
+                          attribute: Attribute.ul,
+                          icon: Icons.format_list_bulleted_rounded,
+                          baseColor: cs.primary,
+                        ),
+                        NubarQuillToolIcon(
+                          icon: Icons.link_rounded,
+                          onTap: () => _showLinkDialog(context),
+                          baseColor: cs.tertiaryContainer,
+                        ),
+                        _QuillFontSizeBtn(
+                          controller: widget.controller,
+                          onTap: () {
+                            setState(() => _activeMenu = 'size');
+                          },
+                          baseColor: cs.errorContainer,
+                        ),
+                        NubarQuillToolIcon(
+                          icon: Icons.font_download_outlined,
+                          onTap: () => _showFontFamilySheet(context),
+                          baseColor: cs.secondary,
+                        ),
+                        if (widget.trailingAction != null)
+                          widget.trailingAction!,
+                      ],
+                    ),
+                  ],
+                ),
         ),
       ),
     );
@@ -370,7 +435,7 @@ class _QuillFmtBtnState extends State<_QuillFmtBtn> {
     return Material(
       color: _isActive
           ? widget.baseColor.withValues(alpha: 0.15)
-          : const Color(0x00000000),
+          : Theme.of(context).colorScheme.surface.withValues(alpha: 0),
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
@@ -441,7 +506,7 @@ class _QuillBlockBtnState extends State<_QuillBlockBtn> {
     return Material(
       color: _isActive
           ? widget.baseColor.withValues(alpha: 0.15)
-          : const Color(0x00000000),
+          : Theme.of(context).colorScheme.surface.withValues(alpha: 0),
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
@@ -469,12 +534,12 @@ class _QuillBlockBtnState extends State<_QuillBlockBtn> {
 
 class _QuillFontSizeBtn extends StatefulWidget {
   final QuillController controller;
-  final FocusNode focusNode;
+  final VoidCallback onTap;
   final Color baseColor;
 
   const _QuillFontSizeBtn({
     required this.controller,
-    required this.focusNode,
+    required this.onTap,
     required this.baseColor,
   });
 
@@ -484,9 +549,6 @@ class _QuillFontSizeBtn extends StatefulWidget {
 
 class _QuillFontSizeBtnState extends State<_QuillFontSizeBtn> {
   String _currentSize = '16';
-  final MenuController _menuController = MenuController();
-
-  final List<int> _sizes = [8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28];
 
   @override
   void initState() {
@@ -524,59 +586,24 @@ class _QuillFontSizeBtnState extends State<_QuillFontSizeBtn> {
 
   @override
   Widget build(BuildContext context) {
-    return MenuAnchor(
-      controller: _menuController,
-      style: MenuStyle(
-        backgroundColor: WidgetStatePropertyAll(
-          Theme.of(context).colorScheme.surface,
-        ),
-        elevation: const WidgetStatePropertyAll(3),
-        shape: WidgetStatePropertyAll(
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      ),
-      menuChildren: _sizes.map((s) {
-        return MenuItemButton(
-          onPressed: () {
-            widget.focusNode.requestFocus();
-            widget.controller.formatSelection(
-              Attribute.fromKeyValue('customFontSize', null),
-            );
-            widget.controller.formatSelection(
-              Attribute.fromKeyValue('size', s.toDouble()),
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Text('$s', style: const TextStyle(fontSize: 16)),
-          ),
-        );
-      }).toList(),
-      child: Material(
-        color: const Color(0x00000000),
+    return Material(
+      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0),
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
         borderRadius: BorderRadius.circular(8),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: () {
-            if (_menuController.isOpen) {
-              _menuController.close();
-            } else {
-              _menuController.open();
-            }
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: SizedBox(
-              width: 20,
-              height: 20,
-              child: Center(
-                child: Text(
-                  _currentSize,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: widget.baseColor,
-                  ),
+        onTap: widget.onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: SizedBox(
+            width: 20,
+            height: 20,
+            child: Center(
+              child: Text(
+                _currentSize,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: widget.baseColor,
                 ),
               ),
             ),
@@ -606,7 +633,7 @@ class NubarQuillToolIcon extends StatelessWidget {
     return Material(
       color: active
           ? baseColor.withValues(alpha: 0.15)
-          : const Color(0x00000000),
+          : Theme.of(context).colorScheme.surface.withValues(alpha: 0),
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),

@@ -223,210 +223,215 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
     return Scaffold(
       backgroundColor: cs.surface,
       resizeToAvoidBottomInset: true,
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            // ── Top bar ──
-            Padding(
-              padding: const EdgeInsets.fromLTRB(4, 4, 12, 0),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.close_rounded),
-                    onPressed: () {
-                      if (_hasContent) {
-                        _showDiscardDialog(context, l10n);
-                      } else {
-                        Navigator.pop(context);
-                      }
-                    },
-                  ),
-                  const Spacer(),
-                  AnimatedOpacity(
-                    opacity: _hasContent ? 1.0 : 0.4,
-                    duration: const Duration(milliseconds: 200),
-                    child: FilledButton(
-                      onPressed: createState.isLoading || !_hasContent
-                          ? null
-                          : _handlePost,
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 10,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: createState.isLoading
-                          ? SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: cs.onPrimary,
-                              ),
-                            )
-                          : Text(
-                              l10n.post,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 14,
-                              ),
-                            ),
+      body: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              // ── Top bar ──
+              Padding(
+                padding: const EdgeInsets.fromLTRB(4, 4, 12, 0),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      onPressed: () {
+                        if (_hasContent) {
+                          _showDiscardDialog(context, l10n);
+                        } else {
+                          Navigator.pop(context);
+                        }
+                      },
                     ),
-                  ),
-                ],
+                    const Spacer(),
+                    AnimatedOpacity(
+                      opacity: _hasContent ? 1.0 : 0.4,
+                      duration: const Duration(milliseconds: 200),
+                      child: FilledButton(
+                        onPressed: createState.isLoading || !_hasContent
+                            ? null
+                            : _handlePost,
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 10,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: createState.isLoading
+                            ? SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: cs.onPrimary,
+                                ),
+                              )
+                            : Text(
+                                l10n.post,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            // ── Rich text editor (fills remaining space) ──
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: QuillEditor(
-                  controller: _quillController,
-                  focusNode: _focusNode,
-                  scrollController: _scrollController,
-                  config: NubarQuillConfigBuilder.buildConfig(
-                    context: context,
-                    placeholder: l10n.writePost,
-                    padding: const EdgeInsets.fromLTRB(4, 8, 4, 80),
-                    autoFocus: true,
+              // ── Rich text editor (fills remaining space) ──
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: QuillEditor(
+                    controller: _quillController,
+                    focusNode: _focusNode,
+                    scrollController: _scrollController,
+                    config: NubarQuillConfigBuilder.buildConfig(
+                      context: context,
+                      placeholder: l10n.writePost,
+                      padding: const EdgeInsets.fromLTRB(4, 8, 4, 80),
+                      autoFocus: true,
+                    ),
                   ),
                 ),
               ),
-            ),
 
-            // ── Poll / Media attachments ──
-            if (_isPollMode ||
-                _selectedImages.isNotEmpty ||
-                _selectedVideo != null ||
-                _selectedPdf != null)
-              Container(
-                constraints: const BoxConstraints(maxHeight: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: SingleChildScrollView(
-                  child: Column(
+              // ── Poll / Media attachments ──
+              if (_isPollMode ||
+                  _selectedImages.isNotEmpty ||
+                  _selectedVideo != null ||
+                  _selectedPdf != null)
+                Container(
+                  constraints: const BoxConstraints(maxHeight: 200),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        if (_isPollMode)
+                          _PollEditor(
+                            controllers: _pollControllers,
+                            hours: _pollHours,
+                            onHoursChanged: (h) =>
+                                setState(() => _pollHours = h),
+                            onAdd: () {
+                              if (_pollControllers.length < 4) {
+                                setState(
+                                  () => _pollControllers.add(
+                                    TextEditingController(),
+                                  ),
+                                );
+                              }
+                            },
+                            onRemove: (i) {
+                              if (_pollControllers.length > 2) {
+                                setState(() {
+                                  _pollControllers[i].dispose();
+                                  _pollControllers.removeAt(i);
+                                });
+                              }
+                            },
+                            onClose: _togglePoll,
+                          ),
+                        if (_selectedImages.isNotEmpty) _buildImageRow(),
+                        if (_selectedVideo != null)
+                          _AttachmentChip(
+                            icon: Icons.videocam_rounded,
+                            label: _selectedVideo!.path.split('/').last,
+                            color: cs.tertiary,
+                            onRemove: () =>
+                                setState(() => _selectedVideo = null),
+                          ),
+                        if (_selectedPdf != null)
+                          _AttachmentChip(
+                            icon: Icons.picture_as_pdf_rounded,
+                            label: _pdfFileName ?? 'PDF',
+                            color: cs.error,
+                            onRemove: () => setState(() {
+                              _selectedPdf = null;
+                              _pdfFileName = null;
+                            }),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              // ── Expandable media row ──
+              SizeTransition(
+                sizeFactor: _mediaBarAnim,
+                axisAlignment: -1,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: cs.surfaceContainerLow,
+                    border: Border(
+                      top: BorderSide(
+                        color: cs.outlineVariant.withValues(alpha: 0.15),
+                      ),
+                    ),
+                  ),
+                  child: Row(
                     children: [
-                      if (_isPollMode)
-                        _PollEditor(
-                          controllers: _pollControllers,
-                          hours: _pollHours,
-                          onHoursChanged: (h) => setState(() => _pollHours = h),
-                          onAdd: () {
-                            if (_pollControllers.length < 4) {
-                              setState(
-                                () => _pollControllers.add(
-                                  TextEditingController(),
-                                ),
-                              );
-                            }
-                          },
-                          onRemove: (i) {
-                            if (_pollControllers.length > 2) {
-                              setState(() {
-                                _pollControllers[i].dispose();
-                                _pollControllers.removeAt(i);
-                              });
-                            }
-                          },
-                          onClose: _togglePoll,
-                        ),
-                      if (_selectedImages.isNotEmpty) _buildImageRow(),
-                      if (_selectedVideo != null)
-                        _AttachmentChip(
-                          icon: Icons.videocam_rounded,
-                          label: _selectedVideo!.path.split('/').last,
-                          color: cs.tertiary,
-                          onRemove: () => setState(() => _selectedVideo = null),
-                        ),
-                      if (_selectedPdf != null)
-                        _AttachmentChip(
-                          icon: Icons.picture_as_pdf_rounded,
-                          label: _pdfFileName ?? 'PDF',
-                          color: cs.error,
-                          onRemove: () => setState(() {
-                            _selectedPdf = null;
-                            _pdfFileName = null;
-                          }),
-                        ),
+                      _MediaBtn(
+                        Icons.photo_library_outlined,
+                        l10n.addImage,
+                        cs.primary,
+                        _pickImages,
+                      ),
+                      _MediaBtn(
+                        Icons.camera_alt_outlined,
+                        l10n.camera,
+                        cs.primary,
+                        _takePhoto,
+                      ),
+                      _MediaBtn(
+                        Icons.videocam_outlined,
+                        l10n.addVideo,
+                        cs.tertiary,
+                        _pickVideo,
+                      ),
+                      _MediaBtn(
+                        Icons.picture_as_pdf_outlined,
+                        'PDF',
+                        cs.error,
+                        _pickPdf,
+                      ),
+                      _MediaBtn(
+                        Icons.poll_outlined,
+                        l10n.poll,
+                        cs.secondary,
+                        _togglePoll,
+                        active: _isPollMode,
+                      ),
                     ],
                   ),
                 ),
               ),
 
-            // ── Expandable media row ──
-            SizeTransition(
-              sizeFactor: _mediaBarAnim,
-              axisAlignment: -1,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: cs.surfaceContainerLow,
-                  border: Border(
-                    top: BorderSide(
-                      color: cs.outlineVariant.withValues(alpha: 0.15),
-                    ),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    _MediaBtn(
-                      Icons.photo_library_outlined,
-                      l10n.addImage,
-                      cs.primary,
-                      _pickImages,
-                    ),
-                    _MediaBtn(
-                      Icons.camera_alt_outlined,
-                      l10n.camera,
-                      cs.primary,
-                      _takePhoto,
-                    ),
-                    _MediaBtn(
-                      Icons.videocam_outlined,
-                      l10n.addVideo,
-                      cs.tertiary,
-                      _pickVideo,
-                    ),
-                    _MediaBtn(
-                      Icons.picture_as_pdf_outlined,
-                      'PDF',
-                      cs.error,
-                      _pickPdf,
-                    ),
-                    _MediaBtn(
-                      Icons.poll_outlined,
-                      l10n.poll,
-                      cs.secondary,
-                      _togglePoll,
-                      active: _isPollMode,
-                    ),
-                  ],
+              // ── Bottom formatting toolbar ──
+              NubarQuillToolbar(
+                controller: _quillController,
+                focusNode: _focusNode,
+                trailingAction: NubarQuillToolIcon(
+                  icon: _showMediaBar
+                      ? Icons.close_rounded
+                      : Icons.add_circle_outline_rounded,
+                  onTap: _toggleMediaBar,
+                  active: _showMediaBar,
+                  baseColor: cs.secondary,
                 ),
               ),
-            ),
-
-            // ── Bottom formatting toolbar ──
-            NubarQuillToolbar(
-              controller: _quillController,
-              focusNode: _focusNode,
-              trailingAction: NubarQuillToolIcon(
-                icon: _showMediaBar
-                    ? Icons.close_rounded
-                    : Icons.add_circle_outline_rounded,
-                onTap: _toggleMediaBar,
-                active: _showMediaBar,
-                baseColor: cs.secondary,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -531,7 +536,9 @@ class _MediaBtn extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: active ? color.withValues(alpha: 0.1) : Colors.transparent,
+            color: active
+                ? color.withValues(alpha: 0.1)
+                : color.withValues(alpha: 0),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Column(
