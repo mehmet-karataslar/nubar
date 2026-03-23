@@ -72,6 +72,7 @@ class _StudioArticleScreenState extends ConsumerState<StudioArticleScreen> {
         .createArticle(
           title: title,
           subtitle: subtitle,
+          plainContent: _quillController.document.toPlainText().trim(),
           contentDelta: jsonEncode(contentDelta),
           coverImage: _coverImage,
         );

@@ -9,6 +9,7 @@ import 'package:nubar/features/feed/providers/feed_provider.dart';
 import 'package:nubar/features/feed/widgets/post_actions.dart';
 import 'package:nubar/features/post/create/create_post_screen.dart';
 import 'package:nubar/features/post/detail/post_detail_screen.dart';
+import 'package:nubar/features/post/poll/poll_widget.dart';
 import 'package:nubar/features/profile/screens/profile_screen.dart';
 import 'package:nubar/features/profile/providers/block_provider.dart';
 import 'package:nubar/features/report/report_dialog.dart';
@@ -172,7 +173,13 @@ class PostCard extends ConsumerWidget {
                   child: _ExpandablePostBody(post: post),
                 ),
 
+              if (post.type == 'poll') ...[
+                PollWidget(postId: post.id),
+                const SizedBox(height: 8),
+              ],
+
               _PostTypePreview(post: post),
+              _StructuredPostPreview(post: post),
 
               // Media
               if (post.mediaUrls != null && post.mediaUrls!.isNotEmpty)
@@ -263,7 +270,8 @@ class _ExpandablePostBodyState extends State<_ExpandablePostBody> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.post.id != post.id ||
         oldWidget.post.content != post.content ||
-        oldWidget.post.metadata?['rich_delta'] != post.metadata?['rich_delta']) {
+        oldWidget.post.metadata?['rich_delta'] !=
+            post.metadata?['rich_delta']) {
       _disposeQuill();
       _initQuillIfNeeded();
       _expanded = false;
@@ -459,5 +467,110 @@ class _PostTypePreview extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _StructuredPostPreview extends StatelessWidget {
+  final PostModel post;
+
+  const _StructuredPostPreview({required this.post});
+
+  @override
+  Widget build(BuildContext context) {
+    if (post.type == 'quiz') {
+      final metadata = post.metadata ?? const <String, dynamic>{};
+      final optionsRaw = metadata['quiz_options'];
+      final options = optionsRaw is List
+          ? optionsRaw
+                .whereType<String>()
+                .map((e) => e.trim())
+                .where((e) => e.isNotEmpty)
+                .toList()
+          : const <String>[];
+      if (options.isEmpty) return const SizedBox.shrink();
+      final cs = Theme.of(context).colorScheme;
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: cs.tertiaryContainer.withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Column(
+            children: options
+                .take(5)
+                .map(
+                  (option) => Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.radio_button_unchecked_rounded,
+                          size: 16,
+                          color: cs.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            option,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+      );
+    }
+
+    if (post.type == 'thread') {
+      final metadata = post.metadata ?? const <String, dynamic>{};
+      final partsRaw = metadata['thread_parts'];
+      final parts = partsRaw is List
+          ? partsRaw
+                .whereType<String>()
+                .map((e) => e.trim())
+                .where((e) => e.isNotEmpty)
+                .toList()
+          : const <String>[];
+      if (parts.length <= 1) return const SizedBox.shrink();
+      final cs = Theme.of(context).colorScheme;
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: cs.primaryContainer.withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: parts
+                .skip(1)
+                .take(2)
+                .map(
+                  (part) => Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Text(
+                      '• $part',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
   }
 }

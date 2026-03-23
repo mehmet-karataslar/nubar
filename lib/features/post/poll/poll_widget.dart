@@ -38,10 +38,7 @@ class _PollContent extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            poll.question,
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
+          Text(poll.question, style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 8),
 
           ...poll.options.map((option) {
@@ -54,8 +51,11 @@ class _PollContent extends ConsumerWidget {
             }
             return _PollOptionButton(
               option: option,
+              totalVotes: poll.totalVotes,
               onTap: () {
-                ref.read(pollActionsProvider).vote(
+                ref
+                    .read(pollActionsProvider)
+                    .vote(
                       pollId: poll.id,
                       postId: poll.postId,
                       optionKey: option.key,
@@ -70,11 +70,10 @@ class _PollContent extends ConsumerWidget {
               Text(
                 '${poll.totalVotes} votes',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.6),
-                    ),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
               ),
               if (poll.endsAt != null) ...[
                 const SizedBox(width: 8),
@@ -83,11 +82,10 @@ class _PollContent extends ConsumerWidget {
                       ? 'Ended'
                       : 'Ends ${app_date.NubarDateUtils.timeAgo(poll.endsAt!)}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.6),
-                      ),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
                 ),
               ],
             ],
@@ -100,12 +98,21 @@ class _PollContent extends ConsumerWidget {
 
 class _PollOptionButton extends StatelessWidget {
   final PollOption option;
+  final int totalVotes;
   final VoidCallback onTap;
 
-  const _PollOptionButton({required this.option, required this.onTap});
+  const _PollOptionButton({
+    required this.option,
+    required this.totalVotes,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final percentage = option.percentage(totalVotes);
+    final percentText = '${(percentage * 100).round()}%';
+    final trailing = '$percentText • ${option.voteCount}';
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: OutlinedButton(
@@ -113,11 +120,23 @@ class _PollOptionButton extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           minimumSize: const Size(double.infinity, 44),
           alignment: AlignmentDirectional.centerStart,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
-        child: Text(option.text),
+        child: Row(
+          children: [
+            Expanded(child: Text(option.text)),
+            const SizedBox(width: 8),
+            Text(
+              trailing,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.75),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -137,7 +156,7 @@ class _PollResultBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final percentage = option.percentage(totalVotes);
-    final percentText = '${(percentage * 100).round()}%';
+    final percentText = '${(percentage * 100).round()}% • ${option.voteCount}';
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -151,10 +170,9 @@ class _PollResultBar extends StatelessWidget {
               border: Border.all(
                 color: isSelected
                     ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context)
-                        .colorScheme
-                        .outline
-                        .withValues(alpha: 0.3),
+                    : Theme.of(
+                        context,
+                      ).colorScheme.outline.withValues(alpha: 0.3),
                 width: isSelected ? 2 : 1,
               ),
             ),
@@ -164,10 +182,9 @@ class _PollResultBar extends StatelessWidget {
                 widthFactor: percentage,
                 alignment: AlignmentDirectional.centerStart,
                 child: Container(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .primary
-                      .withValues(alpha: 0.15),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.15),
                 ),
               ),
             ),
@@ -190,16 +207,17 @@ class _PollResultBar extends StatelessWidget {
                     child: Text(
                       option.text,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight:
-                                isSelected ? FontWeight.w600 : FontWeight.normal,
-                          ),
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.normal,
+                      ),
                     ),
                   ),
                   Text(
                     percentText,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),

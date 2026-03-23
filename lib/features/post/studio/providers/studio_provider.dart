@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nubar/core/constants/app_constants.dart';
@@ -20,6 +21,7 @@ class StudioNotifier extends StateNotifier<AsyncValue<void>> {
   Future<void> createArticle({
     required String title,
     String? subtitle,
+    required String plainContent,
     required String contentDelta,
     File? coverImage,
     String language = 'ku',
@@ -34,6 +36,7 @@ class StudioNotifier extends StateNotifier<AsyncValue<void>> {
         'article_title': title,
         if (subtitle != null && subtitle.trim().isNotEmpty)
           'article_subtitle': subtitle,
+        'rich_delta': jsonDecode(contentDelta),
         'is_article': true,
       };
 
@@ -42,7 +45,7 @@ class StudioNotifier extends StateNotifier<AsyncValue<void>> {
           await SupabaseService.from(SupabaseConstants.postsTable)
               .insert({
                 'user_id': userId,
-                'content': contentDelta,
+                'content': plainContent,
                 'type': 'article',
                 'language': language,
                 'metadata': metadata,
@@ -95,14 +98,13 @@ class StudioNotifier extends StateNotifier<AsyncValue<void>> {
         'is_pdf_hub': true,
       };
 
-      // Create post first to get ID
+      // Insert with safe temporary type to satisfy media check constraint.
       final postResponse =
           await SupabaseService.from(SupabaseConstants.postsTable)
               .insert({
                 'user_id': userId,
-                'content':
-                    summary, // The summary will be stored as the main text
-                'type': 'pdf', // It's an already supported ENUM type
+                'content': summary,
+                'type': 'text',
                 'language': language,
                 'metadata': metadata,
               })
@@ -111,36 +113,43 @@ class StudioNotifier extends StateNotifier<AsyncValue<void>> {
 
       final postId = postResponse['id'] as String;
 
-      // Upload Cover Image
-      final coverExt = _extensionOf(coverImage.path, fallback: 'jpg');
-      final coverFilename =
-          '${DateTime.now().millisecondsSinceEpoch}_cover.$coverExt';
-      final coverPath = BackblazeConstants.postImagePath(postId, coverFilename);
-      final coverUrl = await BackblazeService.uploadFile(
-        file: coverImage,
-        path: coverPath,
-        contentType: _contentTypeForImage(coverExt),
-      );
+      try {
+        final coverExt = _extensionOf(coverImage.path, fallback: 'jpg');
+        final coverFilename =
+            '${DateTime.now().millisecondsSinceEpoch}_cover.$coverExt';
+        final coverPath = BackblazeConstants.postImagePath(
+          postId,
+          coverFilename,
+        );
+        final coverUrl = await BackblazeService.uploadFile(
+          file: coverImage,
+          path: coverPath,
+          contentType: _contentTypeForImage(coverExt),
+        );
 
-      // Upload PDF
-      _validateFileSize(pdfFile, AppConstants.maxPdfSizeMB);
-      final pdfFilename =
-          '${DateTime.now().millisecondsSinceEpoch}_document.pdf';
-      final pdfPath = BackblazeConstants.postPdfPath(postId, pdfFilename);
-      final pdfUrl = await BackblazeService.uploadFile(
-        file: pdfFile,
-        path: pdfPath,
-        contentType: 'application/pdf',
-      );
+        _validateFileSize(pdfFile, AppConstants.maxPdfSizeMB);
+        final pdfFilename =
+            '${DateTime.now().millisecondsSinceEpoch}_document.pdf';
+        final pdfPath = BackblazeConstants.postPdfPath(postId, pdfFilename);
+        final pdfUrl = await BackblazeService.uploadFile(
+          file: pdfFile,
+          path: pdfPath,
+          contentType: 'application/pdf',
+        );
 
-      // We store the PDF under media_urls and the cover image in thumbnail_url (or vice versa).
-      // Let's store PDF in media_urls[0] and Cover in thumbnail_url
-      await SupabaseService.from(SupabaseConstants.postsTable)
-          .update({
-            'media_urls': [pdfUrl],
-            'thumbnail_url': coverUrl,
-          })
-          .eq('id', postId);
+        await SupabaseService.from(SupabaseConstants.postsTable)
+            .update({
+              'type': 'pdf',
+              'media_urls': [pdfUrl],
+              'thumbnail_url': coverUrl,
+            })
+            .eq('id', postId);
+      } catch (e) {
+        await SupabaseService.from(
+          SupabaseConstants.postsTable,
+        ).delete().eq('id', postId);
+        rethrow;
+      }
     });
   }
 
@@ -182,13 +191,13 @@ class StudioNotifier extends StateNotifier<AsyncValue<void>> {
 
       final metadata = {'voice_title': title, 'is_voice_note': true};
 
-      // Create post first to get ID
+      // Insert with safe temporary type to satisfy media check constraint.
       final postResponse =
           await SupabaseService.from(SupabaseConstants.postsTable)
               .insert({
                 'user_id': userId,
                 'content': description,
-                'type': 'voice', // From our new ENUM
+                'type': 'text',
                 'language': language,
                 'metadata': metadata,
               })
@@ -197,37 +206,47 @@ class StudioNotifier extends StateNotifier<AsyncValue<void>> {
 
       final postId = postResponse['id'] as String;
 
-      // Upload Audio
-      _validateFileSize(audioFile, AppConstants.maxVideoSizeMB);
-      final audioExt = _extensionOf(audioFile.path, fallback: 'm4a');
-      final audioFilename =
-          '${DateTime.now().millisecondsSinceEpoch}_audio.$audioExt';
-      final audioPath = BackblazeConstants.postVideoPath(postId, audioFilename);
-      final audioUrl = await BackblazeService.uploadFile(
-        file: audioFile,
-        path: audioPath,
-        contentType: _contentTypeForAudio(audioExt),
-      );
-
-      // Upload Background Image
-      String? bgUrl;
-      if (backgroundImage != null) {
-        final bgExt = _extensionOf(backgroundImage.path, fallback: 'jpg');
-        final bgFilename = '${DateTime.now().millisecondsSinceEpoch}_bg.$bgExt';
-        final bgPath = BackblazeConstants.postImagePath(postId, bgFilename);
-        bgUrl = await BackblazeService.uploadFile(
-          file: backgroundImage,
-          path: bgPath,
-          contentType: _contentTypeForImage(bgExt),
+      try {
+        _validateFileSize(audioFile, AppConstants.maxVideoSizeMB);
+        final audioExt = _extensionOf(audioFile.path, fallback: 'm4a');
+        final audioFilename =
+            '${DateTime.now().millisecondsSinceEpoch}_audio.$audioExt';
+        final audioPath = BackblazeConstants.postVideoPath(
+          postId,
+          audioFilename,
         );
-      }
+        final audioUrl = await BackblazeService.uploadFile(
+          file: audioFile,
+          path: audioPath,
+          contentType: _contentTypeForAudio(audioExt),
+        );
 
-      await SupabaseService.from(SupabaseConstants.postsTable)
-          .update({
-            'media_urls': [audioUrl],
-            if (bgUrl != null) 'thumbnail_url': bgUrl,
-          })
-          .eq('id', postId);
+        String? bgUrl;
+        if (backgroundImage != null) {
+          final bgExt = _extensionOf(backgroundImage.path, fallback: 'jpg');
+          final bgFilename =
+              '${DateTime.now().millisecondsSinceEpoch}_bg.$bgExt';
+          final bgPath = BackblazeConstants.postImagePath(postId, bgFilename);
+          bgUrl = await BackblazeService.uploadFile(
+            file: backgroundImage,
+            path: bgPath,
+            contentType: _contentTypeForImage(bgExt),
+          );
+        }
+
+        await SupabaseService.from(SupabaseConstants.postsTable)
+            .update({
+              'type': 'voice',
+              'media_urls': [audioUrl],
+              if (bgUrl != null) 'thumbnail_url': bgUrl,
+            })
+            .eq('id', postId);
+      } catch (e) {
+        await SupabaseService.from(
+          SupabaseConstants.postsTable,
+        ).delete().eq('id', postId);
+        rethrow;
+      }
     });
   }
 

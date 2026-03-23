@@ -88,12 +88,18 @@ class CreatePostNotifier extends StateNotifier<AsyncValue<void>> {
         metadata['rich_delta'] = jsonDecode(richDeltaJson);
       }
 
+      final needsMediaBeforeFinalType =
+          resolvedType == 'image' ||
+          resolvedType == 'video' ||
+          resolvedType == 'pdf';
+      final insertType = needsMediaBeforeFinalType ? 'text' : resolvedType;
+
       final postResponse =
           await SupabaseService.from(SupabaseConstants.postsTable)
               .insert({
                 'user_id': userId,
                 'content': content,
-                'type': resolvedType,
+                'type': insertType,
                 'language': language,
                 if (replyToPostId != null) 'reply_to_post_id': replyToPostId,
                 if (communityId != null) 'community_id': communityId,
@@ -105,57 +111,82 @@ class CreatePostNotifier extends StateNotifier<AsyncValue<void>> {
       final postId = postResponse['id'] as String;
 
       if (resolvedType == 'image' && images != null && images.isNotEmpty) {
-        final mediaUrls = <String>[];
-        for (var i = 0; i < images.length; i++) {
-          final image = images[i];
-          final extension = _extensionOf(image.path, fallback: 'jpg');
-          final filename =
-              '${DateTime.now().millisecondsSinceEpoch}_$i.$extension';
-          final path = BackblazeConstants.postImagePath(postId, filename);
-          final url = await BackblazeService.uploadFile(
-            file: image,
-            path: path,
-            contentType: _contentTypeForImage(extension),
-          );
-          mediaUrls.add(url);
+        try {
+          final mediaUrls = <String>[];
+          for (var i = 0; i < images.length; i++) {
+            final image = images[i];
+            final extension = _extensionOf(image.path, fallback: 'jpg');
+            final filename =
+                '${DateTime.now().millisecondsSinceEpoch}_$i.$extension';
+            final path = BackblazeConstants.postImagePath(postId, filename);
+            final url = await BackblazeService.uploadFile(
+              file: image,
+              path: path,
+              contentType: _contentTypeForImage(extension),
+            );
+            mediaUrls.add(url);
+          }
+          await SupabaseService.from(SupabaseConstants.postsTable)
+              .update({'type': resolvedType, 'media_urls': mediaUrls})
+              .eq('id', postId);
+        } catch (e) {
+          await SupabaseService.from(
+            SupabaseConstants.postsTable,
+          ).delete().eq('id', postId);
+          rethrow;
         }
-        await SupabaseService.from(
-          SupabaseConstants.postsTable,
-        ).update({'media_urls': mediaUrls}).eq('id', postId);
       }
 
       if (resolvedType == 'video' && video != null) {
-        _validateFileSize(video, AppConstants.maxVideoSizeMB);
-        final extension = _extensionOf(video.path, fallback: 'mp4');
-        final filename = '${DateTime.now().millisecondsSinceEpoch}.$extension';
-        final path = BackblazeConstants.postVideoPath(postId, filename);
-        final url = await BackblazeService.uploadFile(
-          file: video,
-          path: path,
-          contentType: _contentTypeForVideo(extension),
-        );
-        await SupabaseService.from(SupabaseConstants.postsTable)
-            .update({
-              'media_urls': [url],
-            })
-            .eq('id', postId);
+        try {
+          _validateFileSize(video, AppConstants.maxVideoSizeMB);
+          final extension = _extensionOf(video.path, fallback: 'mp4');
+          final filename =
+              '${DateTime.now().millisecondsSinceEpoch}.$extension';
+          final path = BackblazeConstants.postVideoPath(postId, filename);
+          final url = await BackblazeService.uploadFile(
+            file: video,
+            path: path,
+            contentType: _contentTypeForVideo(extension),
+          );
+          await SupabaseService.from(SupabaseConstants.postsTable)
+              .update({
+                'type': resolvedType,
+                'media_urls': [url],
+              })
+              .eq('id', postId);
+        } catch (e) {
+          await SupabaseService.from(
+            SupabaseConstants.postsTable,
+          ).delete().eq('id', postId);
+          rethrow;
+        }
       }
 
       if (resolvedType == 'pdf' && pdf != null) {
-        _validateFileSize(pdf, AppConstants.maxPdfSizeMB);
-        final extension = _extensionOf(pdf.path, fallback: 'pdf');
-        final filename = '${DateTime.now().millisecondsSinceEpoch}.$extension';
-        final path = BackblazeConstants.postPdfPath(postId, filename);
-        final url = await BackblazeService.uploadFile(
-          file: pdf,
-          path: path,
-          contentType: 'application/pdf',
-        );
-        await SupabaseService.from(SupabaseConstants.postsTable)
-            .update({
-              'media_urls': [url],
-            })
-            .eq('id', postId);
+        try {
+          _validateFileSize(pdf, AppConstants.maxPdfSizeMB);
+          final extension = _extensionOf(pdf.path, fallback: 'pdf');
+          final filename =
+              '${DateTime.now().millisecondsSinceEpoch}.$extension';
+          final path = BackblazeConstants.postPdfPath(postId, filename);
+          final url = await BackblazeService.uploadFile(
+            file: pdf,
+            path: path,
+            contentType: 'application/pdf',
+          );
+          await SupabaseService.from(SupabaseConstants.postsTable)
+              .update({
+                'type': resolvedType,
+                'media_urls': [url],
+              })
+              .eq('id', postId);
+        } catch (e) {
+          await SupabaseService.from(
+            SupabaseConstants.postsTable,
+          ).delete().eq('id', postId);
+          rethrow;
+        }
       }
 
       if (resolvedType == 'poll' &&

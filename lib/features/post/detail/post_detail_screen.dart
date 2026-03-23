@@ -6,6 +6,7 @@ import 'package:nubar/core/utils/date_utils.dart';
 import 'package:nubar/features/feed/providers/feed_provider.dart';
 import 'package:nubar/features/feed/widgets/post_actions.dart';
 import 'package:nubar/features/post/create/create_post_screen.dart';
+import 'package:nubar/features/post/poll/poll_widget.dart';
 import 'package:nubar/shared/widgets/loading_indicator.dart';
 import 'package:nubar/shared/widgets/nubar_avatar.dart';
 import 'package:nubar/shared/widgets/nubar_text_field.dart';
@@ -141,6 +142,10 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                             // Content
                             if (post.content != null)
                               _PostDetailRichContent(post: post),
+                            if (post.type == 'poll') ...[
+                              const SizedBox(height: 8),
+                              PollWidget(postId: post.id),
+                            ],
                             const SizedBox(height: 12),
 
                             // Date
