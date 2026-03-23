@@ -750,19 +750,27 @@ class _PollEditor extends StatelessWidget {
                 l10n.pollDuration,
                 style: TextStyle(fontSize: 12, color: cs.outline),
               ),
-              const Spacer(),
-              SegmentedButton<int>(
-                segments: const [
-                  ButtonSegment(value: 6, label: Text('6h')),
-                  ButtonSegment(value: 24, label: Text('1d')),
-                  ButtonSegment(value: 72, label: Text('3d')),
-                  ButtonSegment(value: 168, label: Text('7d')),
-                ],
-                selected: {hours},
-                onSelectionChanged: (s) => onHoursChanged(s.first),
-                style: const ButtonStyle(
-                  visualDensity: VisualDensity.compact,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              const SizedBox(width: 8),
+              Expanded(
+                child: Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SegmentedButton<int>(
+                      segments: const [
+                        ButtonSegment(value: 6, label: Text('6h')),
+                        ButtonSegment(value: 24, label: Text('1d')),
+                        ButtonSegment(value: 72, label: Text('3d')),
+                        ButtonSegment(value: 168, label: Text('7d')),
+                      ],
+                      selected: {hours},
+                      onSelectionChanged: (s) => onHoursChanged(s.first),
+                      style: const ButtonStyle(
+                        visualDensity: VisualDensity.compact,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],

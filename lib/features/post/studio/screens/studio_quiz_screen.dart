@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -76,7 +78,9 @@ class _StudioQuizScreenState extends ConsumerState<StudioQuizScreen> {
   void dispose() {
     _questionController.dispose();
     _explanationController.dispose();
-    for (var c in _optionControllers) c.dispose();
+    for (var c in _optionControllers) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -225,8 +229,9 @@ class _StudioQuizScreenState extends ConsumerState<StudioQuizScreen> {
                           groupValue: _correctOptionIndex,
                           activeColor: cs.tertiary,
                           onChanged: (val) {
-                            if (val != null)
+                            if (val != null) {
                               setState(() => _correctOptionIndex = val);
+                            }
                           },
                         ),
                         // Option TextField

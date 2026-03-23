@@ -33,7 +33,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   void _handleRegister() {
     if (_formKey.currentState!.validate()) {
-      ref.read(authNotifierProvider.notifier).signUp(
+      ref
+          .read(authNotifierProvider.notifier)
+          .signUp(
             email: _emailController.text.trim(),
             password: _passwordController.text,
             username: _usernameController.text.trim(),
@@ -51,17 +53,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     ref.listen(authNotifierProvider, (_, state) {
       state.whenOrNull(
         error: (error, _) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(error.toString())),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(error.toString())));
         },
       );
     });
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.createAccount),
-      ),
+      appBar: AppBar(title: Text(l10n.createAccount)),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -125,7 +125,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  value: _selectedLang,
+                  initialValue: _selectedLang,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.language),
                     border: OutlineInputBorder(

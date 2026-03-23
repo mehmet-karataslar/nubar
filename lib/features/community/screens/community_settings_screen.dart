@@ -34,7 +34,9 @@ class _CommunitySettingsScreenState
   Future<void> _saveSettings() async {
     setState(() => _isLoading = true);
     try {
-      await ref.read(communityActionsProvider).updateCommunity(
+      await ref
+          .read(communityActionsProvider)
+          .updateCommunity(
             communityId: widget.communityId,
             name: _nameController.text.trim(),
             description: _descriptionController.text.trim(),
@@ -43,9 +45,9 @@ class _CommunitySettingsScreenState
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -55,8 +57,9 @@ class _CommunitySettingsScreenState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final communityAsync =
-        ref.watch(communityDetailProvider(widget.communityId));
+    final communityAsync = ref.watch(
+      communityDetailProvider(widget.communityId),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -118,6 +121,7 @@ class _CommunitySettingsScreenState
                         .read(communityActionsProvider)
                         .leaveCommunity(widget.communityId);
                     if (mounted) {
+                      // ignore: use_build_context_synchronously
                       Navigator.popUntil(context, (route) => route.isFirst);
                     }
                   },

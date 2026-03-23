@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nubar/core/l10n/app_localizations.dart';
 import 'package:nubar/core/utils/date_utils.dart';
 import 'package:nubar/features/messages/providers/messages_provider.dart';
-import 'package:nubar/shared/services/supabase_service.dart';
 import 'package:nubar/shared/widgets/loading_indicator.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
@@ -49,10 +48,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final content = _messageController.text.trim();
     if (content.isEmpty) return;
 
-    ref.read(messageActionsProvider.notifier).sendMessage(
-          receiverId: widget.otherUserId,
-          content: content,
-        );
+    ref
+        .read(messageActionsProvider.notifier)
+        .sendMessage(receiverId: widget.otherUserId, content: content);
     _messageController.clear();
     _scrollToBottom();
   }
@@ -60,12 +58,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final messagesAsync =
-        ref.watch(realtimeChatMessagesProvider(widget.otherUserId));
+    final messagesAsync = ref.watch(
+      realtimeChatMessagesProvider(widget.otherUserId),
+    );
 
     // Auto-scroll when new messages arrive
-    ref.listen(realtimeChatMessagesProvider(widget.otherUserId),
-        (prev, next) {
+    ref.listen(realtimeChatMessagesProvider(widget.otherUserId), (prev, next) {
       final prevCount = prev?.valueOrNull?.length ?? 0;
       final nextCount = next.valueOrNull?.length ?? 0;
       if (nextCount > prevCount) {
@@ -74,9 +72,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.otherUserName),
-      ),
+      appBar: AppBar(title: Text(widget.otherUserName)),
       body: Column(
         children: [
           Expanded(
@@ -88,13 +84,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   return Center(
                     child: Text(
                       l10n.noMessages,
-                      style:
-                          Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withValues(alpha: 0.5),
-                              ),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.5),
+                      ),
                     ),
                   );
                 }
@@ -115,8 +109,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   itemBuilder: (context, index) {
                     final message = messages[index];
 
-                    final isSentByMe =
-                        message.senderId != widget.otherUserId;
+                    final isSentByMe = message.senderId != widget.otherUserId;
 
                     return Align(
                       alignment: isSentByMe
@@ -125,10 +118,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       child: Container(
                         margin: const EdgeInsets.only(bottom: 8),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 10),
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
                         constraints: BoxConstraints(
-                          maxWidth:
-                              MediaQuery.of(context).size.width * 0.75,
+                          maxWidth: MediaQuery.of(context).size.width * 0.75,
                         ),
                         decoration: BoxDecoration(
                           color: isSentByMe
@@ -143,30 +137,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                               message.content ?? '',
                               style: TextStyle(
                                 color: isSentByMe
-                                    ? Theme.of(context)
-                                        .colorScheme
-                                        .onPrimary
-                                    : Theme.of(context)
-                                        .colorScheme
-                                        .onSurface,
+                                    ? Theme.of(context).colorScheme.onPrimary
+                                    : Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               NubarDateUtils.formatTime(message.createdAt),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
+                              style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(
                                     color: isSentByMe
                                         ? Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary
-                                            .withValues(alpha: 0.7)
+                                              .colorScheme
+                                              .onPrimary
+                                              .withValues(alpha: 0.7)
                                         : Theme.of(context)
-                                            .colorScheme
-                                            .onSurface
-                                            .withValues(alpha: 0.5),
+                                              .colorScheme
+                                              .onSurface
+                                              .withValues(alpha: 0.5),
                                     fontSize: 10,
                                   ),
                             ),
@@ -199,7 +187,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         borderRadius: BorderRadius.circular(24),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
                     ),
                     maxLines: null,
                     onSubmitted: (_) => _sendMessage(),

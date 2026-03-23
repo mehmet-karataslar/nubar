@@ -66,20 +66,18 @@ class NotificationModel {
 // ============================================================
 // REALTIME NOTIFICATIONS
 // ============================================================
-final realtimeNotificationsProvider = StateNotifierProvider<
-    RealtimeNotificationsNotifier,
-    AsyncValue<List<NotificationModel>>>(
-  (ref) => RealtimeNotificationsNotifier(ref),
-);
+final realtimeNotificationsProvider =
+    StateNotifierProvider<
+      RealtimeNotificationsNotifier,
+      AsyncValue<List<NotificationModel>>
+    >((ref) => RealtimeNotificationsNotifier(ref));
 
 class RealtimeNotificationsNotifier
     extends StateNotifier<AsyncValue<List<NotificationModel>>> {
-  final Ref _ref;
   RealtimeChannel? _channel;
   String? _currentUserId;
 
-  RealtimeNotificationsNotifier(this._ref)
-      : super(const AsyncValue.loading()) {
+  RealtimeNotificationsNotifier(Ref ref) : super(const AsyncValue.loading()) {
     _init();
   }
 
@@ -96,10 +94,9 @@ class RealtimeNotificationsNotifier
         return;
       }
 
-      final profile = await SupabaseService.from(SupabaseConstants.usersTable)
-          .select('id')
-          .eq('auth_id', currentUser.id)
-          .maybeSingle();
+      final profile = await SupabaseService.from(
+        SupabaseConstants.usersTable,
+      ).select('id').eq('auth_id', currentUser.id).maybeSingle();
 
       if (profile == null) {
         state = const AsyncValue.data([]);
@@ -111,7 +108,8 @@ class RealtimeNotificationsNotifier
       final response =
           await SupabaseService.from(SupabaseConstants.notificationsTable)
               .select(
-                  '*, actor:users!notifications_actor_id_fkey(username, full_name, avatar_url)')
+                '*, actor:users!notifications_actor_id_fkey(username, full_name, avatar_url)',
+              )
               .eq('user_id', _currentUserId!)
               .order('created_at', ascending: false)
               .limit(50);
@@ -119,8 +117,10 @@ class RealtimeNotificationsNotifier
       if (!mounted) return;
       state = AsyncValue.data(
         (response as List)
-            .map((json) =>
-                NotificationModel.fromJson(json as Map<String, dynamic>))
+            .map(
+              (json) =>
+                  NotificationModel.fromJson(json as Map<String, dynamic>),
+            )
             .toList(),
       );
     } catch (e, st) {
@@ -133,8 +133,7 @@ class RealtimeNotificationsNotifier
   void _subscribeToRealtime() {
     if (_currentUserId == null) return;
 
-    _channel =
-        SupabaseService.channel('notifications:$_currentUserId');
+    _channel = SupabaseService.channel('notifications:$_currentUserId');
     _channel!
         .onPostgresChanges(
           event: PostgresChangeEvent.insert,
@@ -155,8 +154,7 @@ class RealtimeNotificationsNotifier
   void _onNewNotification(Map<String, dynamic> newRecord) {
     if (!mounted) return;
 
-    final notification =
-        NotificationModel.fromRealtimePayload(newRecord);
+    final notification = NotificationModel.fromRealtimePayload(newRecord);
     final current = state.valueOrNull ?? [];
 
     // Prevent duplicates
@@ -168,8 +166,9 @@ class RealtimeNotificationsNotifier
 
   Future<void> markAsRead(String notificationId) async {
     try {
-      await SupabaseService.from(SupabaseConstants.notificationsTable)
-          .update({'is_read': true}).eq('id', notificationId);
+      await SupabaseService.from(
+        SupabaseConstants.notificationsTable,
+      ).update({'is_read': true}).eq('id', notificationId);
 
       final current = state.valueOrNull ?? [];
       state = AsyncValue.data(

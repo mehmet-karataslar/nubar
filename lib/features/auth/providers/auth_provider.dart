@@ -17,10 +17,9 @@ final currentUserProvider = FutureProvider<UserModel?>((ref) async {
   final user = state.session?.user;
   if (user == null) return null;
 
-  final response = await SupabaseService.from(SupabaseConstants.usersTable)
-      .select()
-      .eq('auth_id', user.id)
-      .maybeSingle();
+  final response = await SupabaseService.from(
+    SupabaseConstants.usersTable,
+  ).select().eq('auth_id', user.id).maybeSingle();
 
   if (response == null) return null;
   return UserModel.fromJson(response);
@@ -29,18 +28,13 @@ final currentUserProvider = FutureProvider<UserModel?>((ref) async {
 // Auth notifier for login/register/logout actions
 final authNotifierProvider =
     StateNotifierProvider<AuthNotifier, AsyncValue<void>>((ref) {
-  return AuthNotifier(ref);
-});
+      return AuthNotifier(ref);
+    });
 
 class AuthNotifier extends StateNotifier<AsyncValue<void>> {
-  final Ref _ref;
+  AuthNotifier(Ref ref) : super(const AsyncValue.data(null));
 
-  AuthNotifier(this._ref) : super(const AsyncValue.data(null));
-
-  Future<void> signIn({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> signIn({required String email, required String password}) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       await SupabaseService.signIn(email: email, password: password);

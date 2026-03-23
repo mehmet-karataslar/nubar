@@ -100,89 +100,6 @@ class NubarQuillToolbar extends StatelessWidget {
     this.trailingAction,
   });
 
-  void _showFontSizeSheet(BuildContext context) {
-    final sizes = [8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28];
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: const Color(0x00000000),
-      builder: (ctx) {
-        final cs = Theme.of(ctx).colorScheme;
-        return Container(
-          decoration: BoxDecoration(
-            color: cs.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: cs.outlineVariant,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                AppLocalizations.of(context)!.fontSize,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: cs.onSurface,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Flexible(
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: sizes
-                        .map(
-                          (s) => ListTile(
-                            title: Center(
-                              child: Text('$s', style: TextStyle(fontSize: 16)),
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            onTap: () {
-                              Navigator.pop(ctx);
-                              Future.delayed(
-                                const Duration(milliseconds: 50),
-                                () {
-                                  focusNode.requestFocus();
-                                  controller.formatSelection(
-                                    Attribute.fromKeyValue(
-                                      'customFontSize',
-                                      null,
-                                    ),
-                                  );
-                                  controller.formatSelection(
-                                    Attribute.fromKeyValue(
-                                      'size',
-                                      s.toDouble(),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                        )
-                        .toList(),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   void _showFontFamilySheet(BuildContext context) {
     final fonts = [
       ('Inter', 'Inter'),
@@ -385,7 +302,7 @@ class NubarQuillToolbar extends StatelessWidget {
                   ),
                   _QuillFontSizeBtn(
                     controller: controller,
-                    onTap: () => _showFontSizeSheet(context),
+                    focusNode: focusNode,
                     baseColor: cs.errorContainer,
                   ),
                   NubarQuillToolIcon(
@@ -552,12 +469,12 @@ class _QuillBlockBtnState extends State<_QuillBlockBtn> {
 
 class _QuillFontSizeBtn extends StatefulWidget {
   final QuillController controller;
-  final VoidCallback onTap;
+  final FocusNode focusNode;
   final Color baseColor;
 
   const _QuillFontSizeBtn({
     required this.controller,
-    required this.onTap,
+    required this.focusNode,
     required this.baseColor,
   });
 
@@ -567,6 +484,9 @@ class _QuillFontSizeBtn extends StatefulWidget {
 
 class _QuillFontSizeBtnState extends State<_QuillFontSizeBtn> {
   String _currentSize = '16';
+  final MenuController _menuController = MenuController();
+
+  final List<int> _sizes = [8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28];
 
   @override
   void initState() {
@@ -604,24 +524,59 @@ class _QuillFontSizeBtnState extends State<_QuillFontSizeBtn> {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: const Color(0x00000000),
-      borderRadius: BorderRadius.circular(8),
-      child: InkWell(
+    return MenuAnchor(
+      controller: _menuController,
+      style: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll(
+          Theme.of(context).colorScheme.surface,
+        ),
+        elevation: const WidgetStatePropertyAll(3),
+        shape: WidgetStatePropertyAll(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+      menuChildren: _sizes.map((s) {
+        return MenuItemButton(
+          onPressed: () {
+            widget.focusNode.requestFocus();
+            widget.controller.formatSelection(
+              Attribute.fromKeyValue('customFontSize', null),
+            );
+            widget.controller.formatSelection(
+              Attribute.fromKeyValue('size', s.toDouble()),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Text('$s', style: const TextStyle(fontSize: 16)),
+          ),
+        );
+      }).toList(),
+      child: Material(
+        color: const Color(0x00000000),
         borderRadius: BorderRadius.circular(8),
-        onTap: widget.onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: SizedBox(
-            width: 20,
-            height: 20,
-            child: Center(
-              child: Text(
-                _currentSize,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: widget.baseColor,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: () {
+            if (_menuController.isOpen) {
+              _menuController.close();
+            } else {
+              _menuController.open();
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: Center(
+                child: Text(
+                  _currentSize,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: widget.baseColor,
+                  ),
                 ),
               ),
             ),
