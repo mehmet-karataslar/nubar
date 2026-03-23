@@ -1,0 +1,106 @@
+---
+description: Supabase database, RLS, migration, and Edge Function conventions
+globs: "supabase/**"
+alwaysApply: false
+---
+
+# Supabase Patterns
+
+## Database Mindset
+
+Think like a DBA with decades of experience. Schema design is permanent — a poorly designed table will haunt you for years. Every migration is a contract with production data. Every RLS policy is the last line of defense between a user's private data and the world. Index strategically, normalize thoughtfully, and always assume the database will grow to millions of rows. Design for the Kurdish community at scale.
+
+## Migrations
+
+1. File naming: `NNN_short_description.sql` (e.g. `004_add_user_settings.sql`)
+2. Migrations are sequential and immutable — never edit a committed migration
+3. To change schema, create a new migration file
+4. Always include `IF NOT EXISTS` / `IF EXISTS` guards where appropriate
+
+## Row Level Security (RLS)
+
+Every new table MUST have RLS enabled:
+
+```sql
+ALTER TABLE new_table ENABLE ROW LEVEL SECURITY;
+```
+
+Policy patterns:
+
+```sql
+-- Public read
+CREATE POLICY "Anyone can view" ON table_name
+  FOR SELECT USING (TRUE);
+
+-- Owner-only write
+CREATE POLICY "Owner can update" ON table_name
+  FOR UPDATE USING (auth.uid() = (SELECT auth_id FROM users WHERE id = user_id));
+
+-- Owner-only delete
+CREATE POLICY "Owner can delete" ON table_name
+  FOR DELETE USING (auth.uid() = (SELECT auth_id FROM users WHERE id = user_id));
+
+-- Authenticated insert (scoped)
+CREATE POLICY "Users can insert own" ON table_name
+  FOR INSERT WITH CHECK (auth.uid() = (SELECT auth_id FROM users WHERE id = user_id));
+```
+
+**NEVER** use `WITH CHECK (TRUE)` on INSERT unless the table is system-managed only (not client-callable).
+
+## Indexes
+
+Always add indexes for:
+- Foreign key columns (`user_id`, `post_id`, `community_id`)
+- Columns used in WHERE clauses or ORDER BY (`created_at DESC`)
+- Columns used in unique constraints
+
+```sql
+CREATE INDEX idx_table_column ON table_name(column_name);
+CREATE INDEX idx_table_created ON table_name(created_at DESC);
+```
+
+## Edge Functions
+
+Structure every Edge Function with:
+
+```typescript
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
+  // 1. Verify JWT
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_ANON_KEY')!,
+    { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+  )
+  const { data: { user }, error } = await supabase.auth.getUser()
+  if (error || !user) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+  }
+
+  // 2. Business logic here
+
+  // 3. Return response
+  return new Response(JSON.stringify({ data: result }),
+    { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+})
+```
+
+## Primary Keys
+
+Always use UUID: `id UUID PRIMARY KEY DEFAULT uuid_generate_v4()`
+
+## Timestamps
+
+Always include: `created_at TIMESTAMPTZ DEFAULT NOW()`

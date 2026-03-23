@@ -1,0 +1,75 @@
+---
+description: Dart and Flutter coding standards for the Nubar project
+globs: "**/*.dart"
+alwaysApply: false
+---
+
+# Dart / Flutter Coding Standards
+
+## Code Quality Mindset
+
+Write code as if the next person reading it is a junior Kurdish developer contributing to their first open-source project. Be explicit, be clean, be consistent. Every function name should read like prose. Every file should tell a story. Code is communication — with the compiler, with your future self, and with the Kurdish developer community that will grow around this platform.
+
+## Naming Conventions
+
+- **Files**: `snake_case.dart` (e.g. `feed_provider.dart`, `post_card.dart`)
+- **Classes**: `PascalCase` (e.g. `FeedProvider`, `PostCard`)
+- **Variables / functions**: `camelCase`
+- **Constants**: `camelCase` (Dart convention, not SCREAMING_SNAKE)
+- **Private members**: prefix with `_`
+
+## File Structure
+
+Imports must follow this order, separated by blank lines:
+
+```dart
+// 1. Dart SDK
+import 'dart:async';
+
+// 2. Flutter SDK
+import 'package:flutter/material.dart';
+
+// 3. Third-party packages
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
+// 4. Project imports
+import 'package:nubar/core/constants/supabase_constants.dart';
+import 'package:nubar/shared/services/supabase_service.dart';
+```
+
+## Code Style
+
+- Always use `const` constructors when possible
+- Always use trailing commas in multi-line argument lists
+- Prefer `final` over `var` for local variables that are not reassigned
+- Use explicit types on public API boundaries (function signatures, class fields)
+- Use type inference (`final`, `var`) for local variables where the type is obvious
+- Never use `print()` in production code — use `debugPrint()` or a logger
+- Use `withValues(alpha: x)` for opacity, never `withOpacity()`
+- Prefer `switch` expressions over `if-else` chains for enum matching
+
+## Constructor Pattern
+
+```dart
+class MyWidget extends StatelessWidget {
+  const MyWidget({
+    super.key,
+    required this.title,
+    this.onTap,
+  });
+
+  final String title;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) { ... }
+}
+```
+
+## Forbidden Patterns
+
+- No `dynamic` without explicit justification
+- No `as` casts without null checks — prefer `is` checks
+- No empty `catch` blocks — at minimum log the error
+- No `setState` for business logic (use Riverpod providers)

@@ -7,6 +7,7 @@ import 'package:nubar/features/feed/providers/feed_provider.dart';
 import 'package:nubar/features/feed/widgets/post_actions.dart';
 import 'package:nubar/features/post/detail/post_detail_screen.dart';
 import 'package:nubar/features/profile/screens/profile_screen.dart';
+import 'package:nubar/features/profile/providers/block_provider.dart';
 import 'package:nubar/features/report/report_dialog.dart';
 import 'package:nubar/shared/widgets/nubar_avatar.dart';
 
@@ -45,8 +46,7 @@ class PostCard extends ConsumerWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) =>
-                              ProfileScreen(userId: post.userId),
+                          builder: (_) => ProfileScreen(userId: post.userId),
                         ),
                       );
                     },
@@ -58,20 +58,17 @@ class PostCard extends ConsumerWidget {
                       children: [
                         Text(
                           post.authorFullName ?? '',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleSmall
+                          style: Theme.of(context).textTheme.titleSmall
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         Text(
                           '@${post.authorUsername ?? ''} · ${NubarDateUtils.timeAgo(post.createdAt)}',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurface
-                                        .withValues(alpha: 0.6),
-                                  ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.6),
+                              ),
                         ),
                       ],
                     ),
@@ -79,37 +76,58 @@ class PostCard extends ConsumerWidget {
                   IconButton(
                     icon: const Icon(Icons.more_horiz, size: 20),
                     onPressed: () {
-                      final l10n = AppLocalizations.of(context)!;
                       showModalBottomSheet(
                         context: context,
-                        builder: (context) => SafeArea(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ListTile(
-                                leading: const Icon(Icons.delete_outline),
-                                title: Text(l10n.delete),
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  ref
-                                      .read(feedActionsProvider.notifier)
-                                      .deletePost(post.id);
-                                },
+                        builder: (sheetContext) => Consumer(
+                          builder: (context, sheetRef, _) {
+                            final l10n = AppLocalizations.of(context)!;
+                            return SafeArea(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ListTile(
+                                    leading: const Icon(Icons.delete_outline),
+                                    title: Text(l10n.delete),
+                                    onTap: () {
+                                      Navigator.pop(sheetContext);
+                                      ref
+                                          .read(feedActionsProvider.notifier)
+                                          .deletePost(post.id);
+                                    },
+                                  ),
+                                  ListTile(
+                                    leading: const Icon(Icons.flag_outlined),
+                                    title: Text(l10n.report),
+                                    onTap: () {
+                                      Navigator.pop(sheetContext);
+                                      showReportDialog(
+                                        context,
+                                        ref,
+                                        postId: post.id,
+                                      );
+                                    },
+                                  ),
+                                  ListTile(
+                                    leading: const Icon(Icons.block),
+                                    title: Text(l10n.blockUser),
+                                    onTap: () {
+                                      Navigator.pop(sheetContext);
+                                      ref
+                                          .read(blockActionsProvider.notifier)
+                                          .blockUser(post.userId);
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(l10n.userBlocked),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
-                              ListTile(
-                                leading: const Icon(Icons.flag_outlined),
-                                title: Text(l10n.report),
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  showReportDialog(
-                                    context,
-                                    ref,
-                                    postId: post.id,
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
+                            );
+                          },
                         ),
                       );
                     },
@@ -139,11 +157,10 @@ class PostCard extends ConsumerWidget {
                           width: double.infinity,
                           placeholder: (context, url) => Container(
                             height: 200,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .surface,
+                            color: Theme.of(context).colorScheme.surface,
                             child: const Center(
-                                child: CircularProgressIndicator()),
+                              child: CircularProgressIndicator(),
+                            ),
                           ),
                           errorWidget: (context, url, error) =>
                               const SizedBox.shrink(),

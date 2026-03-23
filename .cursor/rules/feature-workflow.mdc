@@ -1,0 +1,77 @@
+---
+description: Step-by-step checklist for adding a new feature to the Nubar project
+alwaysApply: true
+---
+
+# Feature Addition Workflow
+
+## Engineering Mindset
+
+Every new feature is a promise to Kurdish users. Approach it with the discipline of a staff engineer: plan before you code, consider edge cases before you write the happy path, think about the user in Erbil with slow 3G as much as the user in Berlin with fiber. A feature is not "done" until it works flawlessly in all 6 themes, all 5 languages, both text directions, and all screen sizes.
+
+Follow this checklist when adding any new feature to Nubar.
+
+## Step 1: Create Feature Folder
+
+```
+lib/features/<feature_name>/
+├── screens/
+│   └── <feature_name>_screen.dart
+├── providers/
+│   └── <feature_name>_provider.dart
+├── widgets/           # (if feature has custom widgets)
+│   └── <widget_name>.dart
+└── models/            # (if feature has data models)
+    └── <model_name>.dart
+```
+
+## Step 2: Add Localization Keys
+
+1. Add all new user-visible strings to `lib/core/l10n/app_ku.arb` (template)
+2. Add the same keys with translations to `app_ckb.arb`, `app_tr.arb`, `app_ar.arb`, `app_en.arb`
+3. Run `flutter gen-l10n` to regenerate localization files
+4. Use `camelCase` for key names: `featureNameTitle`, `featureNameDescription`
+
+## Step 3: Create Provider
+
+1. Choose the right provider type (see `riverpod-patterns.mdc`)
+2. Use `AsyncValue.guard()` for error handling
+3. Add `ref.invalidate()` calls after mutations
+4. Co-locate the provider in `lib/features/<feature>/providers/`
+
+## Step 4: Create Screen
+
+1. Extend `ConsumerWidget` or `ConsumerStatefulWidget`
+2. Cache theme and l10n at the top of `build()`:
+   ```dart
+   final colorScheme = Theme.of(context).colorScheme;
+   final textTheme = Theme.of(context).textTheme;
+   final l10n = AppLocalizations.of(context)!;
+   ```
+3. Use `NubarErrorWidget` for error states
+4. Use `NubarEmptyState` for empty states
+5. Use `LoadingIndicator` for loading states
+6. Use `infinite_scroll_pagination` for paginated lists
+
+## Step 5: Add Navigation
+
+Add route to the screen from the appropriate entry point (navigation bar, button, deep link).
+
+## Step 6: Database (if needed)
+
+1. Create a new migration file: `supabase/migrations/NNN_description.sql`
+2. Enable RLS on the new table
+3. Add appropriate RLS policies
+4. Add indexes for foreign keys and frequently queried columns
+
+## Step 7: Verify
+
+- [ ] All 6 themes render correctly
+- [ ] RTL layout works (test with `ckb` or `ar` locale)
+- [ ] LTR layout works (test with `ku`, `tr`, or `en` locale)
+- [ ] Responsive: mobile (360px), tablet (768px), desktop (1280px)
+- [ ] Error states handled and displayed
+- [ ] Empty states handled and displayed
+- [ ] Loading states shown during async operations
+- [ ] No hardcoded colors or strings
+- [ ] `flutter analyze` passes with no errors

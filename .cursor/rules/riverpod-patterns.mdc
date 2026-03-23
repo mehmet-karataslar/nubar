@@ -1,0 +1,68 @@
+---
+description: Riverpod state management conventions and patterns for the Nubar project
+globs: "**/*.dart"
+alwaysApply: false
+---
+
+# Riverpod State Management Patterns
+
+## Architecture Mindset
+
+Think like a senior backend architect when designing state management. Every provider is a contract. Every state transition is deliberate. Data flows in one direction: provider to widget, never the reverse. Errors are first-class citizens, not afterthoughts. A user in a remote Kurdish village with spotty internet should see graceful loading states and meaningful error messages, not a frozen screen or a raw exception dump.
+
+All business logic state in Nubar uses Riverpod. No exceptions.
+
+## Provider Type Selection
+
+| Use Case | Provider Type | Example |
+|----------|--------------|---------|
+| One-shot data fetch | `FutureProvider` / `.family` | `feedProvider(page)`, `postDetailProvider(id)` |
+| Realtime stream | `StreamProvider` | `authStateProvider` |
+| Mutations / actions | `StateNotifierProvider` | `feedActionsProvider`, `authNotifierProvider` |
+| Simple mutable state | `StateProvider` | `localeProvider`, `themeProvider` |
+| Computed / derived | `Provider` | `unreadCountProvider` |
+
+## Widget Integration
+
+- Use `ConsumerWidget` or `ConsumerStatefulWidget` for widgets that need `ref`
+- Use `ref.watch()` for reactive rebuilds in `build()`
+- Use `ref.read()` for one-shot actions (button taps, callbacks)
+- Use `ref.listen()` for side effects (showing SnackBars, navigation)
+
+## Error Handling
+
+Always wrap async operations in `AsyncValue.guard`:
+
+```dart
+class MyNotifier extends StateNotifier<AsyncValue<Data>> {
+  MyNotifier(this._ref) : super(const AsyncValue.loading());
+
+  final Ref _ref;
+
+  Future<void> doAction() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      // async work
+      return result;
+    });
+  }
+}
+```
+
+## Cache Invalidation
+
+After a mutation, invalidate related providers so the UI refetches:
+
+```dart
+await performAction();
+_ref.invalidate(feedProvider);
+_ref.invalidate(postDetailProvider(postId));
+```
+
+## Rules
+
+1. **No `setState` for business logic** — only for ephemeral UI state (TextEditingController, scroll position, animation state)
+2. **Co-locate providers** with their feature: `lib/features/<feature>/providers/<feature>_provider.dart`
+3. **No cross-feature provider imports** unless the provider lives in `lib/shared/`
+4. **Always dispose channels/subscriptions** in `StateNotifier.dispose()`
+5. **Models next to providers** in the same file is acceptable for small models; extract to `models/` for large ones

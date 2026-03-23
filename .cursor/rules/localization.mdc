@@ -1,0 +1,62 @@
+---
+description: Multi-language and RTL localization rules for the Nubar project
+globs: "**/*.dart,**/*.arb"
+alwaysApply: false
+---
+
+# Localization Rules
+
+## Localization Mindset
+
+Language is identity. For Kurds, whose languages have been suppressed and marginalized for decades, seeing their language on a digital platform is an act of cultural affirmation. Every string you localize, every RTL layout you perfect for Sorani, every careful translation you provide — it tells a Kurdish user: "This was built for you."
+
+Kurmanji (`ku`) is the template language — it comes first, always. Never treat Kurdish as a secondary locale that gets translated "later." Think of localization not as a chore but as the very essence of why this app exists.
+
+## Supported Locales
+
+Nubar supports 5 languages. Every user-visible string must be localized.
+
+## Supported Locales
+
+| Code | Language | Direction | Script |
+|------|----------|-----------|--------|
+| `ku` | Kurmanji (template) | LTR | Latin |
+| `ckb` | Sorani | RTL | Arabic |
+| `tr` | Turkish | LTR | Latin |
+| `ar` | Arabic | RTL | Arabic |
+| `en` | English | LTR | Latin |
+
+## Mandatory Rules
+
+1. **NEVER** hardcode user-visible strings. Always use:
+   ```dart
+   final l10n = AppLocalizations.of(context)!;
+   Text(l10n.someKey)
+   ```
+2. **ALL 5 ARB files** must be updated together when adding a new key. Template is `app_ku.arb`.
+3. After adding ARB keys, run `flutter gen-l10n` to regenerate.
+4. ARB key names: `camelCase`, descriptive (e.g. `createPostTitle`, not `title1`).
+5. Use ICU message format for placeholders and plurals:
+   ```json
+   "followerCount": "{count, plural, =0{No followers} =1{1 follower} other{{count} followers}}"
+   ```
+
+## RTL Support
+
+For `ckb` (Sorani) and `ar` (Arabic), layout must flip:
+
+- Use `AlignmentDirectional` instead of `Alignment` (e.g. `AlignmentDirectional.centerStart`)
+- Use `EdgeInsetsDirectional` instead of `EdgeInsets` (e.g. `EdgeInsetsDirectional.only(start: 16)`)
+- Use `TextDirection`-aware widgets when aligning icons next to text
+- Use `Directionality.of(context)` when you need to check direction programmatically
+- **NEVER** use `Alignment.centerLeft` / `centerRight` — use `AlignmentDirectional.centerStart` / `centerEnd`
+
+## Import
+
+```dart
+import 'package:nubar/core/l10n/app_localizations.dart';
+```
+
+## Testing
+
+Test every new screen in both LTR (`ku`) and RTL (`ckb` or `ar`) to verify layout does not break.

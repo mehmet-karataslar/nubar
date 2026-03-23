@@ -7,6 +7,8 @@ import 'package:nubar/features/profile/providers/block_provider.dart';
 import 'package:nubar/features/profile/providers/badge_provider.dart';
 import 'package:nubar/features/profile/widgets/badge_display.dart';
 import 'package:nubar/features/profile/screens/edit_profile_screen.dart';
+import 'package:nubar/features/profile/screens/followers_screen.dart';
+import 'package:nubar/features/settings/screens/settings_screen.dart';
 import 'package:nubar/shared/widgets/nubar_avatar.dart';
 import 'package:nubar/shared/widgets/nubar_button.dart';
 import 'package:nubar/shared/widgets/loading_indicator.dart';
@@ -28,25 +30,31 @@ class ProfileScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.profile),
         actions: [
+          if (currentUserAsync.valueOrNull?.id == userId)
+            IconButton(
+              icon: const Icon(Icons.settings_outlined),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                );
+              },
+            ),
           if (currentUserAsync.valueOrNull?.id != userId)
             PopupMenuButton<String>(
               onSelected: (value) {
                 if (value == 'block') {
                   final isBlocked = isBlockedAsync.valueOrNull ?? false;
                   if (isBlocked) {
-                    ref
-                        .read(blockActionsProvider.notifier)
-                        .unblockUser(userId);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l10n.userUnblocked)),
-                    );
+                    ref.read(blockActionsProvider.notifier).unblockUser(userId);
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(l10n.userUnblocked)));
                   } else {
-                    ref
-                        .read(blockActionsProvider.notifier)
-                        .blockUser(userId);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l10n.userBlocked)),
-                    );
+                    ref.read(blockActionsProvider.notifier).blockUser(userId);
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(l10n.userBlocked)));
                   }
                 }
               },
@@ -84,8 +92,7 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: 8),
               NubarButton(
                 text: l10n.retry,
-                onPressed: () =>
-                    ref.invalidate(userProfileProvider(userId)),
+                onPressed: () => ref.invalidate(userProfileProvider(userId)),
               ),
             ],
           ),
@@ -116,12 +123,8 @@ class ProfileScreen extends ConsumerWidget {
                   children: [
                     Text(
                       user.fullName,
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineSmall
-                          ?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     if (user.verified)
                       Padding(
@@ -143,11 +146,10 @@ class ProfileScreen extends ConsumerWidget {
                 Text(
                   '@${user.username}',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.6),
-                      ),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
                 ),
                 const SizedBox(height: 12),
 
@@ -164,8 +166,10 @@ class ProfileScreen extends ConsumerWidget {
 
                 // Badges
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 8,
+                  ),
                   child: BadgeDisplay(userId: userId),
                 ),
 
@@ -179,36 +183,37 @@ class ProfileScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         if (user.location != null) ...[
-                          Icon(Icons.location_on_outlined,
-                              size: 16,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withValues(alpha: 0.6)),
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: 16,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.6),
+                          ),
                           const SizedBox(width: 4),
-                          Text(user.location!,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall),
+                          Text(
+                            user.location!,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
                         ],
                         if (user.location != null && user.website != null)
                           const SizedBox(width: 16),
                         if (user.website != null) ...[
-                          Icon(Icons.link,
-                              size: 16,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withValues(alpha: 0.6)),
+                          Icon(
+                            Icons.link,
+                            size: 16,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.6),
+                          ),
                           const SizedBox(width: 4),
-                          Text(user.website!,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                  )),
+                          Text(
+                            user.website!,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                          ),
                         ],
                       ],
                     ),
@@ -219,19 +224,42 @@ class ProfileScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _StatColumn(
-                      count: user.postCount,
-                      label: l10n.posts,
+                    _StatColumn(count: user.postCount, label: l10n.posts),
+                    const SizedBox(width: 32),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => FollowersScreen(
+                              userId: userId,
+                              showFollowers: true,
+                            ),
+                          ),
+                        );
+                      },
+                      child: _StatColumn(
+                        count: user.followerCount,
+                        label: l10n.followers,
+                      ),
                     ),
                     const SizedBox(width: 32),
-                    _StatColumn(
-                      count: user.followerCount,
-                      label: l10n.followers,
-                    ),
-                    const SizedBox(width: 32),
-                    _StatColumn(
-                      count: user.followingCount,
-                      label: l10n.following,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => FollowersScreen(
+                              userId: userId,
+                              showFollowers: false,
+                            ),
+                          ),
+                        );
+                      },
+                      child: _StatColumn(
+                        count: user.followingCount,
+                        label: l10n.following,
+                      ),
                     ),
                   ],
                 ),
@@ -249,50 +277,45 @@ class ProfileScreen extends ConsumerWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) =>
-                                    EditProfileScreen(user: user),
+                                builder: (_) => EditProfileScreen(user: user),
                               ),
                             );
                           },
                         )
                       : isBlocked
-                          ? NubarButton(
-                              text: l10n.blocked,
-                              isOutlined: true,
-                              width: double.infinity,
-                              onPressed: () {
+                      ? NubarButton(
+                          text: l10n.blocked,
+                          isOutlined: true,
+                          width: double.infinity,
+                          onPressed: () {
+                            ref
+                                .read(blockActionsProvider.notifier)
+                                .unblockUser(userId);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(l10n.userUnblocked)),
+                            );
+                          },
+                        )
+                      : isFollowingAsync.when(
+                          data: (isFollowing) => NubarButton(
+                            text: isFollowing ? l10n.unfollow : l10n.follow,
+                            isOutlined: isFollowing,
+                            width: double.infinity,
+                            onPressed: () {
+                              if (isFollowing) {
                                 ref
-                                    .read(blockActionsProvider.notifier)
-                                    .unblockUser(userId);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text(l10n.userUnblocked)),
-                                );
-                              },
-                            )
-                          : isFollowingAsync.when(
-                              data: (isFollowing) => NubarButton(
-                                text:
-                                    isFollowing ? l10n.unfollow : l10n.follow,
-                                isOutlined: isFollowing,
-                                width: double.infinity,
-                                onPressed: () {
-                                  if (isFollowing) {
-                                    ref
-                                        .read(
-                                            profileActionsProvider.notifier)
-                                        .unfollowUser(userId);
-                                  } else {
-                                    ref
-                                        .read(
-                                            profileActionsProvider.notifier)
-                                        .followUser(userId);
-                                  }
-                                },
-                              ),
-                              loading: () => const LoadingIndicator(),
-                              error: (_, __) => const SizedBox.shrink(),
-                            ),
+                                    .read(profileActionsProvider.notifier)
+                                    .unfollowUser(userId);
+                              } else {
+                                ref
+                                    .read(profileActionsProvider.notifier)
+                                    .followUser(userId);
+                              }
+                            },
+                          ),
+                          loading: () => const LoadingIndicator(),
+                          error: (_, __) => const SizedBox.shrink(),
+                        ),
                 ),
                 const SizedBox(height: 24),
 
@@ -305,11 +328,10 @@ class ProfileScreen extends ConsumerWidget {
                   child: Text(
                     l10n.noPosts,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.5),
-                        ),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
                   ),
                 ),
               ],
@@ -363,19 +385,18 @@ class _StatColumn extends StatelessWidget {
       children: [
         Text(
           count.toString(),
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 4),
         Text(
           label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.6),
-              ),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.6),
+          ),
         ),
       ],
     );

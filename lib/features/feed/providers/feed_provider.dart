@@ -23,6 +23,7 @@ class PostModel {
   final String language;
   final bool isDeleted;
   final DateTime createdAt;
+  final Map<String, dynamic>? metadata;
   // Joined user data
   final String? authorUsername;
   final String? authorFullName;
@@ -46,6 +47,7 @@ class PostModel {
     this.language = 'ku',
     this.isDeleted = false,
     required this.createdAt,
+    this.metadata,
     this.authorUsername,
     this.authorFullName,
     this.authorAvatarUrl,
@@ -73,6 +75,7 @@ class PostModel {
       language: json['language'] as String? ?? 'ku',
       isDeleted: json['is_deleted'] as bool? ?? false,
       createdAt: DateTime.parse(json['created_at'] as String),
+      metadata: json['metadata'] as Map<String, dynamic>?,
       authorUsername: user?['username'] as String?,
       authorFullName: user?['full_name'] as String?,
       authorAvatarUrl: user?['avatar_url'] as String?,
@@ -127,7 +130,10 @@ class CommentModel {
 }
 
 // Feed provider - fetches paginated posts, filtering blocked users
-final feedProvider = FutureProvider.family<List<PostModel>, int>((ref, page) async {
+final feedProvider = FutureProvider.family<List<PostModel>, int>((
+  ref,
+  page,
+) async {
   final from = page * AppConstants.defaultPageSize;
   final to = from + AppConstants.defaultPageSize - 1;
 
@@ -146,8 +152,10 @@ final feedProvider = FutureProvider.family<List<PostModel>, int>((ref, page) asy
 });
 
 // Post detail provider
-final postDetailProvider =
-    FutureProvider.family<PostModel?, String>((ref, postId) async {
+final postDetailProvider = FutureProvider.family<PostModel?, String>((
+  ref,
+  postId,
+) async {
   final response = await SupabaseService.from(SupabaseConstants.postsTable)
       .select('*, users!posts_user_id_fkey(username, full_name, avatar_url)')
       .eq('id', postId)
@@ -158,8 +166,10 @@ final postDetailProvider =
 });
 
 // Comments for a post
-final commentsProvider =
-    FutureProvider.family<List<CommentModel>, String>((ref, postId) async {
+final commentsProvider = FutureProvider.family<List<CommentModel>, String>((
+  ref,
+  postId,
+) async {
   final response = await SupabaseService.from(SupabaseConstants.commentsTable)
       .select('*, users!comments_user_id_fkey(username, full_name, avatar_url)')
       .eq('post_id', postId)
@@ -172,45 +182,43 @@ final commentsProvider =
 });
 
 // Check if current user liked a post
-final isLikedProvider =
-    FutureProvider.family<bool, String>((ref, postId) async {
+final isLikedProvider = FutureProvider.family<bool, String>((
+  ref,
+  postId,
+) async {
   final currentUser = SupabaseService.currentUser;
   if (currentUser == null) return false;
 
-  final profile = await SupabaseService.from(SupabaseConstants.usersTable)
-      .select('id')
-      .eq('auth_id', currentUser.id)
-      .maybeSingle();
+  final profile = await SupabaseService.from(
+    SupabaseConstants.usersTable,
+  ).select('id').eq('auth_id', currentUser.id).maybeSingle();
 
   if (profile == null) return false;
 
-  final response = await SupabaseService.from(SupabaseConstants.likesTable)
-      .select()
-      .eq('user_id', profile['id'])
-      .eq('post_id', postId)
-      .maybeSingle();
+  final response = await SupabaseService.from(
+    SupabaseConstants.likesTable,
+  ).select().eq('user_id', profile['id']).eq('post_id', postId).maybeSingle();
 
   return response != null;
 });
 
 // Check if current user bookmarked a post
-final isBookmarkedProvider =
-    FutureProvider.family<bool, String>((ref, postId) async {
+final isBookmarkedProvider = FutureProvider.family<bool, String>((
+  ref,
+  postId,
+) async {
   final currentUser = SupabaseService.currentUser;
   if (currentUser == null) return false;
 
-  final profile = await SupabaseService.from(SupabaseConstants.usersTable)
-      .select('id')
-      .eq('auth_id', currentUser.id)
-      .maybeSingle();
+  final profile = await SupabaseService.from(
+    SupabaseConstants.usersTable,
+  ).select('id').eq('auth_id', currentUser.id).maybeSingle();
 
   if (profile == null) return false;
 
-  final response = await SupabaseService.from(SupabaseConstants.bookmarksTable)
-      .select()
-      .eq('user_id', profile['id'])
-      .eq('post_id', postId)
-      .maybeSingle();
+  final response = await SupabaseService.from(
+    SupabaseConstants.bookmarksTable,
+  ).select().eq('user_id', profile['id']).eq('post_id', postId).maybeSingle();
 
   return response != null;
 });
@@ -218,8 +226,8 @@ final isBookmarkedProvider =
 // Feed actions
 final feedActionsProvider =
     StateNotifierProvider<FeedActionsNotifier, AsyncValue<void>>((ref) {
-  return FeedActionsNotifier(ref);
-});
+      return FeedActionsNotifier(ref);
+    });
 
 class FeedActionsNotifier extends StateNotifier<AsyncValue<void>> {
   final Ref _ref;
@@ -230,10 +238,9 @@ class FeedActionsNotifier extends StateNotifier<AsyncValue<void>> {
     final currentUser = SupabaseService.currentUser;
     if (currentUser == null) return null;
 
-    final profile = await SupabaseService.from(SupabaseConstants.usersTable)
-        .select('id')
-        .eq('auth_id', currentUser.id)
-        .maybeSingle();
+    final profile = await SupabaseService.from(
+      SupabaseConstants.usersTable,
+    ).select('id').eq('auth_id', currentUser.id).maybeSingle();
 
     return profile?['id'] as String?;
   }
@@ -243,10 +250,9 @@ class FeedActionsNotifier extends StateNotifier<AsyncValue<void>> {
       final userId = await _getCurrentUserId();
       if (userId == null) throw Exception('Not authenticated');
 
-      await SupabaseService.from(SupabaseConstants.likesTable).insert({
-        'user_id': userId,
-        'post_id': postId,
-      });
+      await SupabaseService.from(
+        SupabaseConstants.likesTable,
+      ).insert({'user_id': userId, 'post_id': postId});
 
       _ref.invalidate(isLikedProvider(postId));
       _ref.invalidate(postDetailProvider(postId));
@@ -258,10 +264,9 @@ class FeedActionsNotifier extends StateNotifier<AsyncValue<void>> {
       final userId = await _getCurrentUserId();
       if (userId == null) throw Exception('Not authenticated');
 
-      await SupabaseService.from(SupabaseConstants.likesTable)
-          .delete()
-          .eq('user_id', userId)
-          .eq('post_id', postId);
+      await SupabaseService.from(
+        SupabaseConstants.likesTable,
+      ).delete().eq('user_id', userId).eq('post_id', postId);
 
       _ref.invalidate(isLikedProvider(postId));
       _ref.invalidate(postDetailProvider(postId));
@@ -273,10 +278,9 @@ class FeedActionsNotifier extends StateNotifier<AsyncValue<void>> {
       final userId = await _getCurrentUserId();
       if (userId == null) throw Exception('Not authenticated');
 
-      await SupabaseService.from(SupabaseConstants.bookmarksTable).insert({
-        'user_id': userId,
-        'post_id': postId,
-      });
+      await SupabaseService.from(
+        SupabaseConstants.bookmarksTable,
+      ).insert({'user_id': userId, 'post_id': postId});
 
       _ref.invalidate(isBookmarkedProvider(postId));
     });
@@ -287,10 +291,9 @@ class FeedActionsNotifier extends StateNotifier<AsyncValue<void>> {
       final userId = await _getCurrentUserId();
       if (userId == null) throw Exception('Not authenticated');
 
-      await SupabaseService.from(SupabaseConstants.bookmarksTable)
-          .delete()
-          .eq('user_id', userId)
-          .eq('post_id', postId);
+      await SupabaseService.from(
+        SupabaseConstants.bookmarksTable,
+      ).delete().eq('user_id', userId).eq('post_id', postId);
 
       _ref.invalidate(isBookmarkedProvider(postId));
     });
@@ -301,11 +304,9 @@ class FeedActionsNotifier extends StateNotifier<AsyncValue<void>> {
       final userId = await _getCurrentUserId();
       if (userId == null) throw Exception('Not authenticated');
 
-      await SupabaseService.from(SupabaseConstants.commentsTable).insert({
-        'post_id': postId,
-        'user_id': userId,
-        'content': content,
-      });
+      await SupabaseService.from(
+        SupabaseConstants.commentsTable,
+      ).insert({'post_id': postId, 'user_id': userId, 'content': content});
 
       _ref.invalidate(commentsProvider(postId));
       _ref.invalidate(postDetailProvider(postId));
@@ -318,18 +319,15 @@ class FeedActionsNotifier extends StateNotifier<AsyncValue<void>> {
       if (userId == null) throw Exception('Not authenticated');
 
       // Check if already reposted
-      final existing = await SupabaseService.from(SupabaseConstants.repostsTable)
-          .select()
-          .eq('user_id', userId)
-          .eq('post_id', postId)
-          .maybeSingle();
+      final existing = await SupabaseService.from(
+        SupabaseConstants.repostsTable,
+      ).select().eq('user_id', userId).eq('post_id', postId).maybeSingle();
 
       if (existing != null) throw Exception('Already reposted');
 
-      await SupabaseService.from(SupabaseConstants.repostsTable).insert({
-        'user_id': userId,
-        'post_id': postId,
-      });
+      await SupabaseService.from(
+        SupabaseConstants.repostsTable,
+      ).insert({'user_id': userId, 'post_id': postId});
 
       _ref.invalidate(isRepostedProvider(postId));
       _ref.invalidate(postDetailProvider(postId));
@@ -341,10 +339,9 @@ class FeedActionsNotifier extends StateNotifier<AsyncValue<void>> {
       final userId = await _getCurrentUserId();
       if (userId == null) throw Exception('Not authenticated');
 
-      await SupabaseService.from(SupabaseConstants.repostsTable)
-          .delete()
-          .eq('user_id', userId)
-          .eq('post_id', postId);
+      await SupabaseService.from(
+        SupabaseConstants.repostsTable,
+      ).delete().eq('user_id', userId).eq('post_id', postId);
 
       _ref.invalidate(isRepostedProvider(postId));
       _ref.invalidate(postDetailProvider(postId));
@@ -353,30 +350,30 @@ class FeedActionsNotifier extends StateNotifier<AsyncValue<void>> {
 
   Future<void> deletePost(String postId) async {
     state = await AsyncValue.guard(() async {
-      await SupabaseService.from(SupabaseConstants.postsTable)
-          .update({'is_deleted': true}).eq('id', postId);
+      await SupabaseService.from(
+        SupabaseConstants.postsTable,
+      ).update({'is_deleted': true}).eq('id', postId);
     });
   }
 }
 
 // Check if current user reposted a post
-final isRepostedProvider =
-    FutureProvider.family<bool, String>((ref, postId) async {
+final isRepostedProvider = FutureProvider.family<bool, String>((
+  ref,
+  postId,
+) async {
   final currentUser = SupabaseService.currentUser;
   if (currentUser == null) return false;
 
-  final profile = await SupabaseService.from(SupabaseConstants.usersTable)
-      .select('id')
-      .eq('auth_id', currentUser.id)
-      .maybeSingle();
+  final profile = await SupabaseService.from(
+    SupabaseConstants.usersTable,
+  ).select('id').eq('auth_id', currentUser.id).maybeSingle();
 
   if (profile == null) return false;
 
-  final response = await SupabaseService.from(SupabaseConstants.repostsTable)
-      .select()
-      .eq('user_id', profile['id'])
-      .eq('post_id', postId)
-      .maybeSingle();
+  final response = await SupabaseService.from(
+    SupabaseConstants.repostsTable,
+  ).select().eq('user_id', profile['id']).eq('post_id', postId).maybeSingle();
 
   return response != null;
 });

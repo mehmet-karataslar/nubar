@@ -1,0 +1,91 @@
+---
+description: Widget and screen development conventions for consistent Nubar UI
+globs: "lib/**/*.dart"
+alwaysApply: false
+---
+
+# Widget & Screen Conventions
+
+## UI/UX Mindset
+
+Think like a 40-year veteran frontend architect who has shipped products used by millions. Every screen you create should feel polished, intentional, and professional — not like a tutorial project. Consider:
+
+- **Visual hierarchy**: The most important content catches the eye first. Use size, weight, color, and spacing deliberately.
+- **Micro-interactions**: Subtle animations (via `flutter_animate`) make the app feel alive. Fade-ins, slide-ups, shimmer loading — these details separate amateur from professional.
+- **Whitespace**: Generous spacing breathes life into layouts. Cramped UI feels cheap.
+- **Consistency**: Every screen should feel like it belongs to the same family. Same padding rhythms, same card styles, same typography scale.
+- **Edge cases**: Empty states, error states, loading states — handle them all with the same care as the happy path. An empty feed with a beautiful illustration and encouraging message is better than a blank screen.
+
+## Naming
+
+- **Screens**: suffix `Screen` (e.g. `FeedScreen`, `SettingsScreen`)
+- **Shared widgets**: prefix `Nubar` (e.g. `NubarButton`, `NubarAvatar`, `NubarTextField`)
+- **Feature widgets**: descriptive name without prefix (e.g. `PostCard`, `StoryBar`)
+- **Private helpers**: prefix `_` (e.g. `_SectionHeader`, `_ThemeSelector`)
+- **Files**: `snake_case.dart` matching the primary class name
+
+## Screen Template
+
+Every screen should follow this structure:
+
+```dart
+class FeatureScreen extends ConsumerWidget {
+  const FeatureScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
+
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n.featureTitle)),
+      body: // content
+    );
+  }
+}
+```
+
+## Standard Widgets
+
+| Purpose | Widget | Package |
+|---------|--------|---------|
+| Loading | `LoadingIndicator` | `shared/widgets/` |
+| Error | `NubarErrorWidget(message, onRetry)` | `shared/widgets/` |
+| Empty state | `NubarEmptyState(icon, title, subtitle)` | `shared/widgets/` |
+| Avatar | `NubarAvatar(imageUrl, radius)` | `shared/widgets/` |
+| Button | `NubarButton(text, onPressed, isLoading)` | `shared/widgets/` |
+| Text input | `NubarTextField(controller, label)` | `shared/widgets/` |
+| Network image | `CachedNetworkImage` | `cached_network_image` |
+| Paginated list | `PagedListView` / `PagedSliverList` | `infinite_scroll_pagination` |
+| Shimmer loading | `Shimmer.fromColors(...)` | `shimmer` |
+
+## Forbidden Patterns
+
+- **NEVER** use `Image.network()` — always `CachedNetworkImage`
+- **NEVER** load all data at once — always paginate with `infinite_scroll_pagination`
+- **NEVER** show raw exception strings to users — use `NubarErrorWidget` with l10n message
+- **NEVER** use `Navigator.push` with anonymous routes — prefer named or typed routes
+
+## Async State UI
+
+Always handle all three states from `AsyncValue`:
+
+```dart
+provider.when(
+  loading: () => const LoadingIndicator(),
+  error: (error, _) => NubarErrorWidget(
+    message: l10n.error,
+    onRetry: () => ref.invalidate(provider),
+  ),
+  data: (data) => data.isEmpty
+    ? NubarEmptyState(icon: Icons.inbox, title: l10n.noData)
+    : buildContent(data),
+);
+```
+
+## Images
+
+- Always provide `placeholder` and `errorWidget` in `CachedNetworkImage`
+- Use `BoxFit.cover` for thumbnails and avatars
+- Constrain image dimensions to prevent layout overflow

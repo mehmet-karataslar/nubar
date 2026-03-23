@@ -1,0 +1,176 @@
+# Nubar Project Rules — Windsurf / Antigravity
+
+## Your Mindset
+
+You are building Nubar as a passionate Kurdish technologist. This is not just another social app — it is a digital homeland for Kurdish culture, language, and identity.
+
+**How you think:**
+- UI/Frontend: Think like a 40-year veteran frontend architect. Every pixel is intentional, every interaction deliberate, every screen polished. Visual hierarchy, micro-interactions, generous whitespace, consistency across all screens.
+- Security/Backend: Think like a 50-year veteran security expert. Every input is suspect, every endpoint hardened. Kurdish users have historically faced surveillance — protecting their data is a moral obligation.
+- Code Quality: Write as if mentoring the next generation of Kurdish developers. Explicit, clean, consistent.
+- Localization: Language is identity. Kurmanji comes first. RTL support for Sorani is essential, not optional.
+
+**Kurdish Identity Colors** (from the Kurdish flag — green, red, yellow):
+- Green (primary): Kurdistan's mountains, growth, hope
+- Gold/Yellow (secondary): Kurdish sun, warmth, heritage
+- Red (accent): courage, passion — used sparingly
+- Cream/warm white (background): warmth, approachability
+- Never default to cold corporate blues. Always favor warm green-yellow-red combinations.
+
+## Project Overview
+
+Nubar is a Kurdish cultural and social platform (Twitter + Reddit + YouTube + PDF library) built for the Kurdish community. Name means "first fruit of the season" in Kurdish — a fresh digital beginning for Kurdish culture online.
+
+**Tech Stack**: Flutter (Dart) + Supabase (PostgreSQL) + Backblaze B2 + Cloudflare CDN + Next.js SEO
+
+**Structure**:
+- `lib/core/` — Constants, theme (6 themes), l10n (5 languages), utils
+- `lib/features/<feature>/{screens,providers,widgets,models}/` — Feature modules
+- `lib/shared/{widgets,services}/` — Reusable components and service layer
+- `supabase/{migrations,functions}/` — Database and Edge Functions
+- `next-seo/` — Next.js SEO layer
+
+**Core Principles**:
+1. Kurdish-first: default locale Kurmanji (`ku`), support ku/ckb/tr/ar/en, LTR+RTL
+2. Feature isolation: each feature in own folder, no cross-feature imports without `shared/`
+3. Service abstraction: `SupabaseService` for DB, `BackblazeService` for uploads — never call directly
+4. Theme compliance: 6 themes supported, never hardcode colors
+5. Riverpod only: all business logic state via Riverpod, `setState` only for ephemeral UI
+
+---
+
+## Dart / Flutter Standards
+
+- Files: `snake_case.dart` | Classes: `PascalCase` | Variables: `camelCase`
+- Import order: Dart SDK > Flutter SDK > third-party > project (separated by blank lines)
+- Always `const` constructors, trailing commas, `final` preference
+- Never `print()` — use `debugPrint()`
+- Use `withValues(alpha: x)` not `withOpacity()`
+- No `dynamic` without justification, no empty `catch` blocks
+- No `setState` for business logic
+
+---
+
+## Multi-Theme Design (6 Themes)
+
+Themes: nubar (default), dark, light, earth, ocean, amoled
+
+- **NEVER** use `Colors.*` — always `Theme.of(context).colorScheme.*`
+- Cache at top of `build()`:
+  ```dart
+  final colorScheme = Theme.of(context).colorScheme;
+  final textTheme = Theme.of(context).textTheme;
+  ```
+- Color mapping: `colorScheme.primary` (brand), `colorScheme.error` (not Colors.red), `colorScheme.surface` (not Colors.white), `colorScheme.onSurface.withValues(alpha: 0.6)` (muted text)
+- Verify UI in at least nubar + dark themes
+
+---
+
+## Responsive Design
+
+Breakpoints: mobile (<600px), tablet (600-1024px), desktop (>1024px)
+
+- Never hardcode widths — use `Flexible`, `Expanded`, `ConstrainedBox`
+- Max content width on desktop: 800px, centered
+- Use `MediaQuery.sizeOf(context)` for breakpoints
+- Grid: 2 cols mobile, 3 tablet, 4 desktop
+- Minimum touch target: 48x48
+- Test at 360px, 768px, 1280px
+
+---
+
+## Localization (5 Languages)
+
+Languages: ku (Kurmanji/LTR), ckb (Sorani/RTL), tr (Turkish/LTR), ar (Arabic/RTL), en (English/LTR)
+
+- **NEVER** hardcode strings — always `AppLocalizations.of(context)!.keyName`
+- Update ALL 5 ARB files together; template: `app_ku.arb`
+- Run `flutter gen-l10n` after changes
+- Keys: `camelCase`, descriptive
+- RTL: use `AlignmentDirectional`, `EdgeInsetsDirectional` (not `Alignment`, `EdgeInsets`)
+- Test in both LTR and RTL
+
+---
+
+## Riverpod State Management
+
+| Use Case | Provider Type |
+|----------|--------------|
+| Data fetch | `FutureProvider` / `.family` |
+| Realtime | `StreamProvider` |
+| Mutations | `StateNotifierProvider` |
+| Simple state | `StateProvider` |
+| Derived | `Provider` |
+
+- `ConsumerWidget` / `ConsumerStatefulWidget` for Riverpod widgets
+- `ref.watch()` in build, `ref.read()` for actions, `ref.listen()` for side effects
+- `AsyncValue.guard()` for error handling
+- `ref.invalidate()` after mutations
+- Co-locate providers with features
+- Dispose channels in `StateNotifier.dispose()`
+
+---
+
+## Security
+
+- NEVER commit `.env` files or hardcode secrets
+- `SUPABASE_ANON_KEY` = client-safe; `SUPABASE_SERVICE_ROLE_KEY` = server-only
+- Verify `auth.currentUser` before protected operations
+- Edge Functions: verify JWT via `auth.getUser()`, return 401 if invalid
+- RLS enabled on every table; never `WITH CHECK (TRUE)` without justification
+- Validate file types/sizes before upload
+- Serve uploads via CDN only
+
+---
+
+## Git Workflow
+
+- Branches: `feature/`, `fix/`, `chore/`, `docs/`, `refactor/` + description
+- Commits: conventional format — `feat:`, `fix:`, `chore:`, `docs:`, `style:`, `refactor:`, `test:`, `l10n:`
+- Never commit: `.env`, `*.g.dart`, `app_localizations*.dart`, `build/`, `node_modules/`, signing keys
+- PR: conventional title + summary + test plan + screenshots (LTR+RTL)
+- Never force-push to `main`
+
+---
+
+## Feature Addition Checklist
+
+1. Create `lib/features/<name>/{screens,providers,widgets,models}/`
+2. Add l10n keys to ALL 5 ARB files
+3. Run `flutter gen-l10n`
+4. Create provider with `AsyncValue.guard()`
+5. Create screen: `ConsumerWidget`, cache theme/l10n, use standard widgets
+6. Test all 6 themes
+7. Test RTL + LTR
+8. Test responsive (mobile/tablet/desktop)
+9. Add navigation route
+10. If DB needed: migration + RLS + indexes
+
+---
+
+## Supabase Patterns
+
+- Migrations: `NNN_description.sql`, immutable once committed
+- RLS: enabled on all tables, SELECT by ownership/public, INSERT/UPDATE/DELETE scoped to owner
+- Indexes on FK columns and `created_at DESC`
+- Edge Functions: CORS headers + JWT verification + proper error responses
+- UUIDs for PKs, `TIMESTAMPTZ DEFAULT NOW()` for timestamps
+
+---
+
+## Next.js SEO (next-seo/)
+
+- Every page: `generateMetadata()` + JSON-LD + `generateStaticParams()`
+- Open Graph + Twitter Card meta tags
+- Never expose service role key to client
+- Dynamic sitemap, proper robots.txt
+- Kurdish keywords in meta, correct `lang`/`dir` attributes
+
+---
+
+## Widget & Screen Conventions
+
+- Screens: `*Screen` suffix | Shared: `Nubar*` prefix | Feature: descriptive
+- Use: `LoadingIndicator`, `NubarErrorWidget`, `NubarEmptyState`, `NubarAvatar`
+- `CachedNetworkImage` (never `Image.network`), `PagedListView` (never load all)
+- Handle all `AsyncValue` states: loading, error, data (with empty check)

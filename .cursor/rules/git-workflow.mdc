@@ -1,0 +1,77 @@
+---
+description: Git workflow rules for branching, commits, and pull requests
+alwaysApply: true
+---
+
+# Git Workflow Rules
+
+## Git Mindset
+
+Treat the git history as a public record of the project's evolution. Every commit message should be clear enough that a new team member can understand the project's history by reading `git log`. Clean commits, meaningful messages, and a linear history make collaboration possible. Never commit secrets, never force-push shared branches, and always leave the codebase cleaner than you found it.
+
+## Branch Naming
+
+```
+feature/<short-description>    # New features
+fix/<short-description>        # Bug fixes
+chore/<short-description>      # Maintenance, dependencies, config
+docs/<short-description>       # Documentation changes
+refactor/<short-description>   # Code refactoring without behavior change
+```
+
+Examples: `feature/realtime-notifications`, `fix/rtl-alignment-feed`, `chore/update-riverpod`
+
+## Commit Messages
+
+Use Conventional Commits format:
+
+```
+<type>: <short description>
+
+[optional body]
+```
+
+Types:
+- `feat:` — New feature or capability
+- `fix:` — Bug fix
+- `chore:` — Maintenance (deps, config, scripts)
+- `docs:` — Documentation only
+- `style:` — Formatting, whitespace (no logic change)
+- `refactor:` — Code restructure (no behavior change)
+- `test:` — Adding or updating tests
+- `l10n:` — Localization changes (ARB files, translations)
+
+Examples:
+```
+feat: add realtime notification badge to navigation bar
+fix: correct RTL padding on post card for Sorani locale
+l10n: add studio screen translations for all 5 locales
+```
+
+## What NOT to Commit
+
+- `.env`, `.env.local`, `.env.production` (secrets)
+- `*.g.dart` (generated code from build_runner)
+- `lib/core/l10n/app_localizations*.dart` (generated from ARB files)
+- `build/`, `.dart_tool/`, `.flutter-plugins*`
+- Android/iOS signing keys (`*.jks`, `*.keystore`, `GoogleService-Info.plist`)
+- `node_modules/`
+
+## Pull Requests
+
+1. PR title follows commit message format: `feat: description`
+2. PR body must include:
+   - **Summary**: What changed and why (1-3 bullet points)
+   - **Test plan**: How to verify the change
+   - **Screenshots**: Required for UI changes (both LTR and RTL if applicable)
+3. Never force-push to `main`
+4. Squash-merge feature branches into `main`
+
+## Pre-Push Checklist
+
+- [ ] Code compiles without errors (`flutter analyze`)
+- [ ] No hardcoded strings (l10n compliance)
+- [ ] No hardcoded colors (theme compliance)
+- [ ] Tested in at least 2 themes (nubar + dark)
+- [ ] Tested in LTR and RTL
+- [ ] `.env.example` updated if new env vars added

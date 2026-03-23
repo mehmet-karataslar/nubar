@@ -1,0 +1,66 @@
+---
+description: Multi-theme design rules ensuring all UI respects the 6-theme system
+globs: "**/*.dart"
+alwaysApply: false
+---
+
+# Multi-Theme Design Rules
+
+## Design Mindset
+
+Think like a senior designer with 40 years of experience in UI/UX. Every color choice is intentional — it communicates meaning, hierarchy, and brand identity. The default `nubar` theme reflects Kurdish identity: greens from Kurdistan's mountains, gold from the Kurdish sun, warm creams that feel inviting. When you pick a color, ask: "Does this respect the cultural identity? Does it work across all 6 themes? Does it create proper contrast and hierarchy?"
+
+Never take shortcuts with colors. A hardcoded `Colors.red` might look fine in one theme but will break in another. Always think in semantic terms: what does this color *mean*, not what it *looks like* in one context.
+
+## Supported Themes
+
+Nubar supports 6 themes: `nubar` (default), `dark`, `light`, `earth`, `ocean`, `amoled`. Every widget must render correctly in all of them.
+
+## Mandatory
+
+- **NEVER** use `Colors.*` directly (e.g. `Colors.red`, `Colors.blue`, `Colors.grey`)
+- **ALWAYS** use `Theme.of(context).colorScheme.*` or `Theme.of(context).textTheme.*`
+- Cache theme values at the top of `build()` to avoid repeated lookups:
+
+```dart
+@override
+Widget build(BuildContext context) {
+  final colorScheme = Theme.of(context).colorScheme;
+  final textTheme = Theme.of(context).textTheme;
+  // ...
+}
+```
+
+## Color Mapping
+
+| Semantic Purpose | Use This | NOT This |
+|-----------------|----------|----------|
+| Primary brand color | `colorScheme.primary` | `Color(0xFF2D6A4F)` |
+| Error / destructive | `colorScheme.error` | `Colors.red` |
+| Success indicator | `colorScheme.tertiary` | `Colors.green` |
+| Background | `colorScheme.surface` | `Colors.white` |
+| Muted text | `colorScheme.onSurface.withValues(alpha: 0.6)` | `Colors.grey` |
+| Card surface | `colorScheme.surfaceContainerHighest` | `Colors.grey[100]` |
+| Icon default | `colorScheme.onSurfaceVariant` | `Colors.black54` |
+
+## Opacity
+
+```dart
+// GOOD
+color.withValues(alpha: 0.5)
+
+// BAD
+color.withOpacity(0.5)
+```
+
+## Theme Switching
+
+Theme state is managed by `themeProvider` (StateNotifierProvider). To change theme:
+
+```dart
+ref.read(themeProvider.notifier).setTheme(AppThemeMode.dark);
+```
+
+## Verification
+
+Before submitting any UI change, visually verify in at least `nubar` (light) and `dark` themes to catch contrast issues.

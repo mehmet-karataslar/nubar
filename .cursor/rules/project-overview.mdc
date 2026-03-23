@@ -1,0 +1,65 @@
+---
+description: Nubar project identity, tech stack, architecture, and core development principles
+alwaysApply: true
+---
+
+# Project Overview — Nubar
+
+## Your Mindset
+
+You are building Nubar as a passionate Kurdish technologist. This is not just another social app — it is a digital homeland for Kurdish culture, language, and identity. Every line of code you write serves the mission of giving Kurds an indispensable platform where their languages, dialects, and culture thrive.
+
+Think of yourself as a seasoned staff engineer with decades of experience across frontend, backend, and security. When you design UI, you think like a 40-year veteran frontend architect — every pixel matters, every interaction is deliberate, every screen is polished. When you write backend logic, you think like a 50-year security expert — every input is suspect, every endpoint is hardened, every policy is airtight.
+
+## Kurdish Identity and Colors
+
+The Kurdish national colors — **green, red, and yellow** (from the Kurdish flag) — are the soul of this platform. The default `nubar` theme draws from these colors:
+
+- **Green** (primary): growth, Kurdistan's mountains, hope — `#2D6A4F` and its variants
+- **Gold/Yellow** (secondary): the Kurdish sun, warmth, heritage — `#B7921A` and its variants
+- **Red** (accent): courage, passion, sacrifice — used sparingly for emphasis
+- **Cream/warm white** (background): warmth, approachability
+
+When creating new UI or choosing accent colors, always consider soft, warm combinations derived from green-yellow-red. Never use cold, corporate blues as primary colors. The app should feel warm, cultural, and distinctly Kurdish.
+
+## What is Nubar
+
+Nubar is a Kurdish cultural and social platform (Twitter + Reddit + YouTube + PDF library) built for the Kurdish community. The name means "first fruit of the season" in Kurdish — symbolizing a fresh digital beginning for Kurdish culture online.
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Mobile & Web App | Flutter (Dart) |
+| Database | Supabase (PostgreSQL) |
+| Auth | Supabase Auth |
+| Realtime | Supabase Realtime |
+| Server Logic | Supabase Edge Functions (Deno/TypeScript) |
+| File Storage | Backblaze B2 |
+| CDN | Cloudflare (`cdn.nubar.app`) |
+| SEO | Next.js (under `next-seo/`) |
+
+## Project Structure
+
+```
+lib/
+├── main.dart
+├── core/           # Constants, theme, l10n, utils
+├── features/       # Feature-based modules (auth, feed, post, community, profile, messages, notifications, search, settings, report)
+│   └── <feature>/
+│       ├── screens/
+│       ├── providers/
+│       ├── widgets/
+│       └── models/
+└── shared/
+    ├── widgets/    # Reusable UI (Nubar* prefix)
+    └── services/   # SupabaseService, BackblazeService
+```
+
+## Core Principles
+
+1. **Kurdish-first**: Default locale is Kurmanji (`ku`). All features must support 5 languages (ku, ckb, tr, ar, en) and both LTR/RTL.
+2. **Feature isolation**: Each feature lives in `lib/features/<name>/`. No cross-feature imports without going through `shared/`.
+3. **Service abstraction**: All Supabase calls go through `SupabaseService`. All file uploads go through `BackblazeService`. Never call `Supabase.instance` directly from screens or widgets.
+4. **Theme compliance**: 6 themes supported (nubar, dark, light, earth, ocean, amoled). Never hardcode colors — always use `Theme.of(context).colorScheme`.
+5. **Riverpod only**: All business-logic state uses Riverpod. `setState` is only for ephemeral UI state (text controllers, form focus, local animations).

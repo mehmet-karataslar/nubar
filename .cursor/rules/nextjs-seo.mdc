@@ -1,0 +1,69 @@
+---
+description: Next.js SEO layer conventions for the Nubar web presence
+globs: "next-seo/**"
+alwaysApply: false
+---
+
+# Next.js SEO Layer Rules
+
+## SEO Mindset
+
+Kurdish content is historically underrepresented on the internet. Every page you optimize for search engines is a step toward making Kurdish culture visible to the world. Think about a young Kurd searching Google for content in Kurmanji or Sorani — your SEO work determines whether they find Nubar or nothing at all. Treat every meta tag, every structured data snippet, every sitemap entry as an act of digital cultural preservation.
+
+The `next-seo/` directory contains the SSG/ISR layer for search engine optimization.
+
+## Page Requirements
+
+Every page under `next-seo/app/` must include:
+
+1. **`generateMetadata()`** — dynamic title, description, Open Graph, Twitter Card
+2. **JSON-LD structured data** — Article, Person, or Organization schema
+3. **`generateStaticParams()`** — for SSG of popular content
+
+```typescript
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const post = await getPost(params.id);
+  return {
+    title: `${post.content.slice(0, 60)} | Nûbar`,
+    description: post.content.slice(0, 160),
+    openGraph: {
+      title: post.content.slice(0, 60),
+      description: post.content.slice(0, 160),
+      images: post.media_urls?.[0] ? [{ url: post.media_urls[0] }] : [],
+      type: 'article',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.content.slice(0, 60),
+    },
+  };
+}
+```
+
+## Security
+
+- **NEVER** expose `SUPABASE_SERVICE_ROLE_KEY` to client components
+- Use server components only for Supabase queries with service role
+- Mark client components explicitly with `'use client'`
+
+## Content Strategy
+
+- Include Kurdish keywords in meta descriptions
+- Support multiple scripts (Latin for Kurmanji, Arabic for Sorani)
+- Use `lang` and `dir` attributes correctly in HTML:
+  ```html
+  <html lang="ku" dir="ltr">   <!-- Kurmanji -->
+  <html lang="ckb" dir="rtl">  <!-- Sorani -->
+  ```
+
+## Sitemap & Robots
+
+- `sitemap.ts`: dynamically generate from all public posts, profiles, communities
+- `robots.ts`: allow all crawlers, reference sitemap URL
+- Set `revalidate` for ISR (e.g. `export const revalidate = 3600` for 1-hour refresh)
+
+## Image Optimization
+
+- Use `next/image` for all images with proper `alt` text
+- Serve images from CDN (`cdn.nubar.app`)
+- Include width/height to prevent layout shift

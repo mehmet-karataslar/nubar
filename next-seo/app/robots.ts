@@ -6,8 +6,15 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
+        disallow: ['/api/', '/_next/'],
+      },
+      {
+        userAgent: 'Googlebot',
+        allow: '/',
+        crawlDelay: 1,
       },
     ],
     sitemap: 'https://nubar.app/sitemap.xml',
+    host: 'https://nubar.app',
   };
 }

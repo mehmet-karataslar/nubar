@@ -1,0 +1,60 @@
+---
+description: Responsive and adaptive layout rules for mobile, tablet, and web
+globs: "**/*.dart"
+alwaysApply: false
+---
+
+# Responsive Design Rules
+
+## Responsive Mindset
+
+Think like a 40-year veteran who has built responsive interfaces since before "responsive design" had a name. A truly responsive layout is not just "making it fit" — it is rethinking the information architecture for each form factor. On mobile, prioritize vertical scanning and thumb-reachable actions. On tablet, use the extra space for side-by-side content or master-detail patterns. On desktop, create a focused reading experience with proper max-widths and generous margins.
+
+Never treat web as an afterthought. Nubar must feel native on every platform — a Kurdish user browsing on their phone in Diyarbakir should have the same quality experience as someone on a desktop in Stockholm.
+
+## Platform Targets
+
+Nubar runs on mobile (Android/iOS), tablet, and web. All screens must adapt gracefully.
+
+## Breakpoints
+
+| Name | Width | Target |
+|------|-------|--------|
+| Mobile | < 600px | Phones |
+| Tablet | 600–1024px | Tablets, small laptops |
+| Desktop | > 1024px | Web browsers, large screens |
+
+## Layout Patterns
+
+Use `LayoutBuilder` or `MediaQuery.sizeOf(context)` to adapt layouts:
+
+```dart
+@override
+Widget build(BuildContext context) {
+  final width = MediaQuery.sizeOf(context).width;
+  final isDesktop = width > 1024;
+  final isTablet = width > 600 && width <= 1024;
+
+  return Center(
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 800),
+      child: content,
+    ),
+  );
+}
+```
+
+## Rules
+
+1. **Never hardcode widths** like `SizedBox(width: 400)` for layout. Use `Flexible`, `Expanded`, `FractionallySizedBox`, or `ConstrainedBox`.
+2. **Max content width**: On desktop, constrain primary content to 800px max and center it.
+3. **Grid adaption**: Use `SliverGrid` with `crossAxisCount` based on breakpoint (2 columns mobile, 3 tablet, 4 desktop).
+4. **Padding scales**: Use proportional padding — `EdgeInsets.symmetric(horizontal: isDesktop ? 32 : 16)`.
+5. **Navigation**: On desktop/tablet, consider side navigation instead of bottom bar.
+6. **Text scaling**: Respect `MediaQuery.textScaleFactorOf(context)`. Never set fixed font sizes that break accessibility.
+7. **Touch targets**: Minimum 48x48 logical pixels for interactive elements.
+8. **Images**: Use `BoxFit.cover` or `BoxFit.contain` with `ConstrainedBox` — never fixed pixel dimensions that overflow on small screens.
+
+## Testing
+
+Test every new screen at 360px (small phone), 768px (tablet), and 1280px (desktop) widths using Flutter DevTools or Chrome responsive mode.

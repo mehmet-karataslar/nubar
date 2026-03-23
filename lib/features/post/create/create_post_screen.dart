@@ -1,14 +1,17 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_quill/flutter_quill.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nubar/core/l10n/app_localizations.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:nubar/core/constants/app_constants.dart';
-import 'package:nubar/features/auth/providers/auth_provider.dart';
 import 'package:nubar/features/post/create/create_post_provider.dart';
-import 'package:nubar/shared/widgets/nubar_avatar.dart';
+import 'package:nubar/shared/widgets/nubar_quill_toolbar.dart';
 
 class CreatePostScreen extends ConsumerStatefulWidget {
   final String? communityId;
@@ -19,72 +22,171 @@ class CreatePostScreen extends ConsumerStatefulWidget {
   ConsumerState<CreatePostScreen> createState() => _CreatePostScreenState();
 }
 
-class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
-  final _contentController = TextEditingController();
-  final List<File> _selectedImages = [];
+class _CreatePostScreenState extends ConsumerState<CreatePostScreen>
+    with SingleTickerProviderStateMixin {
+  late final QuillController _quillController;
+  final FocusNode _focusNode = FocusNode();
+  final ScrollController _scrollController = ScrollController();
   final _imagePicker = ImagePicker();
+  final List<File> _selectedImages = [];
   File? _selectedVideo;
   File? _selectedPdf;
   String? _pdfFileName;
 
+  // Poll
+  bool _isPollMode = false;
+  final List<TextEditingController> _pollControllers = [
+    TextEditingController(),
+    TextEditingController(),
+  ];
+  int _pollHours = 24;
+
+  // Media bar
+  bool _showMediaBar = false;
+  late final AnimationController _mediaBarAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _quillController = QuillController.basic();
+    _loadDraft();
+    _quillController.document.changes.listen((_) => _saveDraft());
+    _mediaBarAnim = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+  }
+
   @override
   void dispose() {
-    _contentController.dispose();
+    _quillController.dispose();
+    _focusNode.dispose();
+    _scrollController.dispose();
+    _mediaBarAnim.dispose();
+    for (final c in _pollControllers) {
+      c.dispose();
+    }
     super.dispose();
   }
 
+  Future<void> _loadDraft() async {
+    final prefs = await SharedPreferences.getInstance();
+    final draft = prefs.getString('nubar_post_draft');
+    if (draft != null && mounted) {
+      try {
+        final doc = Document.fromJson(jsonDecode(draft));
+        setState(() => _quillController.document = doc);
+      } catch (_) {}
+    }
+  }
+
+  Future<void> _saveDraft() async {
+    final prefs = await SharedPreferences.getInstance();
+    final deltaJson = jsonEncode(_quillController.document.toDelta().toJson());
+    await prefs.setString('nubar_post_draft', deltaJson);
+  }
+
+  Future<void> _clearDraft() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('nubar_post_draft');
+  }
+
+  bool get _hasContent {
+    final plainText = _quillController.document.toPlainText().trim();
+    return plainText.isNotEmpty ||
+        _selectedImages.isNotEmpty ||
+        _selectedVideo != null ||
+        _selectedPdf != null ||
+        _isPollMode;
+  }
+
+  // ── Media ──
+
   Future<void> _pickImages() async {
-    final images = await _imagePicker.pickMultiImage();
-    if (images.isNotEmpty) {
+    final imgs = await _imagePicker.pickMultiImage();
+    if (imgs.isNotEmpty) {
       setState(() {
-        for (final image in images) {
+        _selectedVideo = null;
+        _selectedPdf = null;
+        _isPollMode = false;
+        for (final img in imgs) {
           if (_selectedImages.length < AppConstants.maxImagesPerPost) {
-            _selectedImages.add(File(image.path));
+            _selectedImages.add(File(img.path));
           }
         }
       });
     }
   }
 
-  void _removeImage(int index) {
-    setState(() => _selectedImages.removeAt(index));
+  Future<void> _takePhoto() async {
+    final p = await _imagePicker.pickImage(source: ImageSource.camera);
+    if (p != null && _selectedImages.length < AppConstants.maxImagesPerPost) {
+      setState(() {
+        _selectedImages.add(File(p.path));
+        _selectedVideo = null;
+        _selectedPdf = null;
+        _isPollMode = false;
+      });
+    }
   }
 
   Future<void> _pickVideo() async {
-    final video = await _imagePicker.pickVideo(source: ImageSource.gallery);
-    if (video != null) {
+    final v = await _imagePicker.pickVideo(source: ImageSource.gallery);
+    if (v != null) {
       setState(() {
-        _selectedVideo = File(video.path);
+        _selectedVideo = File(v.path);
         _selectedImages.clear();
         _selectedPdf = null;
+        _isPollMode = false;
       });
     }
   }
 
   Future<void> _pickPdf() async {
-    final result = await FilePicker.platform.pickFiles(
+    final r = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );
-    if (result != null && result.files.isNotEmpty) {
+    if (r != null && r.files.isNotEmpty) {
       setState(() {
-        _selectedPdf = File(result.files.first.path!);
-        _pdfFileName = result.files.first.name;
+        _selectedPdf = File(r.files.first.path!);
+        _pdfFileName = r.files.first.name;
         _selectedImages.clear();
         _selectedVideo = null;
+        _isPollMode = false;
       });
     }
   }
 
-  void _handlePost() {
-    final content = _contentController.text.trim();
-    if (content.isEmpty &&
-        _selectedImages.isEmpty &&
-        _selectedVideo == null &&
-        _selectedPdf == null) return;
+  void _togglePoll() {
+    setState(() {
+      _isPollMode = !_isPollMode;
+      if (_isPollMode) {
+        _selectedImages.clear();
+        _selectedVideo = null;
+        _selectedPdf = null;
+      }
+    });
+  }
 
-    ref.read(createPostProvider.notifier).createPost(
-          content: content,
+  void _toggleMediaBar() {
+    _showMediaBar = !_showMediaBar;
+    if (_showMediaBar) {
+      _mediaBarAnim.forward();
+    } else {
+      _mediaBarAnim.reverse();
+    }
+    setState(() {});
+  }
+
+  void _handlePost() {
+    if (!_hasContent) return;
+    final plainText = _quillController.document.toPlainText().trim();
+
+    ref
+        .read(createPostProvider.notifier)
+        .createPost(
+          content: plainText,
           images: _selectedImages.isNotEmpty ? _selectedImages : null,
           communityId: widget.communityId,
         );
@@ -93,188 +195,526 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final cs = Theme.of(context).colorScheme;
     final createState = ref.watch(createPostProvider);
-    final currentUser = ref.watch(currentUserProvider);
 
     ref.listen(createPostProvider, (_, state) {
       state.whenOrNull(
         data: (_) {
-          if (_contentController.text.isNotEmpty ||
-              _selectedImages.isNotEmpty) {
+          if (_hasContent) {
+            HapticFeedback.mediumImpact();
             Navigator.pop(context);
           }
         },
         error: (error, _) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(error.toString())),
+            SnackBar(
+              content: Text(error.toString()),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
           );
         },
       );
     });
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.createPost),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: FilledButton(
-              onPressed: createState.isLoading ? null : _handlePost,
-              child: createState.isLoading
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(l10n.post),
+      backgroundColor: cs.surface,
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            // ── Top bar ──
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 4, 12, 0),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded),
+                    onPressed: () {
+                      if (_hasContent) {
+                        _showDiscardDialog(context, l10n);
+                      } else {
+                        Navigator.pop(context);
+                      }
+                    },
+                  ),
+                  const Spacer(),
+                  AnimatedOpacity(
+                    opacity: _hasContent ? 1.0 : 0.4,
+                    duration: const Duration(milliseconds: 200),
+                    child: FilledButton(
+                      onPressed: createState.isLoading || !_hasContent
+                          ? null
+                          : _handlePost,
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 10,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: createState.isLoading
+                          ? SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: cs.onPrimary,
+                              ),
+                            )
+                          : Text(
+                              l10n.post,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
             ),
+
+            // ── Rich text editor (fills remaining space) ──
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: QuillEditor(
+                  controller: _quillController,
+                  focusNode: _focusNode,
+                  scrollController: _scrollController,
+                  config: NubarQuillConfigBuilder.buildConfig(
+                    context: context,
+                    placeholder: l10n.writePost,
+                    padding: const EdgeInsets.fromLTRB(4, 8, 4, 80),
+                    autoFocus: true,
+                  ),
+                ),
+              ),
+            ),
+
+            // ── Poll / Media attachments ──
+            if (_isPollMode ||
+                _selectedImages.isNotEmpty ||
+                _selectedVideo != null ||
+                _selectedPdf != null)
+              Container(
+                constraints: const BoxConstraints(maxHeight: 200),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      if (_isPollMode)
+                        _PollEditor(
+                          controllers: _pollControllers,
+                          hours: _pollHours,
+                          onHoursChanged: (h) => setState(() => _pollHours = h),
+                          onAdd: () {
+                            if (_pollControllers.length < 4) {
+                              setState(
+                                () => _pollControllers.add(
+                                  TextEditingController(),
+                                ),
+                              );
+                            }
+                          },
+                          onRemove: (i) {
+                            if (_pollControllers.length > 2) {
+                              setState(() {
+                                _pollControllers[i].dispose();
+                                _pollControllers.removeAt(i);
+                              });
+                            }
+                          },
+                          onClose: _togglePoll,
+                        ),
+                      if (_selectedImages.isNotEmpty) _buildImageRow(),
+                      if (_selectedVideo != null)
+                        _AttachmentChip(
+                          icon: Icons.videocam_rounded,
+                          label: _selectedVideo!.path.split('/').last,
+                          color: cs.tertiary,
+                          onRemove: () => setState(() => _selectedVideo = null),
+                        ),
+                      if (_selectedPdf != null)
+                        _AttachmentChip(
+                          icon: Icons.picture_as_pdf_rounded,
+                          label: _pdfFileName ?? 'PDF',
+                          color: cs.error,
+                          onRemove: () => setState(() {
+                            _selectedPdf = null;
+                            _pdfFileName = null;
+                          }),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+
+            // ── Expandable media row ──
+            SizeTransition(
+              sizeFactor: _mediaBarAnim,
+              axisAlignment: -1,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerLow,
+                  border: Border(
+                    top: BorderSide(
+                      color: cs.outlineVariant.withValues(alpha: 0.15),
+                    ),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    _MediaBtn(
+                      Icons.photo_library_outlined,
+                      l10n.addImage,
+                      cs.primary,
+                      _pickImages,
+                    ),
+                    _MediaBtn(
+                      Icons.camera_alt_outlined,
+                      l10n.camera,
+                      cs.primary,
+                      _takePhoto,
+                    ),
+                    _MediaBtn(
+                      Icons.videocam_outlined,
+                      l10n.addVideo,
+                      cs.tertiary,
+                      _pickVideo,
+                    ),
+                    _MediaBtn(
+                      Icons.picture_as_pdf_outlined,
+                      'PDF',
+                      cs.error,
+                      _pickPdf,
+                    ),
+                    _MediaBtn(
+                      Icons.poll_outlined,
+                      l10n.poll,
+                      cs.secondary,
+                      _togglePoll,
+                      active: _isPollMode,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // ── Bottom formatting toolbar ──
+            NubarQuillToolbar(
+              controller: _quillController,
+              focusNode: _focusNode,
+              trailingAction: NubarQuillToolIcon(
+                icon: _showMediaBar
+                    ? Icons.close_rounded
+                    : Icons.add_circle_outline_rounded,
+                onTap: _toggleMediaBar,
+                active: _showMediaBar,
+                baseColor: cs.secondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageRow() {
+    final cs = Theme.of(context).colorScheme;
+    return SizedBox(
+      height: 80,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: _selectedImages.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 6),
+        itemBuilder: (_, i) => Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.file(
+                _selectedImages[i],
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Positioned(
+              top: 4,
+              right: 4,
+              child: GestureDetector(
+                onTap: () => setState(() => _selectedImages.removeAt(i)),
+                child: Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    color: cs.scrim.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.close_rounded,
+                    size: 12,
+                    color: cs.onPrimary,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showDiscardDialog(BuildContext context, AppLocalizations l10n) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.discard),
+        content: Text(l10n.discardConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            onPressed: () {
+              _clearDraft();
+              Navigator.pop(ctx);
+              Navigator.pop(context);
+            },
+            child: Text(l10n.discard),
           ),
         ],
       ),
-      body: Column(
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ── Media button for expandable bar ──
+// ═══════════════════════════════════════════════════════════════
+
+class _MediaBtn extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+  final bool active;
+
+  const _MediaBtn(
+    this.icon,
+    this.label,
+    this.color,
+    this.onTap, {
+    this.active = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: active ? color.withValues(alpha: 0.1) : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 22, color: color),
+              const SizedBox(height: 3),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  color: color,
+                  fontWeight: FontWeight.w500,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ── Attachment chip ──
+// ═══════════════════════════════════════════════════════════════
+
+class _AttachmentChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onRemove;
+
+  const _AttachmentChip({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onRemove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
+      ),
+      child: Row(
         children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(width: 10),
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            child: Text(
+              label,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(color: color, fontWeight: FontWeight.w500),
+            ),
+          ),
+          GestureDetector(
+            onTap: onRemove,
+            child: Icon(Icons.close_rounded, size: 16, color: color),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ── Poll editor ──
+// ═══════════════════════════════════════════════════════════════
+
+class _PollEditor extends StatelessWidget {
+  final List<TextEditingController> controllers;
+  final int hours;
+  final ValueChanged<int> onHoursChanged;
+  final VoidCallback onAdd;
+  final void Function(int) onRemove;
+  final VoidCallback onClose;
+
+  const _PollEditor({
+    required this.controllers,
+    required this.hours,
+    required this.onHoursChanged,
+    required this.onAdd,
+    required this.onRemove,
+    required this.onClose,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: cs.primaryContainer.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: cs.primary.withValues(alpha: 0.15)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.poll_rounded, size: 18, color: cs.primary),
+              const SizedBox(width: 8),
+              Text(
+                l10n.poll,
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: cs.primary,
+                  fontSize: 13,
+                ),
+              ),
+              const Spacer(),
+              GestureDetector(
+                onTap: onClose,
+                child: Icon(Icons.close_rounded, size: 18, color: cs.outline),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...List.generate(
+            controllers.length,
+            (i) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      NubarAvatar(
-                        imageUrl: currentUser.valueOrNull?.avatarUrl,
-                        radius: 20,
-                        fallbackText: currentUser.valueOrNull?.fullName,
+                  Container(
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: cs.primary.withValues(alpha: 0.35),
+                        width: 1.5,
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextField(
-                          controller: _contentController,
-                          maxLines: null,
-                          maxLength: AppConstants.maxPostLength,
-                          decoration: InputDecoration(
-                            hintText: l10n.writePost,
-                            border: InputBorder.none,
-                            counterText: '',
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextField(
+                      controller: controllers[i],
+                      decoration: InputDecoration(
+                        hintText: '${l10n.option} ${i + 1}',
+                        isDense: true,
+                        filled: true,
+                        fillColor: cs.surface,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: cs.outlineVariant.withValues(alpha: 0.4),
                           ),
-                          autofocus: true,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: cs.outlineVariant.withValues(alpha: 0.3),
+                          ),
                         ),
                       ),
-                    ],
+                      style: const TextStyle(fontSize: 14),
+                    ),
                   ),
-
-                  // Selected video
-                  if (_selectedVideo != null) ...[
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.videocam,
-                              color: Theme.of(context).colorScheme.primary),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              _selectedVideo!.path.split('/').last,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.close, size: 18),
-                            onPressed: () =>
-                                setState(() => _selectedVideo = null),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-
-                  // Selected PDF
-                  if (_selectedPdf != null) ...[
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.picture_as_pdf,
-                              color: Theme.of(context).colorScheme.error),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              _pdfFileName ?? 'PDF',
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.close, size: 18),
-                            onPressed: () => setState(() {
-                              _selectedPdf = null;
-                              _pdfFileName = null;
-                            }),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-
-                  // Selected images
-                  if (_selectedImages.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      height: 120,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: _selectedImages.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: Stack(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Image.file(
-                                    _selectedImages[index],
-                                    width: 120,
-                                    height: 120,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 4,
-                                  right: 4,
-                                  child: GestureDetector(
-                                    onTap: () => _removeImage(index),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.black54,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.close,
-                                        size: 16,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+                  if (controllers.length > 2) ...[
+                    const SizedBox(width: 4),
+                    GestureDetector(
+                      onTap: () => onRemove(i),
+                      child: Icon(
+                        Icons.remove_circle_outline,
+                        size: 18,
+                        color: cs.error,
                       ),
                     ),
                   ],
@@ -282,57 +722,50 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
               ),
             ),
           ),
-
-          // Bottom toolbar
-          Container(
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(
-                  color: Theme.of(context).dividerColor,
-                ),
+          if (controllers.length < 4)
+            GestureDetector(
+              onTap: onAdd,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.add_rounded, size: 16, color: cs.primary),
+                  const SizedBox(width: 4),
+                  Text(
+                    l10n.addOption,
+                    style: TextStyle(
+                      color: cs.primary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.image_outlined,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  onPressed: _selectedImages.length < AppConstants.maxImagesPerPost
-                      ? _pickImages
-                      : null,
-                  tooltip: l10n.addImage,
+          const Divider(height: 24),
+          Row(
+            children: [
+              Icon(Icons.schedule_rounded, size: 16, color: cs.outline),
+              const SizedBox(width: 6),
+              Text(
+                l10n.pollDuration,
+                style: TextStyle(fontSize: 12, color: cs.outline),
+              ),
+              const Spacer(),
+              SegmentedButton<int>(
+                segments: const [
+                  ButtonSegment(value: 6, label: Text('6h')),
+                  ButtonSegment(value: 24, label: Text('1d')),
+                  ButtonSegment(value: 72, label: Text('3d')),
+                  ButtonSegment(value: 168, label: Text('7d')),
+                ],
+                selected: {hours},
+                onSelectionChanged: (s) => onHoursChanged(s.first),
+                style: const ButtonStyle(
+                  visualDensity: VisualDensity.compact,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                IconButton(
-                  icon: Icon(
-                    Icons.videocam_outlined,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  onPressed: _selectedPdf == null ? _pickVideo : null,
-                  tooltip: l10n.addVideo,
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.picture_as_pdf_outlined,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  onPressed: _selectedVideo == null ? _pickPdf : null,
-                  tooltip: l10n.addPdf,
-                ),
-                const Spacer(),
-                Text(
-                  '${_contentController.text.length}/${AppConstants.maxPostLength}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.5),
-                      ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),

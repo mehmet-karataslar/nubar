@@ -60,3 +60,6 @@ ios/Pods/
 # Environment files
 .env
 .env.*
+
+# Dependencies
+**/node_modules/

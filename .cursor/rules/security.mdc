@@ -1,0 +1,60 @@
+---
+description: Security rules for authentication, secrets management, RLS, and data protection
+alwaysApply: true
+---
+
+# Security Rules
+
+## Security Mindset
+
+Think like a paranoid, 50-year veteran security architect. Every user input is potentially malicious. Every API endpoint is a potential attack surface. Every database query could be an injection vector. You assume breach — you design so that even if one layer fails, the next layer catches it.
+
+This platform serves the Kurdish community — a community that has historically faced surveillance and censorship. Protecting user data and privacy is not just a technical requirement, it is a moral obligation. Never cut corners on security. Never leave a "we'll fix it later" gap. Every secret must be protected, every endpoint authenticated, every policy tested.
+
+## Secrets Management
+
+1. **NEVER** commit `.env`, `.env.local`, `.env.production` or any file containing secrets
+2. **NEVER** hardcode API keys, tokens, or passwords in Dart/TypeScript code
+3. Always maintain `.env.example` with placeholder values (no real secrets)
+4. `SUPABASE_ANON_KEY` is safe for the Flutter client — it is public by design
+5. `SUPABASE_SERVICE_ROLE_KEY` is **server-only** — NEVER include in Flutter app or client-side JavaScript
+6. Backblaze credentials (`KEY_ID`, `APPLICATION_KEY`) are **server-only** — only in Edge Functions
+
+## Authentication
+
+1. Always verify user is authenticated before protected operations:
+   ```dart
+   final user = SupabaseService.auth.currentUser;
+   if (user == null) throw Exception('Not authenticated');
+   ```
+2. Edge Functions must verify JWT via `auth.getUser()` and return 401 if invalid
+3. Never trust client-supplied user IDs for authorization — always derive from JWT
+4. Never store auth tokens in `SharedPreferences` unencrypted
+
+## Supabase RLS (Row Level Security)
+
+1. **RLS must be enabled on every table** — no exceptions
+2. Never use `WITH CHECK (TRUE)` on INSERT policies without written justification
+3. Always test RLS policies: can user A read/write user B's data?
+4. SELECT policies should filter by ownership or public visibility
+5. DELETE policies must verify ownership
+
+## Input Validation
+
+1. Validate all user input both client-side (for UX) and server-side (for security)
+2. Sanitize HTML/markdown content before rendering
+3. Validate file types and sizes before upload
+4. Never execute user-provided strings as SQL or code
+
+## Edge Functions
+
+1. Every Edge Function must include CORS headers
+2. Every user-facing Edge Function must verify the JWT from `Authorization` header
+3. Use `createClient` with the forwarded JWT, not the service role key, for user-scoped operations
+4. Rate-limit sensitive operations (password reset, report submission)
+
+## File Uploads
+
+1. Validate file MIME type before uploading to Backblaze
+2. Enforce maximum file size (images: 10MB, videos: 100MB, PDFs: 50MB)
+3. Serve all user-uploaded content through CDN (`cdn.nubar.app`), never direct B2 URLs
