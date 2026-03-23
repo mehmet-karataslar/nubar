@@ -208,37 +208,37 @@ class _ThemeSelector extends StatelessWidget {
         AppThemeMode.nubar,
         l10n.themeNubar,
         Icons.park,
-        const Color(0xFF2D6A4F),
+        AppTheme.getTheme(AppThemeMode.nubar).colorScheme.primary,
       ),
       (
         AppThemeMode.dark,
         l10n.themeDark,
         Icons.dark_mode,
-        const Color(0xFF0D1117),
+        AppTheme.getTheme(AppThemeMode.dark).colorScheme.primary,
       ),
       (
         AppThemeMode.light,
         l10n.themeLight,
         Icons.light_mode,
-        const Color(0xFFFFFFFF),
+        AppTheme.getTheme(AppThemeMode.light).colorScheme.primary,
       ),
       (
         AppThemeMode.earth,
         l10n.themeEarth,
         Icons.landscape,
-        const Color(0xFF8B4513),
+        AppTheme.getTheme(AppThemeMode.earth).colorScheme.primary,
       ),
       (
         AppThemeMode.ocean,
         l10n.themeOcean,
         Icons.water,
-        const Color(0xFF1A6B8A),
+        AppTheme.getTheme(AppThemeMode.ocean).colorScheme.primary,
       ),
       (
         AppThemeMode.amoled,
         l10n.themeAmoled,
         Icons.phone_android,
-        const Color(0xFF000000),
+        AppTheme.getTheme(AppThemeMode.amoled).colorScheme.primary,
       ),
     ];
 

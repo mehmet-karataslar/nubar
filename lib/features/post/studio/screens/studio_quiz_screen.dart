@@ -245,7 +245,7 @@ class _StudioQuizScreenState extends ConsumerState<StudioQuizScreen> {
                               border: Border.all(
                                 color: isCorrect
                                     ? cs.tertiary
-                                    : Colors.transparent,
+                                    : cs.tertiary.withValues(alpha: 0),
                                 width: 2,
                               ),
                             ),
